@@ -1,0 +1,615 @@
+/**
+ * Footer Styles - Modern Contemporary Design
+ * Orange left section, Light blue right section
+ * Responsive: Mobile, Tablet, Desktop
+ */
+
+/* ============================================
+   FOOTER BASE
+   ============================================ */
+.site-footer {
+    position: relative;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+/* ============================================
+   FOOTER TOP - Two Column Layout
+   ============================================ */
+.footer-top {
+    position: relative;
+    min-height: 400px;
+}
+
+.footer-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    min-height: 400px;
+    position: relative;
+}
+
+@media (min-width: 768px) {
+    .footer-wrapper {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ============================================
+   LEFT SECTION - ORANGE
+   ============================================ */
+.footer-left {
+    /* Background akan di-set via inline style dari Customizer */
+    padding: var(--spacing-2xl) var(--container-padding-mobile);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    z-index: 1;
+}
+
+@media (min-width: 768px) {
+    .footer-left {
+        padding: var(--spacing-3xl) var(--container-padding-tablet);
+    }
+}
+
+@media (min-width: 1024px) {
+    .footer-left {
+        padding: var(--spacing-3xl) var(--container-padding-desktop);
+    }
+}
+
+/* Gradient overlay for smooth transition - will use inline style from PHP */
+.footer-left::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255, 122, 0, 1) 0%, rgba(255, 122, 0, 0.8) 50%, rgba(255, 122, 0, 0) 100%);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+@media (min-width: 768px) {
+    .footer-left::after {
+        width: 100px;
+}
+}
+
+/* ============================================
+   RIGHT SECTION - LIGHT BLUE
+   ============================================ */
+.footer-right {
+    /* Background akan di-set via inline style dari Customizer */
+    padding: var(--spacing-2xl) var(--container-padding-mobile);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    position: relative;
+    z-index: 1;
+}
+
+@media (min-width: 768px) {
+    .footer-right {
+        padding: var(--spacing-3xl) var(--container-padding-tablet);
+    }
+}
+
+@media (min-width: 1024px) {
+    .footer-right {
+        padding: var(--spacing-3xl) var(--container-padding-desktop);
+    }
+}
+
+/* Gradient overlay for smooth transition - will use inline style from PHP */
+.footer-right::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 100%;
+    background: linear-gradient(to left, rgba(227, 242, 253, 1) 0%, rgba(227, 242, 253, 0.8) 50%, rgba(227, 242, 253, 0) 100%);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+@media (min-width: 768px) {
+    .footer-right::before {
+        width: 100px;
+}
+}
+
+/* ============================================
+   FOOTER BRAND (Left Section)
+   ============================================ */
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: flex-start;
+    text-align: left;
+    position: relative;
+    z-index: 3;
+    justify-content: flex-start;
+}
+
+@media (min-width: 1024px) {
+    .footer-brand {
+        gap: 0;
+        padding-top: var(--spacing-sm);
+    }
+}
+
+/* Ensure logo container is visible */
+.footer-brand > *:first-child {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Logo styling - same as header */
+.footer-brand .custom-logo-link {
+    display: flex !important;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-extrabold);
+    color: #1a1a1a;
+    margin: 0 0 var(--spacing-base) 0;
+    line-height: 1;
+    transition: opacity var(--transition-fast);
+    text-decoration: none;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+@media (min-width: 768px) {
+    .footer-brand .custom-logo-link {
+        font-size: var(--font-size-2xl);
+        margin-bottom: var(--spacing-lg);
+    }
+}
+
+@media (min-width: 1024px) {
+    .footer-brand .custom-logo-link {
+        font-size: var(--font-size-2xl);
+        margin-bottom: var(--spacing-xl);
+    }
+}
+
+.footer-brand .custom-logo-link:hover {
+    opacity: 0.9;
+}
+
+/* Custom logo image - ensure it's visible */
+.footer-brand .custom-logo-link img,
+.footer-brand img.custom-logo,
+.footer-brand .custom-logo {
+    display: block !important;
+    max-width: 160px !important;
+    max-height: 60px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+@media (min-width: 768px) {
+    .footer-brand .custom-logo-link img,
+    .footer-brand img.custom-logo,
+    .footer-brand .custom-logo {
+        max-width: 200px !important;
+        max-height: 70px !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .footer-brand .custom-logo-link img,
+    .footer-brand img.custom-logo,
+    .footer-brand .custom-logo {
+        max-width: 220px !important;
+        max-height: 80px !important;
+}
+}
+
+/* Fallback text logo */
+.footer-brand .custom-logo-link.footer-logo {
+    display: inline-flex;
+    align-items: center;
+}
+
+.footer-logo-text {
+    display: inline-block;
+    color: #1a1a1a;
+}
+
+.footer-logo sup {
+    font-size: 0.4em;
+    font-weight: var(--font-weight-normal);
+    margin-left: 2px;
+    opacity: 0.9;
+    vertical-align: super;
+}
+
+.footer-description {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+    color: #1a1a1a;
+    margin: 0 0 var(--spacing-lg) 0;
+    max-width: 100%;
+    text-align: left;
+    font-weight: var(--font-weight-normal);
+}
+
+@media (min-width: 768px) {
+    .footer-description {
+        font-size: var(--font-size-base);
+        line-height: 1.7;
+        max-width: 420px;
+        margin-bottom: var(--spacing-xl);
+    }
+}
+
+@media (min-width: 1024px) {
+    .footer-description {
+        font-size: var(--font-size-base);
+        line-height: 1.8;
+        max-width: 480px;
+        margin-bottom: var(--spacing-2xl);
+}
+}
+
+/* ============================================
+   SOCIAL LINKS (Left Section)
+   ============================================ */
+.footer-social {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    margin-top: var(--spacing-xs);
+}
+
+.footer-social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    background: #ffffff;
+    border-radius: 50%;
+    color: #1a1a1a;
+    transition: all var(--transition-base);
+    -webkit-tap-highlight-color: transparent;
+    text-decoration: none;
+}
+
+.footer-social-link:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.footer-social-link:focus-visible {
+    outline: 2px solid #1a1a1a;
+    outline-offset: 2px;
+}
+
+.footer-social-link svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+/* ============================================
+   FOOTER COLUMNS (Right Section)
+   ============================================ */
+.footer-columns {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+    position: relative;
+    z-index: 3;
+}
+
+@media (min-width: 768px) {
+    .footer-columns {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-2xl);
+    }
+}
+
+.footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-base);
+}
+
+.footer-title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    color: #1a1a1a;
+    margin: 0 0 var(--spacing-sm) 0;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+@media (min-width: 768px) {
+    .footer-title {
+        font-size: var(--font-size-lg);
+    }
+}
+
+.footer-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.footer-menu li {
+    margin: 0;
+}
+
+.footer-menu a {
+    color: #1a1a1a;
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-normal);
+    transition: all var(--transition-fast);
+    display: inline-block;
+    padding: var(--spacing-xs) 0;
+}
+
+@media (min-width: 768px) {
+    .footer-menu a {
+        font-size: var(--font-size-base);
+    }
+}
+
+.footer-menu a:hover,
+.footer-menu a:focus {
+    color: #007bff;
+    transform: translateX(4px);
+}
+
+.footer-menu a:focus-visible {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* ============================================
+   FOOTER DIVIDER - White Horizontal Line
+   ============================================ */
+.footer-divider {
+    width: 100%;
+    height: 1px;
+    background: #ffffff;
+    position: relative;
+    z-index: 10;
+}
+
+/* ============================================
+   FOOTER BOTTOM
+   ============================================ */
+.footer-bottom {
+    background: linear-gradient(135deg, #FF7A00 0%, #E3F2FD 100%);
+    padding: var(--spacing-lg) var(--container-padding-mobile);
+    position: relative;
+}
+
+@media (min-width: 768px) {
+    .footer-bottom {
+        padding: var(--spacing-lg) var(--container-padding-tablet);
+    }
+}
+
+@media (min-width: 1024px) {
+.footer-bottom {
+        padding: var(--spacing-lg) var(--container-padding-desktop);
+    }
+}
+
+.footer-bottom .footer-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-base);
+    text-align: center;
+    min-height: auto;
+}
+
+@media (min-width: 768px) {
+    .footer-bottom .footer-wrapper {
+        flex-direction: row;
+        text-align: left;
+    }
+}
+
+.copyright {
+    margin: 0;
+    color: #1a1a1a;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-normal);
+}
+
+.footer-links {
+    display: flex;
+    gap: var(--spacing-base);
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .footer-links {
+        justify-content: flex-end;
+    }
+}
+
+.footer-links a {
+    color: #1a1a1a;
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: color var(--transition-fast);
+}
+
+.footer-links a:hover,
+.footer-links a:focus {
+    color: #007bff;
+}
+
+.footer-links a:focus-visible {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+/* ============================================
+   WHATSAPP FLOAT BUTTON
+   ============================================ */
+.whatsapp-float {
+    position: fixed;
+    bottom: var(--spacing-lg);
+    right: var(--spacing-lg);
+    z-index: var(--z-fixed);
+}
+
+@media (max-width: 480px) {
+    .whatsapp-float {
+        bottom: var(--spacing-base);
+        right: var(--spacing-base);
+    }
+}
+
+.whatsapp-float a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    min-height: 56px;
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    border-radius: var(--radius-full);
+    color: #FFFFFF;
+    box-shadow: var(--shadow-lg);
+    transition: all var(--transition-base);
+    -webkit-tap-highlight-color: transparent;
+    animation: pulse 2s infinite;
+}
+
+@media (max-width: 480px) {
+    .whatsapp-float a {
+        width: 52px;
+        height: 52px;
+        min-width: 52px;
+        min-height: 52px;
+    }
+}
+
+.whatsapp-float a:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 24px rgba(37, 211, 102, 0.5);
+}
+
+.whatsapp-float a:focus-visible {
+    outline: 2px solid #FFFFFF;
+    outline-offset: 2px;
+}
+
+.whatsapp-float a svg {
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
+}
+
+@media (max-width: 480px) {
+    .whatsapp-float a svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 4px 16px rgba(37, 211, 102, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 24px rgba(37, 211, 102, 0.6);
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .whatsapp-float a {
+        animation: none;
+    }
+}
+
+/* ============================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================ */
+
+/* Mobile: Stack sections vertically */
+@media (max-width: 767px) {
+    .footer-left,
+    .footer-right {
+        padding: var(--spacing-xl) var(--container-padding-mobile);
+    }
+    
+    .footer-brand {
+        align-items: center;
+        text-align: center;
+    }
+    
+    .footer-description {
+        text-align: center;
+    }
+    
+    .footer-social {
+        justify-content: center;
+    }
+    
+    .footer-columns {
+        gap: var(--spacing-lg);
+    }
+    
+    .footer-column {
+        text-align: center;
+    }
+    
+    .footer-menu a {
+        text-align: center;
+    }
+    
+    .footer-menu a:hover,
+    .footer-menu a:focus {
+        transform: none;
+    }
+}
+
+/* Tablet: Adjust spacing and layout */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .footer-left,
+    .footer-right {
+        padding: var(--spacing-2xl) var(--container-padding-tablet);
+    }
+    
+    .footer-columns {
+        gap: var(--spacing-lg);
+    }
+}
