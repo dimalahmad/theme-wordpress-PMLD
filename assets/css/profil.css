@@ -1,394 +1,1687 @@
-/* Profil Page Styles */
+/**
+ * Profil Page Styles
+ * Futuristic and modern design consistent with homepage
+ */
 
-/* Hero Section */
-.profil-hero {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    padding: 120px 0 80px;
+/* About Section - Same as Homepage */
+.about-section {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary, #2F80ED) 100%);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.about-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(117, 198, 241, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(47, 128, 237, 0.2) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.about-main-title {
+    text-align: center;
+    margin-bottom: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.about-main-title h2 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--text-color);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Ensure logo container is visible */
+.about-main-title > *:first-child {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Logo styling - same as footer */
+.about-main-title .custom-logo-link {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+    margin: 0;
+    line-height: 1;
+    transition: opacity var(--transition-fast);
+    text-decoration: none;
+}
+
+.about-main-title .custom-logo-link:hover {
+    opacity: 0.9;
+}
+
+/* Custom logo image - ensure it's visible */
+.about-main-title .custom-logo-link img,
+.about-main-title img.custom-logo,
+.about-main-title .custom-logo {
+    display: block !important;
+    max-width: 300px !important;
+    max-height: 120px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+}
+
+.about-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    align-items: start;
+}
+
+.about-branches {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 100%;
+    width: 100%;
+}
+
+/* Jika hanya 1 cabang, full width */
+.about-branches.branch-count-1 {
+    grid-template-columns: 1fr;
+}
+
+.branch-card {
+    background-color: #E91C2E;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    width: 100%;
+    border: 2px solid white;
+    max-width: 100%;
+}
+
+.branch-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+}
+
+.branch-image {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+}
+
+.branch-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.branch-card:hover .branch-image img {
+    transform: scale(1.1);
+}
+
+.branch-name {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    text-align: center;
+    margin: 0;
     color: white;
+    line-height: 1.3;
+}
+
+.about-text {
+    padding: 1rem 0;
+}
+
+.section-title {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: black;
     text-align: center;
 }
 
-.profil-hero-content h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
+.about-description {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #ffffff;
+    text-align: justify;
 }
 
-.profil-hero-content p {
-    font-size: 1.25rem;
-    opacity: 0.95;
-    max-width: 600px;
+.about-text .section-title {
+    display: none;
+}
+
+/* History Section - CV Perusahaan */
+.profil-history {
+    padding: 5rem 0;
+    background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
+    position: relative;
+}
+
+.history-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.history-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+}
+
+.history-subtitle {
+    font-size: 1.1rem;
+    color: var(--inviro-primary, #2F80ED);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cv-content {
+    max-width: 1200px;
     margin: 0 auto;
 }
 
-/* History Section */
-.profil-history {
-    padding: 80px 0;
-    background: white;
+.cv-text {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 3rem;
+    border-radius: 24px;
+    border: 1px solid rgba(47, 128, 237, 0.1);
+    box-shadow: 0 8px 32px rgba(47, 128, 237, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    margin-bottom: 3rem;
 }
 
-.profil-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
-}
-
-.profil-content h2 {
-    font-size: 2.5rem;
-    margin-bottom: 1.5rem;
-    color: var(--text-dark);
-}
-
-.profil-text {
+.cv-text p {
     font-size: 1.1rem;
-    line-height: 1.8;
-    color: var(--text-light);
+    line-height: 1.9;
+    color: #475569;
+    margin-bottom: 1.5rem;
+    text-align: justify;
 }
 
-.profil-image img {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+.cv-text p:last-child {
+    margin-bottom: 0;
 }
 
-.placeholder-image,
-.team-placeholder,
-.cert-placeholder {
-    width: 100%;
-    height: auto;
-    background: #f3f4f6;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Vision Mission Section */
-.profil-vision-mission {
-    padding: 80px 0;
-    background: var(--bg-light);
-}
-
-.vm-grid {
+.cv-highlights {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 40px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
 }
 
-.vm-card {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+.highlight-item {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 2.5rem;
+    border-radius: 20px;
+    border: 1px solid rgba(47, 128, 237, 0.1);
+    box-shadow: 0 4px 20px rgba(47, 128, 237, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 
-.vm-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+.highlight-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--inviro-primary, #2F80ED) 0%, var(--inviro-primary-light, #75C6F1) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
-.vm-icon {
+.highlight-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(47, 128, 237, 0.15);
+    border-color: rgba(47, 128, 237, 0.2);
+}
+
+.highlight-item:hover::before {
+    opacity: 1;
+}
+
+.highlight-icon {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--inviro-primary, #2F80ED) 0%, var(--inviro-primary-light, #75C6F1) 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
     color: white;
+    box-shadow: 0 4px 16px rgba(47, 128, 237, 0.3);
+    transition: all 0.3s ease;
 }
 
-.vm-card h3 {
-    font-size: 1.75rem;
-    margin-bottom: 1rem;
-    color: var(--text-dark);
+.highlight-item:hover .highlight-icon {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 6px 24px rgba(47, 128, 237, 0.4);
 }
 
-.vm-card p {
+.highlight-icon svg {
+    width: 40px;
+    height: 40px;
+}
+
+.highlight-content h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+    letter-spacing: -0.3px;
+}
+
+.highlight-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Layanan Section - Modern & Futuristic */
+.profil-layanan {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary, #2F80ED) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.profil-layanan::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(117, 198, 241, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(47, 128, 237, 0.2) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.profil-layanan::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float 20s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    50% {
+        transform: translate(-30px, -30px) rotate(180deg);
+    }
+}
+
+.layanan-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    z-index: 1;
+}
+
+.layanan-header h2 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0 0 1rem 0;
+    letter-spacing: -1px;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: inline-block;
+}
+
+.layanan-header h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+    border-radius: 2px;
+}
+
+.layanan-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.layanan-logo .custom-logo,
+.layanan-logo img {
+    max-width: 250px;
+    max-height: 100px;
+    height: auto;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+    transition: transform 0.3s ease;
+}
+
+.layanan-logo .custom-logo:hover,
+.layanan-logo img:hover {
+    transform: scale(1.05);
+}
+
+.layanan-logo .logo-text {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    letter-spacing: 2px;
+}
+
+.layanan-description {
+    max-width: 1000px;
+    margin: 0 auto 4rem;
+    position: relative;
+    z-index: 1;
+}
+
+.layanan-description p {
+    font-size: 1.15rem;
+    line-height: 1.9;
+    color: rgba(255, 255, 255, 0.95);
+    text-align: center;
+    margin: 0;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+    padding: 0 2rem;
+}
+
+.layanan-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    padding: 0 1rem;
+}
+
+.layanan-card-link {
+    text-decoration: none;
+    display: block;
+    color: inherit;
+    transition: transform 0.3s ease;
+}
+
+.layanan-card-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+.layanan-card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.layanan-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(47, 128, 237, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.layanan-card:hover::before {
+    left: 100%;
+}
+
+.layanan-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--inviro-primary, #2F80ED) 0%, var(--inviro-primary-light, #75C6F1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.layanan-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.8) inset,
+                0 0 40px rgba(117, 198, 241, 0.2);
+}
+
+.layanan-card:hover::after {
+    opacity: 1;
+}
+
+.layanan-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.6;
+    display: block;
+    position: relative;
+    z-index: 1;
+    transition: color 0.3s ease;
+}
+
+.layanan-card:hover .layanan-name {
+    color: var(--inviro-primary, #2F80ED);
+}
+
+/* Video & Legalitas Section */
+.profil-video-legalitas {
+    padding: 5rem 0;
+    background: #ffffff;
+    position: relative;
+}
+
+.video-legalitas-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.video-legalitas-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+}
+
+.video-legalitas-header .section-subtitle {
     font-size: 1.1rem;
-    line-height: 1.7;
-    color: var(--text-light);
+    color: #64748b;
+    margin: 0;
+}
+
+/* Video Section - Full Width */
+.video-section-full {
+    max-width: 1200px;
+    margin: 0 auto 4rem;
+    position: relative;
+}
+
+.video-section-full h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: #1a1a1a;
+    letter-spacing: -0.3px;
+    text-align: center;
+}
+
+/* Legalitas & Sertifikat Content - 2 Columns */
+.legalitas-sertifikat-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    align-items: start;
+}
+
+.legalitas-data-column,
+.sertifikat-column {
+    position: relative;
+}
+
+.legalitas-data-column h3,
+.sertifikat-column h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: #1a1a1a;
+    letter-spacing: -0.3px;
+}
+
+.video-wrapper {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    background: #000;
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.video-placeholder {
+    padding: 4rem 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, #f8fafc 0%, #e8f0f5 100%);
+    color: #64748b;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-placeholder svg {
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.video-placeholder p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+    color: #475569;
+}
+
+.video-placeholder small {
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.legalitas-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.legalitas-header h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+    letter-spacing: -0.5px;
+    position: relative;
+    display: inline-block;
+}
+
+.legalitas-header h3::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--inviro-primary, #2F80ED), transparent);
+    border-radius: 2px;
+}
+
+.sertifikat-single {
+    margin-bottom: 3rem;
+}
+
+.sertifikat-image-full {
+    position: relative;
+    width: 100%;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    background: #f8fafc;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sertifikat-image-full:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 48px rgba(47, 128, 237, 0.2);
+}
+
+.sertifikat-image-full img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.4s ease;
+}
+
+.sertifikat-image-full:hover img {
+    transform: scale(1.02);
+}
+
+.sertifikat-image-full a {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.sertifikat-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(47, 128, 237, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    color: white;
+    gap: 1rem;
+}
+
+.sertifikat-image-full:hover .sertifikat-overlay {
+    opacity: 1;
+}
+
+.sertifikat-overlay svg {
+    width: 48px;
+    height: 48px;
+}
+
+.sertifikat-overlay span {
+    font-size: 1rem;
+    font-weight: 600;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.sertifikat-placeholder {
+    padding: 4rem 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, #f8fafc 0%, #e8f0f5 100%);
+    border-radius: 20px;
+    color: #64748b;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.sertifikat-placeholder svg {
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.sertifikat-placeholder p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0.5rem 0;
+    color: #475569;
+}
+
+.sertifikat-placeholder small {
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.legalitas-data {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 3rem;
+    border: 1px solid rgba(47, 128, 237, 0.1);
+    box-shadow: 0 8px 32px rgba(47, 128, 237, 0.1),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+.legalitas-intro {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid rgba(47, 128, 237, 0.1);
+}
+
+.legalitas-intro p {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.legalitas-list {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.legalitas-item {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(47, 128, 237, 0.03) 0%, rgba(117, 198, 241, 0.03) 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(47, 128, 237, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: visible;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.legalitas-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--inviro-primary, #2F80ED) 0%, var(--inviro-primary-light, #75C6F1) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.legalitas-item:hover {
+    transform: translateX(8px);
+    box-shadow: 0 8px 24px rgba(47, 128, 237, 0.15);
+    border-color: rgba(47, 128, 237, 0.2);
+    background: linear-gradient(135deg, rgba(47, 128, 237, 0.05) 0%, rgba(117, 198, 241, 0.05) 100%);
+}
+
+.legalitas-item:hover::before {
+    opacity: 1;
+}
+
+.legalitas-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-weight: 700;
+    color: var(--inviro-primary, #2F80ED);
+    font-size: 1rem;
+    min-width: 0;
+    flex-shrink: 0;
+}
+
+.legalitas-label svg {
+    flex-shrink: 0;
+    color: var(--inviro-primary, #2F80ED);
+    margin-top: 2px;
+}
+
+.legalitas-label span {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.5;
+}
+
+.legalitas-value {
+    font-size: 1rem;
+    color: #475569;
+    line-height: 1.6;
+    display: flex;
+    align-items: flex-start;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
 }
 
 /* Values Section */
 .profil-values {
-    padding: 80px 0;
-    background: white;
+    padding: 5rem 0;
+    background: #ffffff;
 }
 
 .profil-values h2 {
-    text-align: center;
     font-size: 2.5rem;
-    margin-bottom: 60px;
-    color: var(--text-dark);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
 }
 
 .values-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
+    gap: 2rem;
 }
 
 .value-card {
-    text-align: center;
-    padding: 30px 20px;
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 2rem;
+    border-radius: 20px;
+    border: 1px solid rgba(47, 128, 237, 0.1);
+    box-shadow: 0 4px 20px rgba(47, 128, 237, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.value-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--inviro-primary, #2F80ED) 0%, var(--inviro-primary-light, #75C6F1) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
 .value-card:hover {
-    border-color: var(--primary-color);
-    background: var(--bg-light);
-    transform: translateY(-5px);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(47, 128, 237, 0.15);
+    border-color: rgba(47, 128, 237, 0.2);
+}
+
+.value-card:hover::before {
+    opacity: 1;
 }
 
 .value-number {
     font-size: 3rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    opacity: 0.2;
-    margin-bottom: 15px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--inviro-primary, #2F80ED) 0%, var(--inviro-primary-light, #75C6F1) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    line-height: 1;
 }
 
 .value-card h3 {
     font-size: 1.25rem;
-    margin-bottom: 10px;
-    color: var(--text-dark);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #1a1a1a;
 }
 
 .value-card p {
     font-size: 0.95rem;
     line-height: 1.6;
-    color: var(--text-light);
+    color: #64748b;
+    margin: 0;
 }
 
 /* Team Section */
 .profil-team {
-    padding: 80px 0;
-    background: var(--bg-light);
+    padding: 5rem 0;
+    background: linear-gradient(to bottom, #ffffff 0%, #f8fafc 100%);
 }
 
 .profil-team h2 {
-    text-align: center;
     font-size: 2.5rem;
-    margin-bottom: 60px;
-    color: var(--text-dark);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
 }
 
 .team-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 40px;
+    gap: 2rem;
 }
 
 .team-card {
-    background: white;
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid rgba(47, 128, 237, 0.1);
+    box-shadow: 0 4px 20px rgba(47, 128, 237, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: center;
 }
 
 .team-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(47, 128, 237, 0.15);
+    border-color: rgba(47, 128, 237, 0.2);
 }
 
 .team-image {
     width: 100%;
-    height: 300px;
+    aspect-ratio: 1;
     overflow: hidden;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8f0f5 100%);
 }
 
 .team-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.team-card:hover .team-image img {
+    transform: scale(1.1);
+}
+
+.team-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .team-card h3 {
-    font-size: 1.5rem;
-    margin: 20px 0 5px;
-    padding: 0 20px;
-    color: var(--text-dark);
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 1.5rem 0 0.5rem;
+    color: #1a1a1a;
+    padding: 0 1.5rem;
 }
 
 .team-card p {
-    font-size: 1rem;
-    color: var(--primary-color);
-    padding: 0 20px 20px;
-    margin: 0;
+    font-size: 0.95rem;
+    color: #64748b;
+    margin: 0 0 1.5rem;
+    padding: 0 1.5rem;
 }
 
 /* Certifications Section */
 .profil-certifications {
-    padding: 80px 0;
-    background: white;
+    padding: 5rem 0;
+    background: #ffffff;
 }
 
 .profil-certifications h2 {
-    text-align: center;
     font-size: 2.5rem;
-    margin-bottom: 60px;
-    color: var(--text-dark);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
 }
 
 .cert-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
+    gap: 2rem;
 }
 
 .cert-card {
-    background: white;
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    padding: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid rgba(47, 128, 237, 0.1);
+    box-shadow: 0 4px 20px rgba(47, 128, 237, 0.08);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     text-align: center;
-    transition: all 0.3s ease;
+    padding: 1.5rem;
 }
 
 .cert-card:hover {
-    border-color: var(--primary-color);
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(47, 128, 237, 0.15);
+    border-color: rgba(47, 128, 237, 0.2);
 }
 
 .cert-card img {
     width: 100%;
     height: auto;
-    margin-bottom: 15px;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.cert-placeholder {
+    width: 100%;
+    aspect-ratio: 4/5;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8f0f5 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
 }
 
 .cert-card h4 {
     font-size: 1rem;
-    color: var(--text-dark);
+    font-weight: 600;
+    color: #1a1a1a;
     margin: 0;
 }
 
 /* CTA Section */
 .profil-cta {
-    padding: 100px 0;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    padding: 5rem 0;
+    background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary, #2F80ED) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.profil-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(117, 198, 241, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(47, 128, 237, 0.2) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.cta-content {
     text-align: center;
-    color: white;
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
 .cta-content h2 {
     font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffffff;
     margin-bottom: 1rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.5px;
 }
 
 .cta-content p {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.95);
     margin-bottom: 2rem;
-    opacity: 0.95;
+    line-height: 1.7;
 }
 
 .cta-content .btn-primary {
-    background: white;
-    color: var(--primary-color);
-    padding: 15px 40px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: var(--inviro-primary, #2F80ED);
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
     font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .cta-content .btn-primary:hover {
-    background: var(--bg-light);
-    transform: translateY(-3px);
+    background: #ffffff;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* Responsive Design */
-@media (max-width: 992px) {
+/* Responsive */
+@media (max-width: 1024px) {
     .profil-grid {
         grid-template-columns: 1fr;
-        gap: 40px;
+        gap: 3rem;
     }
-
+    
+    .layanan-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.25rem;
+    }
+    
+    .layanan-header {
+        text-align: center;
+    }
+    
+    .layanan-header h2 {
+        font-size: 2.25rem;
+    }
+    
+    .layanan-logo .custom-logo,
+    .layanan-logo img {
+        max-width: 200px;
+        max-height: 80px;
+    }
+    
+    .layanan-description p {
+        font-size: 1.05rem;
+        padding: 0 1rem;
+    }
+    
     .values-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-
+    
     .team-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-
+    
     .cert-grid {
         grid-template-columns: repeat(2, 1fr);
-    }
-
-    .profil-hero-content h1 {
-        font-size: 2.5rem;
-    }
-
-    .profil-content h2,
-    .profil-values h2,
-    .profil-team h2,
-    .profil-certifications h2,
-    .cta-content h2 {
-        font-size: 2rem;
     }
 }
 
 @media (max-width: 768px) {
-    .profil-hero {
-        padding: 100px 0 60px;
+    /* About Section - Mobile: Modern Layout */
+    .about-section {
+        padding: 2.5rem 0;
+        background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary, #2F80ED) 100%);
+        overflow-x: hidden;
+        position: relative;
     }
-
-    .profil-hero-content h1 {
-        font-size: 2rem;
+    
+    .about-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 50%, rgba(117, 198, 241, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(47, 128, 237, 0.2) 0%, transparent 50%);
+        pointer-events: none;
     }
-
-    .profil-hero-content p {
-        font-size: 1rem;
+    
+    .about-section .container {
+        padding: 0 1rem;
+        max-width: 100%;
+        overflow: hidden;
     }
-
+    
+    .section-title {
+        font-size: 1.75rem;
+        line-height: 2.25rem;
+        margin-bottom: 1rem;
+        font-weight: 800;
+    }
+    
+    .section-description {
+        font-size: 0.875rem;
+        line-height: 1.4rem;
+        opacity: 0.9;
+    }
+    
+    .about-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    /* About Branches - 2x2 Grid Layout for Mobile */
+    .about-branches {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+        order: -1; /* Put images before text on mobile */
+        width: 100%;
+    }
+    
+    .about-branches.branch-count-1 {
+        grid-template-columns: 1fr;
+    }
+    
+    .branch-card {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        background-color: #E91C2E;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    .branch-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+    
+    .branch-image {
+        height: 120px;
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+    }
+    
+    .branch-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+        display: block;
+    }
+    
+    .branch-card:hover .branch-image img {
+        transform: scale(1.08);
+    }
+    
+    .branch-name {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.3;
+        text-align: center;
+        color: white;
+        margin: 0;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .about-text h2 {
+        font-size: 1.5rem;
+        line-height: 2.25rem;
+        font-weight: 700;
+        text-align: center;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+    }
+    
+    .about-text p {
+        font-size: 0.75rem;
+        line-height: 1.2rem;
+        text-align: center;
+        color: var(--text-light);
+    }
+    
+    .about-main-title {
+        margin-bottom: 1.5rem;
+    }
+    
+    .about-main-title h2 {
+        font-size: 1.5rem;
+    }
+    
+    .about-main-title .custom-logo-link img,
+    .about-main-title img.custom-logo,
+    .about-main-title .custom-logo {
+        max-width: 200px !important;
+        max-height: 80px !important;
+    }
+    
+    .about-section {
+        margin-bottom: 1rem;
+    }
+    
     .profil-history,
-    .profil-vision-mission,
+    .profil-layanan,
     .profil-values,
     .profil-team,
-    .profil-certifications {
-        padding: 60px 0;
+    .profil-certifications,
+    .profil-cta {
+        padding: 3rem 0;
     }
-
-    .vm-grid {
+    
+    .history-header h2 {
+        font-size: 2rem;
+    }
+    
+    .history-subtitle {
+        font-size: 1rem;
+    }
+    
+    .cv-text {
+        padding: 2rem;
+    }
+    
+    .cv-text p {
+        font-size: 1rem;
+        line-height: 1.8;
+    }
+    
+    .cv-highlights {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
-
-    .values-grid {
-        grid-template-columns: 1fr;
+    
+    .highlight-item {
+        padding: 2rem;
     }
-
-    .team-grid {
-        grid-template-columns: 1fr;
+    
+    .highlight-icon {
+        width: 64px;
+        height: 64px;
     }
-
+    
+    .highlight-icon svg {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .layanan-header h2 {
+        font-size: 1.75rem;
+    }
+    
+    .layanan-description p {
+        font-size: 1rem;
+    }
+    
+    .layanan-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .layanan-card {
+        padding: 1.5rem 1rem;
+        min-height: 80px;
+    }
+    
+    .layanan-name {
+        font-size: 0.95rem;
+    }
+    
+    .profil-content h2,
+    .profil-values h2,
+    .profil-team h2,
+    .profil-certifications h2 {
+        font-size: 2rem;
+    }
+    
+    .values-grid,
+    .team-grid,
     .cert-grid {
         grid-template-columns: 1fr;
     }
-
+    
     .vm-card {
-        padding: 30px;
+        padding: 2rem;
     }
+    
+    .cta-content h2 {
+        font-size: 2rem;
+    }
+}
 
-    .profil-content h2 {
+@media (max-width: 480px) {
+    .about-section {
+        padding: 2.5rem 0;
+    }
+    
+    .about-main-title h2 {
+        font-size: 1.25rem;
+    }
+    
+    .about-main-title .custom-logo-link img,
+    .about-main-title img.custom-logo,
+    .about-main-title .custom-logo {
+        max-width: 150px !important;
+        max-height: 60px !important;
+    }
+    
+    .about-description {
+        font-size: 0.8rem;
+        line-height: 1.3rem;
+    }
+    
+    .branch-name {
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+    
+    .branch-image {
+        height: 100px;
+    }
+    
+    .profil-history,
+    .profil-layanan,
+    .profil-values,
+    .profil-team,
+    .profil-certifications,
+    .profil-cta {
+        padding: 2.5rem 1rem;
+    }
+    
+    .history-header {
+        margin-bottom: 2rem;
+    }
+    
+    .history-header h2 {
         font-size: 1.75rem;
     }
-
-    .profil-cta {
-        padding: 60px 0;
+    
+    .history-subtitle {
+        font-size: 0.9rem;
     }
-
+    
+    .cv-text {
+        padding: 1.5rem;
+    }
+    
+    .cv-text p {
+        font-size: 0.95rem;
+        line-height: 1.7;
+    }
+    
+    .cv-highlights {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .highlight-item {
+        padding: 1.5rem;
+    }
+    
+    .highlight-icon {
+        width: 56px;
+        height: 56px;
+        margin-bottom: 1rem;
+    }
+    
+    .highlight-icon svg {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .highlight-content h3 {
+        font-size: 1.1rem;
+    }
+    
+    .highlight-content p {
+        font-size: 0.9rem;
+    }
+    
+    .layanan-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .layanan-header h2 {
+        font-size: 1.75rem;
+    }
+    
+    .layanan-header h2::after {
+        width: 60px;
+        height: 3px;
+    }
+    
+    .layanan-logo {
+        margin-top: 1rem;
+    }
+    
+    .layanan-logo .custom-logo,
+    .layanan-logo img {
+        max-width: 180px;
+        max-height: 70px;
+    }
+    
+    .layanan-logo .logo-text {
+        font-size: 1.5rem;
+    }
+    
+    .layanan-description {
+        margin-bottom: 2.5rem;
+    }
+    
+    .layanan-description p {
+        font-size: 0.95rem;
+        text-align: center;
+        padding: 0 1rem;
+        line-height: 1.7;
+    }
+    
+    .layanan-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .layanan-card {
+        padding: 1.5rem 1rem;
+        min-height: 80px;
+    }
+    
+    .layanan-name {
+        font-size: 0.95rem;
+    }
+    
+    .video-section-full {
+        margin-bottom: 2.5rem;
+    }
+    
+    .video-section-full h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .legalitas-sertifikat-content {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+    
+    .video-legalitas-header {
+        margin-bottom: 2.5rem;
+    }
+    
+    .video-legalitas-header h2 {
+        font-size: 1.75rem;
+    }
+    
+    .video-legalitas-header .section-subtitle {
+        font-size: 1rem;
+    }
+    
+    .legalitas-data-column h3,
+    .sertifikat-column h3 {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .video-placeholder {
+        padding: 3rem 1.5rem;
+        min-height: 250px;
+    }
+    
+    .legalitas-header {
+        margin-bottom: 2rem;
+    }
+    
+    .legalitas-header h3 {
+        font-size: 1.5rem;
+    }
+    
+    .sertifikat-single {
+        margin-bottom: 2rem;
+    }
+    
+    .legalitas-data {
+        padding: 1.5rem;
+    }
+    
+    .legalitas-intro {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+    }
+    
+    .legalitas-intro p {
+        font-size: 1rem;
+    }
+    
+    .legalitas-list {
+        gap: 1rem;
+    }
+    
+    .legalitas-item {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    
+    .legalitas-label {
+        font-size: 0.9rem;
+    }
+    
+    .legalitas-value {
+        font-size: 0.9rem;
+    }
+    
+    .profil-content h2,
+    .profil-values h2,
+    .profil-team h2,
+    .profil-certifications h2 {
+        font-size: 1.75rem;
+    }
+    
+    .vm-card {
+        padding: 1.5rem;
+    }
+    
+    .vm-icon {
+        width: 56px;
+        height: 56px;
+    }
+    
     .cta-content h2 {
         font-size: 1.75rem;
     }
-
-    .cta-content p {
+    
+    .cta-content .btn-primary {
+        padding: 0.875rem 2rem;
         font-size: 1rem;
     }
 }
+

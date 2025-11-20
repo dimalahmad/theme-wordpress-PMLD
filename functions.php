@@ -68,6 +68,7 @@ function inviro_enqueue_files() {
         wp_enqueue_style('inviro-front-page', get_template_directory_uri() . '/assets/css/front-page.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
     } elseif (is_page('profil')) {
         wp_enqueue_style('inviro-profil', get_template_directory_uri() . '/assets/css/profil.css', array('inviro-base'), $theme_version);
+        wp_enqueue_style('inviro-front-page', get_template_directory_uri() . '/assets/css/front-page.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
     } elseif (is_page('pelanggan')) {
         wp_enqueue_style('inviro-pelanggan', get_template_directory_uri() . '/assets/css/pelanggan.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
         wp_enqueue_script('inviro-pelanggan-filter', get_template_directory_uri() . '/assets/js/pelanggan-filter.js', array('jquery'), $theme_version, true);
@@ -148,6 +149,9 @@ function inviro_theme_setup() {
     
     // Branch images
     add_image_size('inviro-branch', 300, 200, true);
+    
+    // Sertifikat images
+    add_image_size('inviro-sertifikat', 400, 300, true);
     add_image_size('inviro-branch-large', 600, 400, true);
     
     // Hero images
@@ -467,6 +471,139 @@ function inviro_save_branch_location($post_id) {
     }
 }
 add_action('save_post_cabang', 'inviro_save_branch_location');
+
+// Layanan Custom Post Type
+function inviro_register_layanan() {
+    $labels = array(
+        'name'               => __('Layanan', 'inviro'),
+        'singular_name'      => __('Layanan', 'inviro'),
+        'menu_name'          => __('Layanan', 'inviro'),
+        'add_new'            => __('Tambah Layanan', 'inviro'),
+        'add_new_item'       => __('Tambah Layanan Baru', 'inviro'),
+        'edit_item'          => __('Edit Layanan', 'inviro'),
+        'new_item'           => __('Layanan Baru', 'inviro'),
+        'view_item'          => __('Lihat Layanan', 'inviro'),
+        'search_items'       => __('Cari Layanan', 'inviro'),
+        'not_found'          => __('Layanan tidak ditemukan', 'inviro'),
+        'not_found_in_trash' => __('Tidak ada layanan di trash', 'inviro')
+    );
+    
+    $args = array(
+        'labels'              => $labels,
+        'public'              => false,  // Tidak ada single page
+        'publicly_queryable'  => false,  // Tidak bisa diakses dari depan
+        'show_ui'             => true,   // Tampil di admin
+        'show_in_menu'        => true,
+        'query_var'           => false,
+        'capability_type'     => 'post',
+        'has_archive'         => false,  // Tidak ada archive
+        'hierarchical'        => false,
+        'menu_position'       => 8,
+        'menu_icon'           => 'dashicons-admin-tools',
+        'supports'            => array('title', 'thumbnail'),
+        'show_in_rest'        => true,
+    );
+    
+    register_post_type('layanan', $args);
+}
+add_action('init', 'inviro_register_layanan');
+
+/**
+ * Add Meta Box for Layanan External URL
+ */
+function inviro_layanan_meta_boxes() {
+    add_meta_box(
+        'inviro_layanan_url',
+        __('Link Eksternal', 'inviro'),
+        'inviro_layanan_url_callback',
+        'layanan',
+        'normal',
+        'high'
+    );
+}
+add_action('add_meta_boxes', 'inviro_layanan_meta_boxes');
+
+/**
+ * Meta Box Callback for Layanan URL
+ */
+function inviro_layanan_url_callback($post) {
+    wp_nonce_field('inviro_layanan_url_nonce', 'inviro_layanan_url_nonce');
+    $external_url = get_post_meta($post->ID, '_layanan_external_url', true);
+    ?>
+    <p>
+        <label for="layanan_external_url"><?php _e('URL Eksternal (Link ke domain lain):', 'inviro'); ?></label><br>
+        <input type="url" name="layanan_external_url" id="layanan_external_url" value="<?php echo esc_attr($external_url); ?>" style="width: 100%; padding: 8px;" placeholder="https://example.com/layanan">
+        <br><small><?php _e('Masukkan URL lengkap termasuk http:// atau https://', 'inviro'); ?></small>
+    </p>
+    <?php
+}
+
+/**
+ * Save Layanan URL Meta
+ */
+function inviro_save_layanan_url($post_id) {
+    if (!isset($_POST['inviro_layanan_url_nonce'])) {
+        return;
+    }
+    if (!wp_verify_nonce($_POST['inviro_layanan_url_nonce'], 'inviro_layanan_url_nonce')) {
+        return;
+    }
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    
+    if (isset($_POST['layanan_external_url'])) {
+        update_post_meta($post_id, '_layanan_external_url', esc_url_raw($_POST['layanan_external_url']));
+    }
+}
+add_action('save_post_layanan', 'inviro_save_layanan_url');
+
+/**
+ * Create Dummy Layanan Data
+ */
+function inviro_create_dummy_layanan() {
+    // Check if dummy data already exists
+    $existing_layanan = get_posts(array(
+        'post_type' => 'layanan',
+        'posts_per_page' => 1,
+        'post_status' => 'any'
+    ));
+    
+    if (!empty($existing_layanan)) {
+        return; // Dummy data already exists
+    }
+    
+    $dummy_layanan = array(
+        array('title' => 'Air Minum Dalam Kemasan', 'url' => 'https://example.com/air-minum'),
+        array('title' => 'Pengolahan Limbah Air', 'url' => 'https://example.com/pengolahan-limbah'),
+        array('title' => 'Depot Air Minum Isi Ulang', 'url' => 'https://example.com/depot-air'),
+        array('title' => 'Reverse Osmosis', 'url' => 'https://example.com/reverse-osmosis'),
+        array('title' => 'Kran Air Siap Minum', 'url' => 'https://example.com/kran-air'),
+        array('title' => 'Sea Water RO', 'url' => 'https://example.com/sea-water-ro'),
+        array('title' => 'Ozone Generator', 'url' => 'https://example.com/ozone-generator'),
+        array('title' => 'Tandon Air', 'url' => 'https://example.com/tandon-air'),
+        array('title' => 'Pemanas Air', 'url' => 'https://example.com/pemanas-air'),
+        array('title' => 'Training Sanitasi DAMIU', 'url' => 'https://example.com/training-sanitasi'),
+        array('title' => 'Ultra Violet', 'url' => 'https://example.com/ultra-violet'),
+        array('title' => 'Water Treatment Plant', 'url' => 'https://example.com/water-treatment-plant')
+    );
+    
+    foreach ($dummy_layanan as $layanan) {
+        $post_id = wp_insert_post(array(
+            'post_title'    => $layanan['title'],
+            'post_status'   => 'publish',
+            'post_type'     => 'layanan',
+        ));
+        
+        if ($post_id) {
+            update_post_meta($post_id, '_layanan_external_url', $layanan['url']);
+        }
+    }
+}
+add_action('admin_init', 'inviro_create_dummy_layanan');
 
 // Proyek Pelanggan Custom Post Type
 function inviro_register_proyek_pelanggan() {
@@ -2933,209 +3070,273 @@ function inviro_profil_customize_register($wp_customize) {
     $wp_customize->add_section('inviro_profil', array(
         'title' => __('Halaman Profil', 'inviro'),
         'priority' => 35,
+        'description' => __('Kustomisasi konten halaman Profil. Hero section menggunakan data dari About Section di homepage.', 'inviro'),
     ));
 
-    // Hero Settings
-    $wp_customize->add_setting('inviro_profil_hero_title', array(
-        'default' => 'Tentang INVIRO',
-        'sanitize_callback' => 'sanitize_text_field',
-    ));
-    $wp_customize->add_control('inviro_profil_hero_title', array(
-        'label' => __('Hero - Judul', 'inviro'),
-        'section' => 'inviro_profil',
-        'type' => 'text',
-    ));
-
-    $wp_customize->add_setting('inviro_profil_hero_subtitle', array(
-        'default' => 'Pelopor Teknologi Pengolahan Air di Indonesia',
-        'sanitize_callback' => 'sanitize_text_field',
-    ));
-    $wp_customize->add_control('inviro_profil_hero_subtitle', array(
-        'label' => __('Hero - Subtitle', 'inviro'),
-        'section' => 'inviro_profil',
-        'type' => 'text',
-    ));
-
-    // History Settings
+    // ============================================
+    // Sejarah / CV Section Settings
+    // ============================================
     $wp_customize->add_setting('inviro_profil_history_title', array(
         'default' => 'Sejarah Perusahaan',
         'sanitize_callback' => 'sanitize_text_field',
     ));
     $wp_customize->add_control('inviro_profil_history_title', array(
         'label' => __('Sejarah - Judul', 'inviro'),
+        'description' => __('Judul untuk section Sejarah/CV Perusahaan', 'inviro'),
         'section' => 'inviro_profil',
         'type' => 'text',
     ));
 
     $wp_customize->add_setting('inviro_profil_history_content', array(
-        'default' => 'INVIRO didirikan dengan visi untuk menyediakan solusi pengolahan air berkualitas tinggi untuk industri dan rumah tangga di Indonesia.',
+        'default' => 'CV. INDO SOLUTION merupakan sebuah badan usaha komanditer yang didirikan pada Bulan Juli Tahun 2009 yang bergerak dibidang perdagangan umum/general trading, dalam proses perkembagannya CV. INDO SOLUTION juga ekspansi divisi bisnis dengan menghadirkan solusi bisnis dalam bidang pengolahan air (water treatment).
+
+Divisi water treatment/water purifier CV. INDO SOLUTION yang bernama INVIRO™ [Water Solution] menghadirkan layanan komprehensif dalam bidang pengolahan air. Didukung dengan tenaga yang professional, pengalaman dan jam terbang yang tinggi dalam bidang pengolahan air',
         'sanitize_callback' => 'wp_kses_post',
     ));
     $wp_customize->add_control('inviro_profil_history_content', array(
-        'label' => __('Sejarah - Konten', 'inviro'),
+        'label' => __('Sejarah - Konten CV', 'inviro'),
+        'description' => __('Konten CV perusahaan yang akan ditampilkan di section Sejarah', 'inviro'),
         'section' => 'inviro_profil',
         'type' => 'textarea',
     ));
 
-    $wp_customize->add_setting('inviro_profil_history_image', array(
+    $wp_customize->add_setting('inviro_profil_history_subtitle', array(
+        'default' => 'Profil CV. INDO SOLUTION',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_history_subtitle', array(
+        'label' => __('Sejarah - Subtitle', 'inviro'),
+        'description' => __('Subtitle yang ditampilkan di bawah judul Sejarah', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    // CV Highlights (3 kotak)
+    $wp_customize->add_setting('inviro_profil_highlight_1_title', array(
+        'default' => 'Didirikan',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_highlight_1_title', array(
+        'label' => __('Highlight 1 - Judul', 'inviro'),
+        'description' => __('Judul untuk kotak highlight pertama (contoh: Didirikan)', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_profil_highlight_1_value', array(
+        'default' => 'Juli 2009',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_highlight_1_value', array(
+        'label' => __('Highlight 1 - Nilai', 'inviro'),
+        'description' => __('Nilai untuk kotak highlight pertama', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_profil_highlight_2_title', array(
+        'default' => 'Bidang Usaha',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_highlight_2_title', array(
+        'label' => __('Highlight 2 - Judul', 'inviro'),
+        'description' => __('Judul untuk kotak highlight kedua (contoh: Bidang Usaha)', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_profil_highlight_2_value', array(
+        'default' => 'Perdagangan Umum & Water Treatment',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_highlight_2_value', array(
+        'label' => __('Highlight 2 - Nilai', 'inviro'),
+        'description' => __('Nilai untuk kotak highlight kedua', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_profil_highlight_3_title', array(
+        'default' => 'Divisi',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_highlight_3_title', array(
+        'label' => __('Highlight 3 - Judul', 'inviro'),
+        'description' => __('Judul untuk kotak highlight ketiga (contoh: Divisi)', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_profil_highlight_3_value', array(
+        'default' => 'INVIRO™ [Water Solution]',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_highlight_3_value', array(
+        'label' => __('Highlight 3 - Nilai', 'inviro'),
+        'description' => __('Nilai untuk kotak highlight ketiga', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    // ============================================
+    // Layanan Section Settings
+    // ============================================
+    $wp_customize->add_setting('inviro_profil_layanan_title', array(
+        'default' => 'Layanan',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_layanan_title', array(
+        'label' => __('Layanan - Judul', 'inviro'),
+        'description' => __('Judul untuk section Layanan', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+    $wp_customize->add_setting('inviro_profil_layanan_description', array(
+        'default' => 'Divisi water treatment/water purifier CV. INDO SOLUTION yang bernama INVIRO™ [Water Solution] menghadirkan layanan komprehensif dalam bidang pengolahan air. Didukung dengan tenaga yang professional, pengalaman dan jam terbang yang tinggi dalam bidang pengolahan air, kami menyediakan jasa dan produk:',
+        'sanitize_callback' => 'wp_kses_post',
+    ));
+    $wp_customize->add_control('inviro_profil_layanan_description', array(
+        'label' => __('Layanan - Deskripsi', 'inviro'),
+        'description' => __('Deskripsi yang ditampilkan di atas grid layanan. Untuk menambah/mengubah layanan, gunakan menu "Layanan" di sidebar WordPress.', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'textarea',
+    ));
+
+    // ============================================
+    // Video & Legalitas Section Settings
+    // ============================================
+    $wp_customize->add_setting('inviro_profil_youtube_url', array(
         'default' => '',
         'sanitize_callback' => 'esc_url_raw',
     ));
-    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'inviro_profil_history_image', array(
-        'label' => __('Sejarah - Gambar', 'inviro'),
+    $wp_customize->add_control('inviro_profil_youtube_url', array(
+        'label' => __('Video YouTube - URL', 'inviro'),
+        'description' => __('Masukkan URL lengkap video YouTube (contoh: https://www.youtube.com/watch?v=VIDEO_ID atau https://youtu.be/VIDEO_ID)', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'url',
+    ));
+
+    // Video & Legalitas Section Headers
+    $wp_customize->add_setting('inviro_profil_video_legalitas_title', array(
+        'default' => 'Video Proses Bisnis & Legalitas',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_video_legalitas_title', array(
+        'label' => __('Video & Legalitas - Judul Utama', 'inviro'),
+        'description' => __('Judul utama untuk section Video & Legalitas', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_profil_video_legalitas_subtitle', array(
+        'default' => 'Tonton proses bisnis kami dan lihat legalitas perusahaan',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_video_legalitas_subtitle', array(
+        'label' => __('Video & Legalitas - Subtitle', 'inviro'),
+        'description' => __('Subtitle untuk section Video & Legalitas', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_profil_video_title', array(
+        'default' => 'Video Proses Bisnis INVIRO',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_video_title', array(
+        'label' => __('Video - Judul', 'inviro'),
+        'description' => __('Judul untuk section video', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_profil_legalitas_title', array(
+        'default' => 'Data Terkait Legalitas',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_legalitas_title', array(
+        'label' => __('Legalitas - Judul', 'inviro'),
+        'description' => __('Judul untuk section data legalitas', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_profil_legalitas_intro', array(
+        'default' => 'Adapun Legalitas Perusahaan kami adalah sebagai berikut:',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_legalitas_intro', array(
+        'label' => __('Legalitas - Teks Pengantar', 'inviro'),
+        'description' => __('Teks pengantar sebelum daftar data legalitas', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    // Legalitas Data Fields
+    $legalitas_fields = array(
+        'alamat' => array('label' => 'Alamat Perusahaan', 'default' => 'Jl. Parangtritis Km. 4,5 Yogyakarta'),
+        'bidang_usaha' => array('label' => 'Bidang Usaha', 'default' => 'Peralatan Filter Air'),
+        'telepon' => array('label' => 'No. Telepon', 'default' => '0274–385 322'),
+        'akta_pendirian' => array('label' => 'Akta Pendirian', 'default' => 'No. 01 Tanggal 27 Juli 2009 Notaris Dewi Lestari, S.H'),
+        'akta_perubahan' => array('label' => 'Akta Perubahan', 'default' => '115/CV/III/2018/KUM.01.01.PHBH'),
+        'pengesahan' => array('label' => 'Pengesahan', 'default' => 'No. 162/CV/VIII/2009 Kum. 01.01/Pengadilan Negeri Bantul'),
+        'ho' => array('label' => 'HO', 'default' => '12/Pem/Pgh/2018'),
+        'siup' => array('label' => 'SIUP', 'default' => '1050DPMPT/007/III/2018'),
+        'tdp' => array('label' => 'TDP', 'default' => '1051/DPMPT/099/III/2018'),
+        'npwp' => array('label' => 'NPWP', 'default' => '21.111.248.7-543.000'),
+        'pkp' => array('label' => 'PKP', 'default' => 'S-144PKP/WPJ.23/KP.0503/2018'),
+        'email' => array('label' => 'Email', 'default' => 'inviro.co.id[at]gmail.com'),
+    );
+
+    foreach ($legalitas_fields as $key => $field) {
+        $wp_customize->add_setting("inviro_profil_legalitas_{$key}", array(
+            'default' => $field['default'],
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+        $wp_customize->add_control("inviro_profil_legalitas_{$key}", array(
+            'label' => sprintf(__('Legalitas - %s', 'inviro'), $field['label']),
+            'description' => sprintf(__('Nilai untuk %s', 'inviro'), $field['label']),
+            'section' => 'inviro_profil',
+            'type' => 'text',
+        ));
+    }
+
+    $wp_customize->add_setting('inviro_profil_sertifikat_title', array(
+        'default' => 'Sertifikat',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_sertifikat_title', array(
+        'label' => __('Sertifikat - Judul', 'inviro'),
+        'description' => __('Judul untuk section sertifikat', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    // Sertifikat Settings (hanya 1)
+    $wp_customize->add_setting('inviro_profil_cert_1_title', array(
+        'default' => 'Legalitas INVIRO',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_profil_cert_1_title', array(
+        'label' => __('Sertifikat - Judul', 'inviro'),
+        'description' => __('Judul untuk sertifikat legalitas (opsional, akan digunakan sebagai alt text)', 'inviro'),
+        'section' => 'inviro_profil',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_profil_cert_1_image', array(
+        'default' => '',
+        'sanitize_callback' => 'esc_url_raw',
+    ));
+    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'inviro_profil_cert_1_image', array(
+        'label' => __('Sertifikat - Gambar', 'inviro'),
+        'description' => __('Upload gambar sertifikat legalitas perusahaan. Gambar akan ditampilkan full width di section Legalitas.', 'inviro'),
         'section' => 'inviro_profil',
     )));
 
-    // Vision Settings
-    $wp_customize->add_setting('inviro_profil_visi_title', array(
-        'default' => 'Visi',
-        'sanitize_callback' => 'sanitize_text_field',
-    ));
-    $wp_customize->add_control('inviro_profil_visi_title', array(
-        'label' => __('Visi - Judul', 'inviro'),
-        'section' => 'inviro_profil',
-        'type' => 'text',
-    ));
-
-    $wp_customize->add_setting('inviro_profil_visi_content', array(
-        'default' => 'Menjadi perusahaan terdepan dalam solusi pengolahan air yang berkelanjutan dan ramah lingkungan.',
-        'sanitize_callback' => 'sanitize_textarea_field',
-    ));
-    $wp_customize->add_control('inviro_profil_visi_content', array(
-        'label' => __('Visi - Konten', 'inviro'),
-        'section' => 'inviro_profil',
-        'type' => 'textarea',
-    ));
-
-    // Mission Settings
-    $wp_customize->add_setting('inviro_profil_misi_title', array(
-        'default' => 'Misi',
-        'sanitize_callback' => 'sanitize_text_field',
-    ));
-    $wp_customize->add_control('inviro_profil_misi_title', array(
-        'label' => __('Misi - Judul', 'inviro'),
-        'section' => 'inviro_profil',
-        'type' => 'text',
-    ));
-
-    $wp_customize->add_setting('inviro_profil_misi_content', array(
-        'default' => 'Menyediakan produk dan layanan berkualitas tinggi dengan inovasi berkelanjutan untuk kesejahteraan masyarakat.',
-        'sanitize_callback' => 'sanitize_textarea_field',
-    ));
-    $wp_customize->add_control('inviro_profil_misi_content', array(
-        'label' => __('Misi - Konten', 'inviro'),
-        'section' => 'inviro_profil',
-        'type' => 'textarea',
-    ));
-
-    // Values Settings
-    $wp_customize->add_setting('inviro_profil_values_title', array(
-        'default' => 'Nilai-nilai Kami',
-        'sanitize_callback' => 'sanitize_text_field',
-    ));
-    $wp_customize->add_control('inviro_profil_values_title', array(
-        'label' => __('Nilai - Judul Utama', 'inviro'),
-        'section' => 'inviro_profil',
-        'type' => 'text',
-    ));
-
-    for ($i = 1; $i <= 4; $i++) {
-        $wp_customize->add_setting("inviro_profil_value_{$i}_title", array(
-            'default' => '',
-            'sanitize_callback' => 'sanitize_text_field',
-        ));
-        $wp_customize->add_control("inviro_profil_value_{$i}_title", array(
-            'label' => sprintf(__('Nilai %d - Judul', 'inviro'), $i),
-            'section' => 'inviro_profil',
-            'type' => 'text',
-        ));
-
-        $wp_customize->add_setting("inviro_profil_value_{$i}_desc", array(
-            'default' => '',
-            'sanitize_callback' => 'sanitize_text_field',
-        ));
-        $wp_customize->add_control("inviro_profil_value_{$i}_desc", array(
-            'label' => sprintf(__('Nilai %d - Deskripsi', 'inviro'), $i),
-            'section' => 'inviro_profil',
-            'type' => 'textarea',
-        ));
-    }
-
-    // Team Settings
-    $wp_customize->add_setting('inviro_profil_team_title', array(
-        'default' => 'Tim Kami',
-        'sanitize_callback' => 'sanitize_text_field',
-    ));
-    $wp_customize->add_control('inviro_profil_team_title', array(
-        'label' => __('Tim - Judul Utama', 'inviro'),
-        'section' => 'inviro_profil',
-        'type' => 'text',
-    ));
-
-    for ($i = 1; $i <= 6; $i++) {
-        $wp_customize->add_setting("inviro_profil_team_{$i}_name", array(
-            'default' => '',
-            'sanitize_callback' => 'sanitize_text_field',
-        ));
-        $wp_customize->add_control("inviro_profil_team_{$i}_name", array(
-            'label' => sprintf(__('Tim %d - Nama', 'inviro'), $i),
-            'section' => 'inviro_profil',
-            'type' => 'text',
-        ));
-
-        $wp_customize->add_setting("inviro_profil_team_{$i}_position", array(
-            'default' => '',
-            'sanitize_callback' => 'sanitize_text_field',
-        ));
-        $wp_customize->add_control("inviro_profil_team_{$i}_position", array(
-            'label' => sprintf(__('Tim %d - Posisi', 'inviro'), $i),
-            'section' => 'inviro_profil',
-            'type' => 'text',
-        ));
-
-        $wp_customize->add_setting("inviro_profil_team_{$i}_image", array(
-            'default' => '',
-            'sanitize_callback' => 'esc_url_raw',
-        ));
-        $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, "inviro_profil_team_{$i}_image", array(
-            'label' => sprintf(__('Tim %d - Foto', 'inviro'), $i),
-            'section' => 'inviro_profil',
-        )));
-    }
-
-    // Certification Settings
-    $wp_customize->add_setting('inviro_profil_cert_title', array(
-        'default' => 'Sertifikasi & Penghargaan',
-        'sanitize_callback' => 'sanitize_text_field',
-    ));
-    $wp_customize->add_control('inviro_profil_cert_title', array(
-        'label' => __('Sertifikasi - Judul Utama', 'inviro'),
-        'section' => 'inviro_profil',
-        'type' => 'text',
-    ));
-
-    for ($i = 1; $i <= 4; $i++) {
-        $wp_customize->add_setting("inviro_profil_cert_{$i}_title", array(
-            'default' => '',
-            'sanitize_callback' => 'sanitize_text_field',
-        ));
-        $wp_customize->add_control("inviro_profil_cert_{$i}_title", array(
-            'label' => sprintf(__('Sertifikasi %d - Judul', 'inviro'), $i),
-            'section' => 'inviro_profil',
-            'type' => 'text',
-        ));
-
-        $wp_customize->add_setting("inviro_profil_cert_{$i}_image", array(
-            'default' => '',
-            'sanitize_callback' => 'esc_url_raw',
-        ));
-        $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, "inviro_profil_cert_{$i}_image", array(
-            'label' => sprintf(__('Sertifikasi %d - Gambar', 'inviro'), $i),
-            'section' => 'inviro_profil',
-        )));
-    }
-
-    // CTA Settings
+    // ============================================
+    // CTA Section Settings
+    // ============================================
     $wp_customize->add_setting('inviro_profil_cta_title', array(
         'default' => 'Mari Bergabung Bersama Kami',
         'sanitize_callback' => 'sanitize_text_field',
@@ -3167,11 +3368,12 @@ function inviro_profil_customize_register($wp_customize) {
     ));
 
     $wp_customize->add_setting('inviro_profil_cta_link', array(
-        'default' => '#kontak',
+        'default' => '#contact',
         'sanitize_callback' => 'esc_url_raw',
     ));
     $wp_customize->add_control('inviro_profil_cta_link', array(
         'label' => __('CTA - Link', 'inviro'),
+        'description' => __('Link tujuan saat button diklik (contoh: #contact untuk scroll ke section contact)', 'inviro'),
         'section' => 'inviro_profil',
         'type' => 'url',
     ));
