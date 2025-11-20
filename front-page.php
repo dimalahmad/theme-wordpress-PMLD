@@ -469,63 +469,21 @@ get_header();
             
             <div class="products-grid">
                 <?php
-                // Get 8 best selling products
-                // Priority: Featured products from customizer > Products with sales count > Latest products
+                // Get 8 paket usaha
+                $args = array(
+                    'post_type' => 'paket_usaha',
+                    'posts_per_page' => 8,
+                    'orderby' => 'date',
+                    'order' => 'DESC'
+                );
                 
-                // Check for featured products from customizer (highest priority)
-                $featured_products = array();
-                for ($i = 1; $i <= 8; $i++) {
-                    $product_id = get_theme_mod('inviro_featured_product_' . $i);
-                    if ($product_id) {
-                        $featured_products[] = $product_id;
-                    }
-                }
+                $paket_query = new WP_Query($args);
                 
-                // If there are featured products, use them (these are considered best sellers)
-                if (!empty($featured_products)) {
-                    $args = array(
-                        'post_type' => 'produk',
-                        'posts_per_page' => 8,
-                        'post__in' => array_slice($featured_products, 0, 8),
-                        'orderby' => 'post__in'
-                    );
-                } else {
-                    // Try to get products with sales count meta (best sellers)
-                    $args = array(
-                        'post_type' => 'produk',
-                        'posts_per_page' => 8,
-                        'meta_key' => '_product_sales_count',
-                        'orderby' => 'meta_value_num',
-                        'order' => 'DESC'
-                    );
-                    
-                    // Check if we have products with sales count
-                    $test_query = new WP_Query($args);
-                    wp_reset_postdata();
-                    
-                    if ($test_query->found_posts < 8) {
-                        // If less than 8 products have sales count, get latest products to fill
-                        $args = array(
-                            'post_type' => 'produk',
-                            'posts_per_page' => 8,
-                            'orderby' => 'date',
-                            'order' => 'DESC'
-                        );
-                    }
-                }
-                
-                $products = new WP_Query($args);
-                
-                if ($products->have_posts()) :
-                    while ($products->have_posts()) : $products->the_post();
-                        $price = get_post_meta(get_the_ID(), '_product_price', true);
-                        $original_price = get_post_meta(get_the_ID(), '_product_original_price', true);
-                        $buy_url = get_post_meta(get_the_ID(), '_product_buy_url', true);
-                        
-                        // Fallback URL jika tidak diisi
-                        if (empty($buy_url)) {
+                if ($paket_query->have_posts()) :
+                    while ($paket_query->have_posts()) : $paket_query->the_post();
+                        $price = get_post_meta(get_the_ID(), '_paket_price', true);
+                        $description = get_post_meta(get_the_ID(), '_paket_description', true);
                             $buy_url = get_theme_mod('inviro_whatsapp') ? 'https://wa.me/' . get_theme_mod('inviro_whatsapp') : '#';
-                        }
                         ?>
                         <article class="product-card" data-product-id="<?php echo esc_attr(get_the_ID()); ?>" itemscope itemtype="https://schema.org/Product">
                             <?php if (has_post_thumbnail()) : ?>
@@ -542,86 +500,69 @@ get_header();
                             <div class="product-info">
                                 <h3 class="product-title" itemprop="name"><?php the_title(); ?></h3>
                                 
+                                <?php if ($description) : ?>
+                                    <p class="product-description"><?php echo esc_html(wp_trim_words($description, 12)); ?></p>
+                                <?php endif; ?>
+                                
                                 <div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                                    <?php if ($original_price) : ?>
-                                        <span class="product-original-price"><?php echo esc_html($original_price); ?></span>
-                                    <?php endif; ?>
                                     <?php if ($price) : ?>
                                         <span class="product-current-price" itemprop="price"><?php echo esc_html($price); ?></span>
+                                    <?php else : ?>
+                                        <span class="product-current-price">Hubungi Kami</span>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <a href="<?php echo esc_url($buy_url); ?>" class="btn btn-product" target="_blank" rel="noopener"><?php esc_html_e('Beli', 'inviro'); ?></a>
                             </div>
                             
-                            <meta itemprop="description" content="<?php echo esc_attr(wp_strip_all_tags(get_the_excerpt())); ?>">
+                            <meta itemprop="description" content="<?php echo esc_attr(wp_strip_all_tags($description ? $description : get_the_excerpt())); ?>">
                         </article>
                         <?php
                     endwhile;
                     wp_reset_postdata();
                 else :
                     // Fallback to dummy data
-                    $dummy_products = function_exists('inviro_get_dummy_products') ? inviro_get_dummy_products() : array();
-                    if (!empty($dummy_products)) :
-                        // Limit to 8 products
-                        $dummy_products = array_slice($dummy_products, 0, 8);
-                        foreach ($dummy_products as $product) :
+                    $dummy_paket = function_exists('inviro_get_dummy_paket_usaha') ? inviro_get_dummy_paket_usaha() : array();
+                    if (!empty($dummy_paket)) :
+                        // Limit to 8 paket
+                        $dummy_paket = array_slice($dummy_paket, 0, 8);
+                        foreach ($dummy_paket as $paket) :
                             $buy_url = get_theme_mod('inviro_whatsapp') ? 'https://wa.me/' . get_theme_mod('inviro_whatsapp') : '#';
-                            ?>
-                            <article class="product-card" data-product-id="<?php echo esc_attr($product['id']); ?>" itemscope itemtype="https://schema.org/Product">
-                                <div class="product-image">
-                                    <img src="<?php echo esc_url($product['image']); ?>" alt="<?php echo esc_attr($product['title']); ?>" loading="lazy">
-                                    <button class="product-like" data-product-id="<?php echo esc_attr($product['id']); ?>" aria-label="Like product">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div class="product-info">
-                                    <h3 class="product-title" itemprop="name"><?php echo esc_html($product['title']); ?></h3>
-                                    <div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                                        <?php if (!empty($product['original_price'])) : ?>
-                                            <span class="product-original-price"><?php echo esc_html($product['original_price']); ?></span>
-                                        <?php endif; ?>
-                                        <span class="product-current-price" itemprop="price"><?php echo esc_html($product['price']); ?></span>
-                                    </div>
-                                    <a href="<?php echo esc_url($buy_url); ?>" class="btn btn-product" target="_blank" rel="noopener"><?php esc_html_e('Beli', 'inviro'); ?></a>
-                                </div>
-                                <meta itemprop="description" content="<?php echo esc_attr($product['description']); ?>">
-                            </article>
-                            <?php
-                        endforeach;
-                    else :
-                        // Ultimate fallback - hardcoded products
-                    for ($i = 1; $i <= 4; $i++) :
                         ?>
-                        <article class="product-card">
+                            <article class="product-card" data-product-id="<?php echo esc_attr($paket['id']); ?>" itemscope itemtype="https://schema.org/Product">
                             <div class="product-image">
-                                    <img src="https://via.placeholder.com/400x400/75C6F1/FFFFFF?text=Product+<?php echo $i; ?>" alt="Product <?php echo $i; ?>" loading="lazy">
-                                <button class="product-like" aria-label="Like product">
+                                    <img src="<?php echo esc_url($paket['image']); ?>" alt="<?php echo esc_attr($paket['title']); ?>" loading="lazy">
+                                    <button class="product-like" data-product-id="<?php echo esc_attr($paket['id']); ?>" aria-label="Like product">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                     </svg>
                                 </button>
                             </div>
                             <div class="product-info">
-                                <h3 class="product-title"><?php esc_html_e('Mesin RO 20.000 GPD Kapasitas Setara 2000 Liter/Jam', 'inviro'); ?></h3>
-                                <div class="product-price">
-                                    <span class="product-original-price">Rp6.000.000</span>
-                                    <span class="product-current-price">Rp5.000.000</span>
+                                    <h3 class="product-title" itemprop="name"><?php echo esc_html($paket['title']); ?></h3>
+                                    <?php if (!empty($paket['description'])) : ?>
+                                        <p class="product-description"><?php echo esc_html(wp_trim_words($paket['description'], 12)); ?></p>
+                                    <?php endif; ?>
+                                    <div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                                        <?php if (!empty($paket['price'])) : ?>
+                                            <span class="product-current-price" itemprop="price"><?php echo esc_html($paket['price']); ?></span>
+                                        <?php else : ?>
+                                            <span class="product-current-price">Hubungi Kami</span>
+                                        <?php endif; ?>
                                 </div>
-                                <a href="#" class="btn btn-product"><?php esc_html_e('Beli', 'inviro'); ?></a>
+                                    <a href="<?php echo esc_url($buy_url); ?>" class="btn btn-product" target="_blank" rel="noopener"><?php esc_html_e('Beli', 'inviro'); ?></a>
                             </div>
+                                <meta itemprop="description" content="<?php echo esc_attr($paket['description']); ?>">
                         </article>
                         <?php
-                    endfor;
+                        endforeach;
                     endif;
                 endif;
                 ?>
             </div>
             
             <div class="section-footer">
-                <a href="<?php echo esc_url(get_post_type_archive_link('produk')); ?>" class="btn-view-all-products"><?php esc_html_e('Lihat semua produk', 'inviro'); ?></a>
+                <a href="<?php echo esc_url(home_url('/paket-usaha')); ?>" class="btn-view-all-products"><?php esc_html_e('Lihat semua paket usaha', 'inviro'); ?></a>
             </div>
         </div>
     </section>
@@ -805,9 +746,47 @@ get_header();
                     <?php
                     $map_url = get_theme_mod('inviro_contact_map_url', '');
                     if ($map_url) {
-                        // Simply use iframe with the URL directly - let browser handle it
-                        // Google Maps will auto-convert most URL formats when used in iframe
-                        echo '<iframe src="' . esc_url($map_url) . '" width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>';
+                        // Check if it's a full iframe code or just URL
+                        if (strpos($map_url, '<iframe') !== false) {
+                            // If it's full iframe code, extract src or use wp_kses
+                            preg_match('/src=["\']([^"\']+)["\']/', $map_url, $matches);
+                            if (!empty($matches[1])) {
+                                $map_url = $matches[1];
+                            } else {
+                                // Allow iframe with wp_kses
+                                $allowed_html = array(
+                                    'iframe' => array(
+                                        'src' => array(),
+                                        'width' => array(),
+                                        'height' => array(),
+                                        'style' => array(),
+                                        'allowfullscreen' => array(),
+                                        'loading' => array(),
+                                        'referrerpolicy' => array(),
+                                        'frameborder' => array(),
+                                    ),
+                                );
+                                echo wp_kses($map_url, $allowed_html);
+                                $map_url = ''; // Prevent double rendering
+                            }
+                        }
+                        
+                        if ($map_url) {
+                            // Clean and sanitize URL
+                            $map_url = esc_url_raw($map_url);
+                            ?>
+                            <iframe 
+                                src="<?php echo esc_attr($map_url); ?>" 
+                                width="100%" 
+                                height="400" 
+                                style="border:0;" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade"
+                                frameborder="0">
+                            </iframe>
+                            <?php
+                        }
                     } else {
                         ?>
                         <div class="map-placeholder" itemscope itemtype="https://schema.org/LocalBusiness">

@@ -2167,14 +2167,29 @@ function inviro_customize_register($wp_customize) {
     // Google Maps
     $wp_customize->add_setting('inviro_contact_map_url', array(
         'default'           => '',
-        'sanitize_callback' => 'esc_url_raw',
+        'sanitize_callback' => function($value) {
+            // Allow iframe tags and extract URL if needed
+            $allowed_html = array(
+                'iframe' => array(
+                    'src' => array(),
+                    'width' => array(),
+                    'height' => array(),
+                    'style' => array(),
+                    'allowfullscreen' => array(),
+                    'loading' => array(),
+                    'referrerpolicy' => array(),
+                    'frameborder' => array(),
+                ),
+            );
+            return wp_kses($value, $allowed_html);
+        },
     ));
     
     $wp_customize->add_control('inviro_contact_map_url', array(
-        'label'       => __('URL Embed Google Maps', 'inviro'),
-        'description' => __('Masuk ke Google Maps → Pilih lokasi → Klik "Share" → Tab "Embed a map" → Copy URL dari src="..." → Paste di sini', 'inviro'),
+        'label'       => __('URL atau Embed Code Google Maps', 'inviro'),
+        'description' => __('Masuk ke Google Maps → Pilih lokasi → Klik "Share" → Tab "Embed a map" → Copy URL dari src="..." atau full iframe code → Paste di sini', 'inviro'),
         'section'     => 'inviro_contact',
-        'type'        => 'url',
+        'type'        => 'textarea',
     ));
     
     // Feature Items (3 items with icon, title, description)
