@@ -74,6 +74,10 @@ function inviro_enqueue_files() {
         wp_enqueue_script('inviro-pelanggan-filter', get_template_directory_uri() . '/assets/js/pelanggan-filter.js', array('jquery'), $theme_version, true);
     } elseif (is_page('paket-usaha') || is_post_type_archive('paket_usaha')) {
         wp_enqueue_style('inviro-paket-usaha', get_template_directory_uri() . '/assets/css/paket-usaha.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
+    } elseif (is_page('spareparts') || is_page_template('page-spareparts.php')) {
+        wp_enqueue_style('inviro-spareparts', get_template_directory_uri() . '/assets/css/spareparts.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
+    } elseif (is_singular('spareparts')) {
+        wp_enqueue_style('inviro-sparepart-detail', get_template_directory_uri() . '/assets/css/sparepart-detail.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
     } elseif (is_single()) {
         wp_enqueue_style('inviro-single', get_template_directory_uri() . '/assets/css/single.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
     } elseif (is_archive() || is_post_type_archive()) {
@@ -82,6 +86,11 @@ function inviro_enqueue_files() {
     
     // Enqueue main stylesheet for fallback (minimal)
     wp_enqueue_style('inviro-style', get_stylesheet_uri(), array('inviro-base'), $theme_version);
+    
+    // Enqueue sparepart detail CSS if viewing dummy detail
+    if (isset($_GET['dummy_id']) && intval($_GET['dummy_id']) > 0) {
+        wp_enqueue_style('inviro-sparepart-detail', get_template_directory_uri() . '/assets/css/sparepart-detail.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
+    }
     
     // Enqueue scripts (defer for performance)
     wp_enqueue_script('jquery');
@@ -732,8 +741,201 @@ function inviro_register_spareparts() {
     );
     
     register_post_type('spareparts', $args);
+    
+    // Register taxonomy for spare parts categories
+    $taxonomy_labels = array(
+        'name'              => __('Kategori Spare Parts', 'inviro'),
+        'singular_name'     => __('Kategori', 'inviro'),
+        'search_items'      => __('Cari Kategori', 'inviro'),
+        'all_items'         => __('Semua Kategori', 'inviro'),
+        'parent_item'       => __('Kategori Induk', 'inviro'),
+        'parent_item_colon' => __('Kategori Induk:', 'inviro'),
+        'edit_item'         => __('Edit Kategori', 'inviro'),
+        'update_item'       => __('Update Kategori', 'inviro'),
+        'add_new_item'      => __('Tambah Kategori Baru', 'inviro'),
+        'new_item_name'     => __('Nama Kategori Baru', 'inviro'),
+        'menu_name'         => __('Kategori', 'inviro'),
+    );
+    
+    register_taxonomy('sparepart_category', array('spareparts'), array(
+        'hierarchical'      => true,
+        'labels'            => $taxonomy_labels,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'query_var'         => true,
+        'rewrite'           => array('slug' => 'kategori-sparepart'),
+        'show_in_rest'      => true,
+    ));
 }
 add_action('init', 'inviro_register_spareparts');
+
+// Register Spare Part Reviews Custom Post Type
+function inviro_register_sparepart_reviews() {
+    $labels = array(
+        'name'               => __('Ulasan Spare Parts', 'inviro'),
+        'singular_name'      => __('Ulasan', 'inviro'),
+        'menu_name'          => __('Ulasan Spare Parts', 'inviro'),
+        'add_new'            => __('Tambah Ulasan', 'inviro'),
+        'add_new_item'       => __('Tambah Ulasan Baru', 'inviro'),
+        'edit_item'          => __('Edit Ulasan', 'inviro'),
+        'new_item'           => __('Ulasan Baru', 'inviro'),
+        'view_item'          => __('Lihat Ulasan', 'inviro'),
+        'search_items'       => __('Cari Ulasan', 'inviro'),
+        'not_found'          => __('Ulasan tidak ditemukan', 'inviro'),
+        'not_found_in_trash' => __('Tidak ada ulasan di trash', 'inviro')
+    );
+    
+    $args = array(
+        'labels'              => $labels,
+        'public'              => false,
+        'publicly_queryable'  => false,
+        'show_ui'             => true,
+        'show_in_menu'        => true,
+        'query_var'           => true,
+        'rewrite'             => false,
+        'capability_type'     => 'post',
+        'has_archive'         => false,
+        'hierarchical'        => false,
+        'menu_position'       => 10,
+        'menu_icon'           => 'dashicons-star-filled',
+        'supports'            => array('title', 'editor'),
+        'show_in_rest'        => false,
+    );
+    
+    register_post_type('sparepart_review', $args);
+}
+add_action('init', 'inviro_register_sparepart_reviews');
+
+// Add meta boxes for reviews
+function inviro_add_review_meta_boxes() {
+    add_meta_box(
+        'review_info',
+        'Informasi Ulasan',
+        'inviro_review_info_callback',
+        'sparepart_review',
+        'side',
+        'default'
+    );
+    
+    add_meta_box(
+        'review_status',
+        'Status Ulasan',
+        'inviro_review_status_callback',
+        'sparepart_review',
+        'side',
+        'high'
+    );
+}
+add_action('add_meta_boxes', 'inviro_add_review_meta_boxes');
+
+function inviro_review_info_callback($post) {
+    $sparepart_id = get_post_meta($post->ID, '_review_sparepart_id', true);
+    $reviewer_name = get_post_meta($post->ID, '_reviewer_name', true);
+    $reviewer_email = get_post_meta($post->ID, '_reviewer_email', true);
+    $rating = get_post_meta($post->ID, '_review_rating', true);
+    ?>
+    <div style="padding: 10px 0;">
+        <p><strong>Nama:</strong><br><?php echo esc_html($reviewer_name); ?></p>
+        <p><strong>Email:</strong><br><?php echo esc_html($reviewer_email); ?></p>
+        <p><strong>Rating:</strong><br>
+            <?php 
+            for ($i = 1; $i <= 5; $i++) {
+                echo $i <= $rating ? '★' : '☆';
+            }
+            ?> (<?php echo esc_html($rating); ?>/5)
+        </p>
+        <p><strong>Spare Part:</strong><br>
+            <?php if ($sparepart_id) : 
+                $sparepart = get_post($sparepart_id);
+                if ($sparepart) : ?>
+                    <a href="<?php echo get_edit_post_link($sparepart_id); ?>" target="_blank">
+                        <?php echo esc_html($sparepart->post_title); ?>
+                    </a>
+                <?php endif;
+            endif; ?>
+        </p>
+    </div>
+    <?php
+}
+
+function inviro_review_status_callback($post) {
+    $status = get_post_meta($post->ID, '_review_status', true);
+    if (!$status) $status = 'pending';
+    ?>
+    <div style="padding: 10px 0;">
+        <select name="review_status" style="width: 100%; padding: 10px; font-size: 14px;">
+            <option value="approved" <?php selected($status, 'approved'); ?>>Disetujui (Tampilkan)</option>
+            <option value="pending" <?php selected($status, 'pending'); ?>>Menunggu Persetujuan</option>
+            <option value="rejected" <?php selected($status, 'rejected'); ?>>Ditolak (Tidak Tampilkan)</option>
+        </select>
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Pilih status ulasan. Hanya ulasan yang disetujui yang akan ditampilkan di halaman produk.
+        </p>
+    </div>
+    <?php
+}
+
+function inviro_save_review_meta($post_id) {
+    if (get_post_type($post_id) !== 'sparepart_review') {
+        return;
+    }
+    
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    
+    if (isset($_POST['review_status'])) {
+        update_post_meta($post_id, '_review_status', sanitize_text_field($_POST['review_status']));
+    }
+}
+add_action('save_post_sparepart_review', 'inviro_save_review_meta');
+
+// Handle review form submission
+function inviro_handle_review_submission() {
+    if (!isset($_POST['review_nonce']) || !wp_verify_nonce($_POST['review_nonce'], 'submit_review')) {
+        wp_send_json_error(array('message' => 'Invalid nonce'));
+        return;
+    }
+    
+    $sparepart_id_raw = $_POST['sparepart_id'];
+    $is_dummy = isset($_POST['is_dummy']) && $_POST['is_dummy'] == '1';
+    $sparepart_id = $is_dummy ? $sparepart_id_raw : intval($sparepart_id_raw);
+    $reviewer_name = sanitize_text_field($_POST['reviewer_name']);
+    $reviewer_email = sanitize_email($_POST['reviewer_email']);
+    $rating = intval($_POST['rating']);
+    $review_content = sanitize_textarea_field($_POST['review_content']);
+    
+    if (empty($reviewer_name) || empty($reviewer_email) || empty($review_content) || $rating < 1 || $rating > 5) {
+        wp_send_json_error(array('message' => 'Semua field harus diisi dengan benar'));
+        return;
+    }
+    
+    $review_id = wp_insert_post(array(
+        'post_type'    => 'sparepart_review',
+        'post_title'   => 'Ulasan dari ' . $reviewer_name,
+        'post_content' => $review_content,
+        'post_status'  => 'publish',
+    ));
+    
+    if ($review_id) {
+        update_post_meta($review_id, '_review_sparepart_id', $sparepart_id);
+        update_post_meta($review_id, '_review_is_dummy', $is_dummy ? '1' : '0');
+        update_post_meta($review_id, '_reviewer_name', $reviewer_name);
+        update_post_meta($review_id, '_reviewer_email', $reviewer_email);
+        update_post_meta($review_id, '_review_rating', $rating);
+        update_post_meta($review_id, '_review_status', 'pending');
+        
+        wp_send_json_success(array('message' => 'Ulasan Anda telah dikirim dan menunggu persetujuan admin.'));
+    } else {
+        wp_send_json_error(array('message' => 'Gagal mengirim ulasan. Silakan coba lagi.'));
+    }
+}
+add_action('wp_ajax_submit_sparepart_review', 'inviro_handle_review_submission');
+add_action('wp_ajax_nopriv_submit_sparepart_review', 'inviro_handle_review_submission');
 
 // Artikel Custom Post Type
 function inviro_register_artikel() {
@@ -1441,6 +1643,42 @@ function inviro_add_sparepart_meta_boxes() {
         'side',
         'default'
     );
+    
+    add_meta_box(
+        'sparepart_promo',
+        '🎯 Promo',
+        'inviro_sparepart_promo_callback',
+        'spareparts',
+        'side',
+        'default'
+    );
+    
+    add_meta_box(
+        'sparepart_original_price',
+        '💰 Harga Asli (untuk Promo)',
+        'inviro_sparepart_original_price_callback',
+        'spareparts',
+        'side',
+        'default'
+    );
+    
+    add_meta_box(
+        'sparepart_gallery',
+        '🖼️ Gallery Images',
+        'inviro_sparepart_gallery_callback',
+        'spareparts',
+        'normal',
+        'high'
+    );
+    
+    add_meta_box(
+        'sparepart_specifications',
+        '⚙️ Spesifikasi',
+        'inviro_sparepart_specifications_callback',
+        'spareparts',
+        'normal',
+        'default'
+    );
 }
 add_action('add_meta_boxes', 'inviro_add_sparepart_meta_boxes');
 
@@ -1492,6 +1730,161 @@ function inviro_sparepart_sku_callback($post) {
     <?php
 }
 
+function inviro_sparepart_promo_callback($post) {
+    $promo = get_post_meta($post->ID, '_sparepart_promo', true);
+    ?>
+    <div style="padding: 10px 0;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="sparepart_promo" name="sparepart_promo" value="1" 
+                   <?php checked($promo, '1'); ?>
+                   style="width: 20px; height: 20px; cursor: pointer;">
+            <span style="font-size: 14px; font-weight: 500;">Tandai sebagai Promo</span>
+        </label>
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Centang jika spare part ini sedang dalam promo
+        </p>
+    </div>
+    <?php
+}
+
+function inviro_sparepart_original_price_callback($post) {
+    wp_nonce_field('inviro_sparepart_meta', 'inviro_sparepart_meta_nonce');
+    $original_price = get_post_meta($post->ID, '_sparepart_original_price', true);
+    ?>
+    <div style="padding: 10px 0;">
+        <input type="number" id="sparepart_original_price" name="sparepart_original_price" 
+               value="<?php echo esc_attr($original_price); ?>" 
+               placeholder="200000" 
+               min="0"
+               style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 6px;">
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Harga sebelum promo (akan dicoret). Kosongkan jika tidak ada promo.
+        </p>
+    </div>
+    <?php
+}
+
+function inviro_sparepart_gallery_callback($post) {
+    wp_nonce_field('inviro_sparepart_meta', 'inviro_sparepart_meta_nonce');
+    $gallery_ids = get_post_meta($post->ID, '_sparepart_gallery', true);
+    $gallery_ids = $gallery_ids ? explode(',', $gallery_ids) : array();
+    ?>
+    <div style="padding: 10px 0;">
+        <input type="hidden" id="sparepart_gallery" name="sparepart_gallery" value="<?php echo esc_attr(implode(',', $gallery_ids)); ?>">
+        <div id="gallery-preview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+            <?php foreach ($gallery_ids as $img_id) : 
+                if ($img_id) :
+                    $img_url = wp_get_attachment_image_url($img_id, 'thumbnail');
+            ?>
+                <div class="gallery-item" data-id="<?php echo esc_attr($img_id); ?>" style="position: relative; border: 2px solid #ddd; border-radius: 8px; overflow: hidden;">
+                    <img src="<?php echo esc_url($img_url); ?>" style="width: 100%; height: 150px; object-fit: cover; display: block;">
+                    <button type="button" class="remove-gallery-item" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 16px; line-height: 1;">×</button>
+                </div>
+            <?php 
+                endif;
+            endforeach; ?>
+        </div>
+        <button type="button" id="add-gallery-images" class="button" style="margin-top: 15px;">Tambah Gambar ke Gallery</button>
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Tambahkan beberapa gambar untuk ditampilkan di halaman detail product
+        </p>
+    </div>
+    <script>
+    jQuery(document).ready(function($) {
+        var galleryFrame;
+        $('#add-gallery-images').on('click', function(e) {
+            e.preventDefault();
+            if (galleryFrame) {
+                galleryFrame.open();
+                return;
+            }
+            galleryFrame = wp.media({
+                title: 'Pilih Gambar Gallery',
+                button: { text: 'Gunakan Gambar' },
+                multiple: true
+            });
+            galleryFrame.on('select', function() {
+                var selection = galleryFrame.state().get('selection');
+                var galleryIds = $('#sparepart_gallery').val().split(',').filter(Boolean);
+                selection.map(function(attachment) {
+                    attachment = attachment.toJSON();
+                    if (galleryIds.indexOf(attachment.id.toString()) === -1) {
+                        galleryIds.push(attachment.id);
+                        $('#gallery-preview').append(
+                            '<div class="gallery-item" data-id="' + attachment.id + '" style="position: relative; border: 2px solid #ddd; border-radius: 8px; overflow: hidden;">' +
+                            '<img src="' + attachment.sizes.thumbnail.url + '" style="width: 100%; height: 150px; object-fit: cover; display: block;">' +
+                            '<button type="button" class="remove-gallery-item" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 16px; line-height: 1;">×</button>' +
+                            '</div>'
+                        );
+                    }
+                });
+                $('#sparepart_gallery').val(galleryIds.join(','));
+            });
+            galleryFrame.open();
+        });
+        $(document).on('click', '.remove-gallery-item', function() {
+            var item = $(this).closest('.gallery-item');
+            var imgId = item.data('id').toString();
+            var galleryIds = $('#sparepart_gallery').val().split(',').filter(Boolean);
+            galleryIds = galleryIds.filter(function(id) { return id !== imgId; });
+            $('#sparepart_gallery').val(galleryIds.join(','));
+            item.remove();
+        });
+    });
+    </script>
+    <?php
+}
+
+function inviro_sparepart_specifications_callback($post) {
+    wp_nonce_field('inviro_sparepart_meta', 'inviro_sparepart_meta_nonce');
+    $specs = get_post_meta($post->ID, '_sparepart_specifications', true);
+    $specs = $specs ? json_decode($specs, true) : array();
+    if (empty($specs)) {
+        $specs = array(array('label' => '', 'value' => ''));
+    }
+    ?>
+    <div style="padding: 10px 0;">
+        <div id="specifications-list">
+            <?php foreach ($specs as $index => $spec) : ?>
+                <div class="spec-row" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                    <input type="text" name="spec_label[]" placeholder="Label (contoh: Material)" 
+                           value="<?php echo esc_attr($spec['label']); ?>"
+                           style="flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
+                    <input type="text" name="spec_value[]" placeholder="Value (contoh: Stainless Steel)" 
+                           value="<?php echo esc_attr($spec['value']); ?>"
+                           style="flex: 2; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
+                    <button type="button" class="remove-spec button" style="background: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Hapus</button>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <button type="button" id="add-spec" class="button" style="margin-top: 10px;">Tambah Spesifikasi</button>
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Tambahkan spesifikasi produk (contoh: Material, Ukuran, Berat, dll)
+        </p>
+    </div>
+    <script>
+    jQuery(document).ready(function($) {
+        $('#add-spec').on('click', function() {
+            $('#specifications-list').append(
+                '<div class="spec-row" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">' +
+                '<input type="text" name="spec_label[]" placeholder="Label" style="flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">' +
+                '<input type="text" name="spec_value[]" placeholder="Value" style="flex: 2; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">' +
+                '<button type="button" class="remove-spec button" style="background: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Hapus</button>' +
+                '</div>'
+            );
+        });
+        $(document).on('click', '.remove-spec', function() {
+            if ($('.spec-row').length > 1) {
+                $(this).closest('.spec-row').remove();
+            } else {
+                alert('Minimal harus ada 1 spesifikasi');
+            }
+        });
+    });
+    </script>
+    <?php
+}
+
 function inviro_save_sparepart_meta($post_id) {
     if (get_post_type($post_id) !== 'spareparts') {
         return;
@@ -1519,6 +1912,33 @@ function inviro_save_sparepart_meta($post_id) {
     
     if (isset($_POST['sparepart_sku'])) {
         update_post_meta($post_id, '_sparepart_sku', sanitize_text_field($_POST['sparepart_sku']));
+    }
+    
+    if (isset($_POST['sparepart_promo'])) {
+        update_post_meta($post_id, '_sparepart_promo', '1');
+    } else {
+        update_post_meta($post_id, '_sparepart_promo', '0');
+    }
+    
+    if (isset($_POST['sparepart_original_price'])) {
+        update_post_meta($post_id, '_sparepart_original_price', absint($_POST['sparepart_original_price']));
+    }
+    
+    if (isset($_POST['sparepart_gallery'])) {
+        update_post_meta($post_id, '_sparepart_gallery', sanitize_text_field($_POST['sparepart_gallery']));
+    }
+    
+    if (isset($_POST['spec_label']) && isset($_POST['spec_value'])) {
+        $specs = array();
+        foreach ($_POST['spec_label'] as $index => $label) {
+            if (!empty($label) && !empty($_POST['spec_value'][$index])) {
+                $specs[] = array(
+                    'label' => sanitize_text_field($label),
+                    'value' => sanitize_text_field($_POST['spec_value'][$index])
+                );
+            }
+        }
+        update_post_meta($post_id, '_sparepart_specifications', json_encode($specs));
     }
 }
 add_action('save_post_spareparts', 'inviro_save_sparepart_meta');
@@ -1862,6 +2282,85 @@ function inviro_handle_proyek_submission() {
     exit;
 }
 add_action('template_redirect', 'inviro_handle_proyek_submission');
+
+/**
+ * Handle dummy sparepart detail page
+ * Ensure page-spareparts.php template is used when dummy_id is present
+ */
+function inviro_handle_dummy_sparepart_detail() {
+    // Check if dummy_id is present in query string
+    if (isset($_GET['dummy_id']) && intval($_GET['dummy_id']) > 0) {
+        // Check if we're on spareparts page or trying to access dummy detail
+        $dummy_id = intval($_GET['dummy_id']);
+        
+        // Try to find spareparts page
+        $spareparts_page = get_page_by_path('spareparts');
+        if (!$spareparts_page) {
+            // Try alternative slug
+            $spareparts_page = get_pages(array(
+                'meta_key' => '_wp_page_template',
+                'meta_value' => 'page-spareparts.php',
+                'number' => 1
+            ));
+            if (!empty($spareparts_page)) {
+                $spareparts_page = $spareparts_page[0];
+            }
+        }
+        
+        // If page exists, set up query to use that page
+        if ($spareparts_page) {
+            global $wp_query;
+            $wp_query->is_page = true;
+            $wp_query->is_singular = true;
+            $wp_query->is_404 = false;
+            $wp_query->queried_object = $spareparts_page;
+            $wp_query->queried_object_id = $spareparts_page->ID;
+            $wp_query->posts = array($spareparts_page);
+            $wp_query->post_count = 1;
+            $wp_query->found_posts = 1;
+            $wp_query->max_num_pages = 1;
+        }
+    }
+}
+add_action('template_redirect', 'inviro_handle_dummy_sparepart_detail', 1);
+
+/**
+ * Force template for dummy sparepart detail
+ */
+function inviro_force_spareparts_template($template) {
+    // Check if dummy_id is present
+    if (isset($_GET['dummy_id']) && intval($_GET['dummy_id']) > 0) {
+        // Check if current request might be for spareparts page
+        $request_uri = $_SERVER['REQUEST_URI'];
+        if (strpos($request_uri, '/spareparts') !== false || is_404()) {
+            // Try to find spareparts page
+            $spareparts_page = get_page_by_path('spareparts');
+            if (!$spareparts_page) {
+                $pages = get_pages(array(
+                    'meta_key' => '_wp_page_template',
+                    'meta_value' => 'page-spareparts.php',
+                    'number' => 1
+                ));
+                if (!empty($pages)) {
+                    $spareparts_page = $pages[0];
+                }
+            }
+            
+            // If spareparts page exists, use its template
+            if ($spareparts_page) {
+                $page_template = get_page_template_slug($spareparts_page->ID);
+                if ($page_template == 'page-spareparts.php' || empty($page_template)) {
+                    $template_path = locate_template('page-spareparts.php');
+                    if ($template_path) {
+                        return $template_path;
+                    }
+                }
+            }
+        }
+    }
+    return $template;
+}
+add_filter('template_include', 'inviro_force_spareparts_template', 99);
 
 /**
  * Contact Form Handler
@@ -3634,6 +4133,88 @@ function inviro_paket_customize_register($wp_customize) {
     ));
 }
 add_action('customize_register', 'inviro_paket_customize_register');
+
+/**
+ * Spare Parts Page Customizer Settings
+ */
+function inviro_spareparts_customize_register($wp_customize) {
+    // Spare Parts Section
+    $wp_customize->add_section('inviro_spareparts', array(
+        'title' => __('Halaman Spare Parts', 'inviro'),
+        'priority' => 38,
+        'description' => __('Kustomisasi konten halaman Spare Parts', 'inviro'),
+    ));
+
+    // Hero Settings
+    $wp_customize->add_setting('inviro_spareparts_hero_title', array(
+        'default' => 'Spare Parts Premium',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_spareparts_hero_title', array(
+        'label' => __('Hero - Judul', 'inviro'),
+        'description' => __('Judul utama di hero section', 'inviro'),
+        'section' => 'inviro_spareparts',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_spareparts_hero_subtitle', array(
+        'default' => 'Solusi lengkap spare parts berkualitas tinggi untuk mesin pengolahan air Anda. Dapatkan performa optimal dengan komponen asli dan terpercaya.',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ));
+    $wp_customize->add_control('inviro_spareparts_hero_subtitle', array(
+        'label' => __('Hero - Subtitle', 'inviro'),
+        'description' => __('Deskripsi di hero section', 'inviro'),
+        'section' => 'inviro_spareparts',
+        'type' => 'textarea',
+    ));
+
+    // Search Placeholder
+    $wp_customize->add_setting('inviro_spareparts_search_placeholder', array(
+        'default' => 'Cari spare part yang Anda butuhkan...',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_spareparts_search_placeholder', array(
+        'label' => __('Search - Placeholder Text', 'inviro'),
+        'description' => __('Teks placeholder untuk search input', 'inviro'),
+        'section' => 'inviro_spareparts',
+        'type' => 'text',
+    ));
+
+    // CTA Settings
+    $wp_customize->add_setting('inviro_spareparts_cta_title', array(
+        'default' => 'Butuh Konsultasi Spesialis?',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_spareparts_cta_title', array(
+        'label' => __('CTA - Judul', 'inviro'),
+        'description' => __('Judul untuk section CTA di bawah', 'inviro'),
+        'section' => 'inviro_spareparts',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_spareparts_cta_subtitle', array(
+        'default' => 'Tim ahli kami siap membantu Anda menemukan spare part yang tepat untuk kebutuhan mesin pengolahan air Anda',
+        'sanitize_callback' => 'sanitize_textarea_field',
+    ));
+    $wp_customize->add_control('inviro_spareparts_cta_subtitle', array(
+        'label' => __('CTA - Subtitle', 'inviro'),
+        'description' => __('Deskripsi untuk section CTA', 'inviro'),
+        'section' => 'inviro_spareparts',
+        'type' => 'textarea',
+    ));
+
+    $wp_customize->add_setting('inviro_spareparts_cta_button', array(
+        'default' => 'Chat WhatsApp',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_spareparts_cta_button', array(
+        'label' => __('CTA - Teks Button', 'inviro'),
+        'description' => __('Teks untuk tombol CTA', 'inviro'),
+        'section' => 'inviro_spareparts',
+        'type' => 'text',
+    ));
+}
+add_action('customize_register', 'inviro_spareparts_customize_register');
 
 add_action('wp_enqueue_scripts', 'inviro_load_frontpage_css_for_custom_pages', 11);
 

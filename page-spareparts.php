@@ -3,7 +3,138 @@
  * Template Name: Spare Parts
  */
 
+// Ensure this template is used for spareparts page with dummy_id
+if (isset($_GET['dummy_id']) && intval($_GET['dummy_id']) > 0) {
+    // Force this template to be used
+    global $wp_query;
+    if (is_404() || empty($wp_query->posts)) {
+        // Try to find spareparts page
+        $spareparts_page = get_page_by_path('spareparts');
+        if (!$spareparts_page) {
+            $pages = get_pages(array(
+                'meta_key' => '_wp_page_template',
+                'meta_value' => 'page-spareparts.php',
+                'number' => 1
+            ));
+            if (!empty($pages)) {
+                $spareparts_page = $pages[0];
+            }
+        }
+        if ($spareparts_page) {
+            $wp_query->is_page = true;
+            $wp_query->is_singular = true;
+            $wp_query->is_404 = false;
+            $wp_query->queried_object = $spareparts_page;
+            $wp_query->queried_object_id = $spareparts_page->ID;
+            $wp_query->posts = array($spareparts_page);
+            $wp_query->post_count = 1;
+        }
+    }
+}
+
 get_header();
+
+// Check if viewing dummy detail
+$dummy_id = isset($_GET['dummy_id']) ? intval($_GET['dummy_id']) : 0;
+$viewing_dummy_detail = false;
+$dummy_detail_data = null;
+
+if ($dummy_id > 0) {
+    // Load dummy data
+    $dummy_spareparts = array();
+    if (function_exists('inviro_get_dummy_spareparts')) {
+        $dummy_spareparts = inviro_get_dummy_spareparts();
+    }
+    if (empty($dummy_spareparts)) {
+        $json_file = get_template_directory() . '/dummy-data/spareparts.json';
+        if (file_exists($json_file)) {
+            $json_content = file_get_contents($json_file);
+            $dummy_spareparts = json_decode($json_content, true);
+        }
+    }
+    
+    // Find dummy data by ID
+    foreach ($dummy_spareparts as $item) {
+        if (isset($item['id']) && $item['id'] == $dummy_id) {
+            $dummy_detail_data = $item;
+            $viewing_dummy_detail = true;
+            break;
+        }
+    }
+}
+
+// If viewing dummy detail, redirect to single template logic
+if ($viewing_dummy_detail && $dummy_detail_data) {
+    // Include single template with dummy data
+    $price = isset($dummy_detail_data['price']) ? $dummy_detail_data['price'] : '';
+    $original_price = isset($dummy_detail_data['original_price']) ? $dummy_detail_data['original_price'] : null;
+    $stock = isset($dummy_detail_data['stock']) ? $dummy_detail_data['stock'] : 0;
+    $sku = isset($dummy_detail_data['sku']) ? $dummy_detail_data['sku'] : '';
+    $promo = isset($dummy_detail_data['promo']) && $dummy_detail_data['promo'] ? '1' : '0';
+    $gallery = isset($dummy_detail_data['gallery']) ? $dummy_detail_data['gallery'] : array();
+    $specifications = isset($dummy_detail_data['specifications']) ? $dummy_detail_data['specifications'] : array();
+    $category_name = isset($dummy_detail_data['category']) ? $dummy_detail_data['category'] : '';
+    $categories = $category_name ? array((object)array('name' => $category_name)) : array();
+    $title = isset($dummy_detail_data['title']) ? $dummy_detail_data['title'] : '';
+    $description = isset($dummy_detail_data['description']) ? $dummy_detail_data['description'] : '';
+    $main_image = isset($dummy_detail_data['image']) ? $dummy_detail_data['image'] : '';
+    
+    // Get reviews for dummy data
+    $reviews = array();
+    $avg_rating = 0;
+    $review_sparepart_id = 'dummy_' . $dummy_id;
+    
+    $reviews_query = new WP_Query(array(
+        'post_type' => 'sparepart_review',
+        'posts_per_page' => -1,
+        'meta_query' => array(
+            'relation' => 'AND',
+            array(
+                'key' => '_review_sparepart_id',
+                'value' => $review_sparepart_id,
+                'compare' => '='
+            ),
+            array(
+                'key' => '_review_is_dummy',
+                'value' => '1',
+                'compare' => '='
+            ),
+            array(
+                'key' => '_review_status',
+                'value' => 'approved',
+                'compare' => '='
+            )
+        )
+    ));
+    
+    if ($reviews_query->have_posts()) {
+        while ($reviews_query->have_posts()) {
+            $reviews_query->the_post();
+            $reviews[] = array(
+                'id' => get_the_ID(),
+                'name' => get_post_meta(get_the_ID(), '_reviewer_name', true),
+                'email' => get_post_meta(get_the_ID(), '_reviewer_email', true),
+                'rating' => get_post_meta(get_the_ID(), '_review_rating', true),
+                'content' => get_the_content(),
+                'date' => get_the_date('d F Y')
+            );
+        }
+        wp_reset_postdata();
+    }
+    
+    if (!empty($reviews)) {
+        $total_rating = 0;
+        foreach ($reviews as $review) {
+            $total_rating += intval($review['rating']);
+        }
+        $avg_rating = round($total_rating / count($reviews), 1);
+    }
+    
+    // Include single template
+    include(get_template_directory() . '/single-spareparts-dummy.php');
+    get_footer();
+    exit;
+}
 ?>
 
 <div class="spareparts-page">
@@ -11,8 +142,8 @@ get_header();
     <section class="spareparts-hero">
         <div class="container">
             <div class="hero-content">
-                <h1>Spare Parts</h1>
-                <p>INVIRO menyediakan spareparts untuk berbagai mesin air minum isi ulang</p>
+                <h1><?php echo esc_html(get_theme_mod('inviro_spareparts_hero_title', 'Spare Parts Premium')); ?></h1>
+                <p><?php echo esc_html(get_theme_mod('inviro_spareparts_hero_subtitle', 'Solusi lengkap spare parts berkualitas tinggi untuk mesin pengolahan air Anda. Dapatkan performa optimal dengan komponen asli dan terpercaya.')); ?></p>
             </div>
         </div>
     </section>
@@ -21,7 +152,7 @@ get_header();
     <section class="spareparts-filter">
         <div class="container">
             <div class="filter-bar">
-                <input type="text" id="sparepart-search" placeholder="🔍 Cari spare part..." />
+                <input type="text" id="sparepart-search" placeholder="<?php echo esc_attr(get_theme_mod('inviro_spareparts_search_placeholder', 'Cari spare part yang Anda butuhkan...')); ?>" />
                 <select id="sort-by">
                     <option value="latest">Terbaru</option>
                     <option value="price-low">Harga: Rendah - Tinggi</option>
@@ -48,19 +179,21 @@ get_header();
                 $has_real_posts = ($spareparts->post_count > 0);
                 
                 if ($has_real_posts) :
-                    while ($spareparts->have_posts()) : $spareparts->the_post();
-                        $price = get_post_meta(get_the_ID(), '_sparepart_price', true);
-                        $stock = get_post_meta(get_the_ID(), '_sparepart_stock', true);
-                        $sku = get_post_meta(get_the_ID(), '_sparepart_sku', true);
+                while ($spareparts->have_posts()) : $spareparts->the_post();
+                    $price = get_post_meta(get_the_ID(), '_sparepart_price', true);
+                    $original_price = get_post_meta(get_the_ID(), '_sparepart_original_price', true);
+                    $stock = get_post_meta(get_the_ID(), '_sparepart_stock', true);
+                    $sku = get_post_meta(get_the_ID(), '_sparepart_sku', true);
+                    $promo = get_post_meta(get_the_ID(), '_sparepart_promo', true);
                 ?>
                 <div class="sparepart-card" data-price="<?php echo esc_attr($price); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>">
                     <?php if (has_post_thumbnail()) : ?>
                         <div class="sparepart-image">
                             <?php the_post_thumbnail('medium'); ?>
-                            <?php if ($stock && $stock > 0) : ?>
-                                <span class="stock-badge in-stock">✓ Tersedia</span>
-                            <?php else : ?>
-                                <span class="stock-badge out-stock">✕ Habis</span>
+                            <?php if ($promo == '1') : ?>
+                                <span class="stock-badge promo-badge">Promo</span>
+                            <?php elseif ($stock && $stock > 0) : ?>
+                                <span class="stock-badge in-stock">Tersedia</span>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
@@ -78,22 +211,23 @@ get_header();
                         
                         <div class="sparepart-meta">
                             <?php if ($price) : ?>
-                                <span class="sparepart-price">
-                                    Rp <?php echo number_format($price, 0, ',', '.'); ?>
-                                </span>
-                            <?php endif; ?>
-                            
-                            <?php if ($stock) : ?>
-                                <span class="sparepart-stock">
-                                    Stok: <?php echo esc_html($stock); ?>
-                                </span>
+                                <?php if ($promo == '1' && $original_price && $original_price > $price) : ?>
+                                    <div class="sparepart-price-wrapper">
+                                        <span class="sparepart-price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
+                                        <span class="sparepart-price sparepart-price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
+                                    </div>
+                                <?php else : ?>
+                                    <span class="sparepart-price">
+                                        Rp <?php echo number_format($price, 0, ',', '.'); ?>
+                                    </span>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </div>
                         
                         <div class="sparepart-actions">
-                            <a href="https://wa.me/6281234567890?text=Saya%20tertarik%20dengan%20<?php echo urlencode(get_the_title()); ?>" 
-                               class="btn-order" target="_blank">
-                                💬 Pesan via WhatsApp
+                            <a href="<?php echo esc_url(get_permalink()); ?>" 
+                               class="btn-order">
+                                Pesan
                             </a>
                         </div>
                     </div>
@@ -125,10 +259,12 @@ get_header();
                             <div class="sparepart-card" data-price="<?php echo esc_attr($sparepart['price']); ?>" data-name="<?php echo esc_attr($sparepart['title']); ?>">
                                 <div class="sparepart-image">
                                     <img src="<?php echo esc_url($sparepart['image']); ?>" alt="<?php echo esc_attr($sparepart['title']); ?>" loading="lazy">
-                                    <?php if ($sparepart['stock'] > 0) : ?>
-                                        <span class="stock-badge in-stock">✓ Tersedia</span>
-                                    <?php else : ?>
-                                        <span class="stock-badge out-stock">✕ Habis</span>
+                                    <?php 
+                                    $dummy_promo = !empty($sparepart['promo']) ? $sparepart['promo'] : false;
+                                    if ($dummy_promo) : ?>
+                                        <span class="stock-badge promo-badge">Promo</span>
+                                    <?php elseif (!empty($sparepart['stock']) && $sparepart['stock'] > 0) : ?>
+                                        <span class="stock-badge in-stock">Tersedia</span>
                                     <?php endif; ?>
                                 </div>
                                 <div class="sparepart-content">
@@ -140,17 +276,25 @@ get_header();
                                         <p class="sparepart-desc"><?php echo esc_html(wp_trim_words($sparepart['description'], 15)); ?></p>
                                     <?php endif; ?>
                                     <div class="sparepart-meta">
-                                        <span class="sparepart-price">
-                                            Rp <?php echo number_format($sparepart['price'], 0, ',', '.'); ?>
-                                        </span>
-                                        <span class="sparepart-stock">
-                                            Stok: <?php echo esc_html($sparepart['stock']); ?>
-                                        </span>
+                                        <?php 
+                                        $dummy_price = $sparepart['price'];
+                                        $dummy_original_price = isset($sparepart['original_price']) ? $sparepart['original_price'] : null;
+                                        $dummy_promo = !empty($sparepart['promo']) ? $sparepart['promo'] : false;
+                                        if ($dummy_promo && $dummy_original_price && $dummy_original_price > $dummy_price) : ?>
+                                            <div class="sparepart-price-wrapper">
+                                                <span class="sparepart-price-original">Rp <?php echo number_format($dummy_original_price, 0, ',', '.'); ?></span>
+                                                <span class="sparepart-price sparepart-price-promo">Rp <?php echo number_format($dummy_price, 0, ',', '.'); ?></span>
+                                            </div>
+                                        <?php else : ?>
+                                            <span class="sparepart-price">
+                                                Rp <?php echo number_format($dummy_price, 0, ',', '.'); ?>
+                                            </span>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="sparepart-actions">
-                                        <a href="https://wa.me/<?php echo esc_attr($wa_number); ?>?text=<?php echo esc_attr($wa_message); ?>" 
-                                           class="btn-order" target="_blank">
-                                            💬 Pesan via WhatsApp
+                                        <a href="<?php echo esc_url(home_url('/spareparts/?dummy_id=' . $sparepart['id'])); ?>" 
+                                           class="btn-order">
+                                            Pesan
                                         </a>
                                     </div>
                                 </div>
@@ -174,302 +318,108 @@ get_header();
     <section class="spareparts-cta">
         <div class="container">
             <div class="cta-content">
-                <h2>Butuh Konsultasi?</h2>
-                <p>Hubungi kami untuk bantuan memilih spare part yang tepat</p>
-                <a href="https://wa.me/6281234567890" class="btn-whatsapp" target="_blank">
-                    💬 Chat WhatsApp
+                <h2><?php echo esc_html(get_theme_mod('inviro_spareparts_cta_title', 'Butuh Konsultasi Spesialis?')); ?></h2>
+                <p><?php echo esc_html(get_theme_mod('inviro_spareparts_cta_subtitle', 'Tim ahli kami siap membantu Anda menemukan spare part yang tepat untuk kebutuhan mesin pengolahan air Anda')); ?></p>
+                <?php $wa_number_cta = get_theme_mod('inviro_whatsapp', '6281234567890'); ?>
+                <a href="https://wa.me/<?php echo esc_attr($wa_number_cta); ?>" class="btn-whatsapp" target="_blank">
+                    <?php echo esc_html(get_theme_mod('inviro_spareparts_cta_button', 'Chat WhatsApp')); ?>
                 </a>
             </div>
         </div>
     </section>
 </div>
 
-<style>
-.spareparts-page {
-    padding-top: 80px;
-}
-
-.spareparts-hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 80px 0;
-    text-align: center;
-}
-
-.spareparts-hero h1 {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-}
-
-.spareparts-hero p {
-    font-size: 1.1rem;
-    opacity: 0.95;
-}
-
-.spareparts-filter {
-    padding: 30px 0;
-    background: white;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.filter-bar {
-    display: flex;
-    gap: 15px;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-#sparepart-search,
-#sort-by {
-    padding: 12px 20px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 15px;
-}
-
-#sparepart-search {
-    flex: 1;
-}
-
-#sort-by {
-    min-width: 200px;
-}
-
-.spareparts-grid-section {
-    padding: 60px 0;
-    background: #f8f9fa;
-}
-
-.spareparts-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
-}
-
-.sparepart-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.sparepart-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-}
-
-.sparepart-image {
-    position: relative;
-    height: 200px;
-    overflow: hidden;
-}
-
-.sparepart-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.stock-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.stock-badge.in-stock {
-    background: #4caf50;
-    color: white;
-}
-
-.stock-badge.out-stock {
-    background: #f44336;
-    color: white;
-}
-
-.sparepart-content {
-    padding: 20px;
-}
-
-.sparepart-sku {
-    display: inline-block;
-    background: #e3f2fd;
-    color: #1976d2;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.sparepart-content h3 {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-    color: #333;
-}
-
-.sparepart-desc {
-    font-size: 0.9rem;
-    color: #666;
-    line-height: 1.5;
-    margin-bottom: 15px;
-}
-
-.sparepart-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #e0e0e0;
-}
-
-.sparepart-price {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #667eea;
-}
-
-.sparepart-stock {
-    font-size: 0.9rem;
-    color: #666;
-}
-
-.sparepart-actions {
-    margin-top: 15px;
-}
-
-.btn-order {
-    display: block;
-    text-align: center;
-    background: #25D366;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: background 0.3s;
-}
-
-.btn-order:hover {
-    background: #22c55e;
-}
-
-.spareparts-cta {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 80px 0;
-    text-align: center;
-}
-
-.spareparts-cta h2 {
-    font-size: 2rem;
-    margin-bottom: 15px;
-}
-
-.spareparts-cta p {
-    font-size: 1.1rem;
-    margin-bottom: 30px;
-}
-
-.btn-whatsapp {
-    display: inline-block;
-    background: #25D366;
-    color: white;
-    padding: 15px 40px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 1.1rem;
-    transition: all 0.3s;
-}
-
-.btn-whatsapp:hover {
-    background: #22c55e;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-@media (max-width: 992px) {
-    .spareparts-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .spareparts-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
-    
-    .filter-bar {
-        flex-direction: column;
-    }
-    
-    #sort-by {
-        width: 100%;
-    }
-}
-
-@media (max-width: 480px) {
-    .spareparts-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('sparepart-search');
     const sortSelect = document.getElementById('sort-by');
     const cards = document.querySelectorAll('.sparepart-card');
+    const grid = document.querySelector('.spareparts-grid');
     
-    // Search functionality
+    // Search functionality with smooth animation
     if (searchInput) {
         searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
+            const searchTerm = this.value.toLowerCase().trim();
+            let visibleCount = 0;
             
-            cards.forEach(card => {
-                const title = card.querySelector('h3').textContent.toLowerCase();
+            cards.forEach((card, index) => {
+                const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
                 const desc = card.querySelector('.sparepart-desc');
                 const descText = desc ? desc.textContent.toLowerCase() : '';
+                const sku = card.querySelector('.sparepart-sku')?.textContent.toLowerCase() || '';
                 
-                if (title.includes(searchTerm) || descText.includes(searchTerm)) {
+                const matches = !searchTerm || 
+                    title.includes(searchTerm) || 
+                    descText.includes(searchTerm) || 
+                    sku.includes(searchTerm);
+                
+                if (matches) {
                     card.style.display = 'block';
+                    card.style.opacity = '0';
+                    card.style.animation = 'fadeInUp 0.4s ease forwards';
+                    card.style.animationDelay = (visibleCount * 0.05) + 's';
+                    visibleCount++;
                 } else {
                     card.style.display = 'none';
                 }
             });
+            
+            // Show no results message if needed
+            const noResults = document.querySelector('.no-results');
+            if (visibleCount === 0 && searchTerm) {
+                if (!noResults) {
+                    const noResultsDiv = document.createElement('div');
+                    noResultsDiv.className = 'no-results';
+                    noResultsDiv.innerHTML = '<p>Tidak ada spare part yang ditemukan untuk "<strong>' + searchTerm + '</strong>"</p>';
+                    grid.appendChild(noResultsDiv);
+                }
+            } else if (noResults) {
+                noResults.remove();
+            }
         });
     }
     
-    // Sort functionality
+    // Sort functionality with smooth animation
     if (sortSelect) {
         sortSelect.addEventListener('change', function() {
             const sortValue = this.value;
-            const grid = document.querySelector('.spareparts-grid');
-            const cardsArray = Array.from(cards);
+            const visibleCards = Array.from(cards).filter(card => card.style.display !== 'none');
             
-            cardsArray.sort((a, b) => {
+            visibleCards.sort((a, b) => {
                 switch(sortValue) {
                     case 'price-low':
                         return parseInt(a.dataset.price || 0) - parseInt(b.dataset.price || 0);
                     case 'price-high':
                         return parseInt(b.dataset.price || 0) - parseInt(a.dataset.price || 0);
                     case 'name':
-                        return a.dataset.name.localeCompare(b.dataset.name);
+                        return (a.dataset.name || '').localeCompare(b.dataset.name || '');
                     default: // latest
                         return 0;
                 }
             });
             
-            cardsArray.forEach(card => grid.appendChild(card));
+            // Reorder with animation
+            visibleCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    grid.appendChild(card);
+                    card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 30);
+            });
         });
     }
+    
+    // Add loading animation on page load
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        setTimeout(() => {
+            card.style.opacity = '1';
+        }, index * 100);
+    });
 });
 </script>
 
