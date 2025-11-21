@@ -105,6 +105,11 @@ if ($is_dummy || (isset($title) && $title)) :
                 'compare' => '='
             ),
             array(
+                'key' => '_review_product_type',
+                'value' => 'spareparts',
+                'compare' => '='
+            ),
+            array(
                 'key' => '_review_status',
                 'value' => 'approved',
                 'compare' => '='
@@ -313,6 +318,7 @@ if ($is_dummy || (isset($title) && $title)) :
                     <?php wp_nonce_field('submit_review', 'review_nonce'); ?>
                     <input type="hidden" name="sparepart_id" value="<?php echo $is_dummy ? 'dummy_' . $dummy_id : get_the_ID(); ?>">
                     <input type="hidden" name="is_dummy" value="<?php echo $is_dummy ? '1' : '0'; ?>">
+                    <input type="hidden" name="product_type" value="spareparts">
                     
                     <div class="form-row">
                         <div class="form-group">

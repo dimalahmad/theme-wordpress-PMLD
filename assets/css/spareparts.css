@@ -114,6 +114,12 @@
     align-items: center;
 }
 
+.filter-dropdowns {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
 #sparepart-search {
     flex: 1;
     min-width: 0;
@@ -139,6 +145,7 @@
     color: #999;
 }
 
+#filter-category,
 #sort-by {
     min-width: 200px;
     max-width: 250px;
@@ -157,8 +164,10 @@
     background-position: right 16px center;
     padding-right: 48px;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
+#filter-category:focus,
 #sort-by:focus {
     outline: none;
     border-color: var(--inviro-primary, #2F80ED);
@@ -570,6 +579,7 @@
         min-width: 300px;
     }
     
+    #filter-category,
     #sort-by {
         min-width: 200px;
         max-width: 220px;
@@ -623,14 +633,26 @@
         gap: 12px;
     }
     
-    #sparepart-search,
-    #sort-by {
+    .filter-dropdowns {
         width: 100%;
-        max-width: 100%;
+        display: flex;
+        gap: 12px;
+        align-items: stretch;
     }
     
+    #sparepart-search {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+    
+    #filter-category,
     #sort-by {
-        min-width: 100%;
+        flex: 1 1 calc(50% - 6px);
+        width: calc(50% - 6px);
+        min-width: 0 !important;
+        max-width: calc(50% - 6px) !important;
+        box-sizing: border-box;
     }
     
     .spareparts-grid {

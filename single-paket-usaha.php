@@ -1,10 +1,138 @@
 <?php
 /**
- * Single Spare Part Template for Dummy Data
- * This file is included from page-spareparts.php when viewing dummy detail
+ * Single Paket Usaha Template
+ * Modern & Futuristic Design
  */
 
-// Variables are already set from page-spareparts.php
+get_header();
+
+// Check if this is dummy data
+$dummy_id = isset($_GET['dummy_id']) ? intval($_GET['dummy_id']) : 0;
+$is_dummy = false;
+$dummy_data = null;
+
+if ($dummy_id > 0) {
+    // Load dummy data
+    $dummy_pakets = array();
+    if (function_exists('inviro_get_dummy_paket_usaha')) {
+        $dummy_pakets = inviro_get_dummy_paket_usaha();
+    }
+    if (empty($dummy_pakets)) {
+        $json_file = get_template_directory() . '/dummy-data/paket-usaha.json';
+        if (file_exists($json_file)) {
+            $json_content = file_get_contents($json_file);
+            $dummy_pakets = json_decode($json_content, true);
+        }
+    }
+    
+    // Find dummy data by ID
+    foreach ($dummy_pakets as $item) {
+        if (isset($item['id']) && $item['id'] == $dummy_id) {
+            $dummy_data = $item;
+            $is_dummy = true;
+            break;
+        }
+    }
+}
+
+if ($is_dummy && $dummy_data) {
+    // Use dummy data
+    $price = isset($dummy_data['price']) ? $dummy_data['price'] : '';
+    $original_price = isset($dummy_data['original_price']) ? $dummy_data['original_price'] : null;
+    $sku = isset($dummy_data['sku']) ? $dummy_data['sku'] : '';
+    $promo = isset($dummy_data['promo']) && $dummy_data['promo'] ? '1' : '0';
+    $gallery = isset($dummy_data['gallery']) ? $dummy_data['gallery'] : array();
+    $specifications = isset($dummy_data['specifications']) ? $dummy_data['specifications'] : array();
+    $category_name = isset($dummy_data['category']) ? $dummy_data['category'] : '';
+    $categories = $category_name ? array((object)array('name' => $category_name)) : array();
+    $title = isset($dummy_data['title']) ? $dummy_data['title'] : '';
+    $description = isset($dummy_data['description']) ? $dummy_data['description'] : '';
+    $main_image = isset($dummy_data['image']) ? $dummy_data['image'] : '';
+} else {
+    // Use real post data
+    while (have_posts()) : the_post();
+    $price = get_post_meta(get_the_ID(), '_paket_price', true);
+    $original_price = get_post_meta(get_the_ID(), '_paket_original_price', true);
+    $sku = get_post_meta(get_the_ID(), '_paket_sku', true);
+    $promo = get_post_meta(get_the_ID(), '_paket_promo', true);
+    $gallery_ids = get_post_meta(get_the_ID(), '_paket_gallery', true);
+    $gallery_ids = $gallery_ids ? explode(',', $gallery_ids) : array();
+    $specifications = get_post_meta(get_the_ID(), '_paket_specifications', true);
+    $specifications = $specifications ? json_decode($specifications, true) : array();
+    $categories = get_the_terms(get_the_ID(), 'paket_usaha_category');
+    $title = get_the_title();
+    $description = get_the_content();
+    $main_image = has_post_thumbnail() ? get_the_post_thumbnail_url(get_the_ID(), 'large') : '';
+    
+    // Convert gallery IDs to URLs
+    $gallery = array();
+    foreach ($gallery_ids as $img_id) {
+        if ($img_id) {
+            $img_url = wp_get_attachment_image_url($img_id, 'large');
+            if ($img_url) {
+                $gallery[] = $img_url;
+            }
+        }
+    }
+    if (has_post_thumbnail()) {
+        array_unshift($gallery, get_the_post_thumbnail_url(get_the_ID(), 'large'));
+    }
+}
+
+if ($is_dummy || (isset($title) && $title)) :
+    
+    // Get approved reviews
+    $reviews = array();
+    $avg_rating = 0;
+    
+    $review_paket_id = $is_dummy ? 'dummy_' . $dummy_id : get_the_ID();
+    
+    $reviews_query = new WP_Query(array(
+        'post_type' => 'paket_usaha_review',
+        'posts_per_page' => -1,
+        'meta_query' => array(
+            'relation' => 'AND',
+            array(
+                'key' => '_review_sparepart_id',
+                'value' => $review_paket_id,
+                'compare' => '='
+            ),
+            array(
+                'key' => '_review_is_dummy',
+                'value' => $is_dummy ? '1' : '0',
+                'compare' => '='
+            ),
+            array(
+                'key' => '_review_status',
+                'value' => 'approved',
+                'compare' => '='
+            )
+        )
+    ));
+    
+    if ($reviews_query->have_posts()) {
+        while ($reviews_query->have_posts()) {
+            $reviews_query->the_post();
+            $reviews[] = array(
+                'id' => get_the_ID(),
+                'name' => get_post_meta(get_the_ID(), '_reviewer_name', true),
+                'email' => get_post_meta(get_the_ID(), '_reviewer_email', true),
+                'rating' => get_post_meta(get_the_ID(), '_review_rating', true),
+                'content' => get_the_content(),
+                'date' => get_the_date('d F Y')
+            );
+        }
+        wp_reset_postdata();
+    }
+    
+    // Calculate average rating
+    if (!empty($reviews)) {
+        $total_rating = 0;
+        foreach ($reviews as $review) {
+            $total_rating += intval($review['rating']);
+        }
+        $avg_rating = round($total_rating / count($reviews), 1);
+    }
 ?>
 
 <div class="sparepart-detail-page">
@@ -30,9 +158,19 @@
                             
                             <?php if (!empty($gallery) && count($gallery) > 1) : ?>
                                 <div class="gallery-thumbnails">
-                                    <?php foreach ($gallery as $index => $img_url) : ?>
+                                    <?php foreach ($gallery as $index => $img_url) : 
+                                        // Create thumbnail URL (for dummy data, use same URL, for real images we'd need thumbnail version)
+                                        $thumb_url = $img_url;
+                                        if (!$is_dummy && strpos($img_url, 'wp-content') !== false) {
+                                            // Try to get thumbnail version for real images
+                                            $attachment_id = attachment_url_to_postid($img_url);
+                                            if ($attachment_id) {
+                                                $thumb_url = wp_get_attachment_image_url($attachment_id, 'thumbnail');
+                                            }
+                                        }
+                                    ?>
                                         <div class="gallery-thumb <?php echo $index === 0 ? 'active' : ''; ?>" data-image="<?php echo esc_url($img_url); ?>">
-                                            <img src="<?php echo esc_url($img_url); ?>" alt="Gallery thumbnail">
+                                            <img src="<?php echo esc_url($thumb_url); ?>" alt="Gallery thumbnail">
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
@@ -74,7 +212,6 @@
                         <?php if ($price) : ?>
                             <div class="detail-price">
                                 <?php 
-                                $original_price = isset($dummy_detail_data['original_price']) ? $dummy_detail_data['original_price'] : null;
                                 if ($promo == '1' && $original_price && $original_price > $price) : ?>
                                     <div class="price-wrapper">
                                         <span class="price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
@@ -88,7 +225,7 @@
                         
                         <?php if ($promo == '1') : ?>
                             <div class="promo-banner">
-                                <span>Produk ini sedang dalam promo!</span>
+                                <span>Paket ini sedang dalam promo!</span>
                             </div>
                         <?php endif; ?>
                         
@@ -109,15 +246,21 @@
     </section>
 
     <!-- Description & Specifications Section -->
-    <?php if ($description || !empty($specifications)) : ?>
+    <?php if (get_the_content() || !empty($specifications) || ($is_dummy && $description)) : ?>
     <section class="sparepart-detail-content">
         <div class="container">
             <div class="content-grid">
-                <?php if ($description) : ?>
+                <?php if (($is_dummy && $description) || (!$is_dummy && get_the_content())) : ?>
                     <div class="description-section">
-                        <h3>Deskripsi Produk</h3>
+                        <h3>Deskripsi Paket</h3>
                         <div class="description-content">
-                            <?php echo wpautop(esc_html($description)); ?>
+                            <?php 
+                            if ($is_dummy) {
+                                echo wpautop(esc_html($description));
+                            } else {
+                                the_content();
+                            }
+                            ?>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -164,11 +307,11 @@
             <!-- Review Form -->
             <div class="review-form-wrapper">
                 <h3>Tulis Ulasan</h3>
-                <form id="sparepart-review-form" class="review-form">
+                <form id="paket-review-form" class="review-form">
                     <?php wp_nonce_field('submit_review', 'review_nonce'); ?>
-                    <input type="hidden" name="sparepart_id" value="dummy_<?php echo esc_attr($dummy_id); ?>">
-                    <input type="hidden" name="is_dummy" value="1">
-                    <input type="hidden" name="product_type" value="spareparts">
+                    <input type="hidden" name="paket_id" value="<?php echo $is_dummy ? 'dummy_' . $dummy_id : get_the_ID(); ?>">
+                    <input type="hidden" name="is_dummy" value="<?php echo $is_dummy ? '1' : '0'; ?>">
+                    <input type="hidden" name="product_type" value="paket_usaha">
                     
                     <div class="form-row">
                         <div class="form-group">
@@ -248,7 +391,7 @@ jQuery(document).ready(function($) {
     });
     
     // Review form submission
-    $('#sparepart-review-form').on('submit', function(e) {
+    $('#paket-review-form').on('submit', function(e) {
         e.preventDefault();
         var form = $(this);
         var submitBtn = form.find('button[type="submit"]');
@@ -260,7 +403,7 @@ jQuery(document).ready(function($) {
         $.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             type: 'POST',
-            data: form.serialize() + '&action=submit_sparepart_review',
+            data: form.serialize() + '&action=submit_paket_review',
             success: function(response) {
                 if (response.success) {
                     messageDiv.addClass('success').html(response.data.message);
@@ -315,4 +458,12 @@ jQuery(document).ready(function($) {
     });
 });
 </script>
+
+<?php
+    if (!$is_dummy) {
+        endwhile;
+    }
+endif; // End if dummy or real post
+get_footer();
+?>
 

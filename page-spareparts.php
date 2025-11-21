@@ -100,6 +100,11 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                 'compare' => '='
             ),
             array(
+                'key' => '_review_product_type',
+                'value' => 'spareparts',
+                'compare' => '='
+            ),
+            array(
                 'key' => '_review_status',
                 'value' => 'approved',
                 'compare' => '='
@@ -153,12 +158,28 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
         <div class="container">
             <div class="filter-bar">
                 <input type="text" id="sparepart-search" placeholder="<?php echo esc_attr(get_theme_mod('inviro_spareparts_search_placeholder', 'Cari spare part yang Anda butuhkan...')); ?>" />
-                <select id="sort-by">
-                    <option value="latest">Terbaru</option>
-                    <option value="price-low">Harga: Rendah - Tinggi</option>
-                    <option value="price-high">Harga: Tinggi - Rendah</option>
-                    <option value="name">Nama A-Z</option>
-                </select>
+                <div class="filter-dropdowns">
+                    <select id="filter-category">
+                        <option value="">Semua Kategori</option>
+                        <?php
+                        $categories = get_terms(array(
+                            'taxonomy' => 'sparepart_category',
+                            'hide_empty' => false,
+                        ));
+                        if (!is_wp_error($categories) && !empty($categories)) {
+                            foreach ($categories as $category) {
+                                echo '<option value="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</option>';
+                            }
+                        }
+                        ?>
+                    </select>
+                    <select id="sort-by">
+                        <option value="latest">Terbaru</option>
+                        <option value="price-low">Harga: Rendah - Tinggi</option>
+                        <option value="price-high">Harga: Tinggi - Rendah</option>
+                        <option value="name">Nama A-Z</option>
+                    </select>
+                </div>
             </div>
         </div>
     </section>
@@ -185,8 +206,13 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                     $stock = get_post_meta(get_the_ID(), '_sparepart_stock', true);
                     $sku = get_post_meta(get_the_ID(), '_sparepart_sku', true);
                     $promo = get_post_meta(get_the_ID(), '_sparepart_promo', true);
+                    $categories = get_the_terms(get_the_ID(), 'sparepart_category');
+                    $category_slugs = '';
+                    if ($categories && !is_wp_error($categories)) {
+                        $category_slugs = implode(' ', array_map(function($cat) { return $cat->slug; }, $categories));
+                    }
                 ?>
-                <div class="sparepart-card" data-price="<?php echo esc_attr($price); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>">
+                <div class="sparepart-card" data-price="<?php echo esc_attr($price); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>" data-category="<?php echo esc_attr($category_slugs); ?>">
                     <?php if (has_post_thumbnail()) : ?>
                         <div class="sparepart-image">
                             <?php the_post_thumbnail('medium'); ?>
@@ -253,10 +279,10 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                     }
                     if (!empty($dummy_spareparts)) :
                         foreach ($dummy_spareparts as $sparepart) :
-                            $wa_number = get_theme_mod('inviro_whatsapp', '6281234567890');
-                            $wa_message = 'Saya%20tertarik%20dengan%20' . urlencode($sparepart['title']);
+                            $dummy_category = isset($sparepart['category']) ? $sparepart['category'] : '';
+                            $dummy_category_slug = $dummy_category ? sanitize_title($dummy_category) : '';
                             ?>
-                            <div class="sparepart-card" data-price="<?php echo esc_attr($sparepart['price']); ?>" data-name="<?php echo esc_attr($sparepart['title']); ?>">
+                            <div class="sparepart-card" data-price="<?php echo esc_attr($sparepart['price']); ?>" data-name="<?php echo esc_attr($sparepart['title']); ?>" data-category="<?php echo esc_attr($dummy_category_slug); ?>">
                                 <div class="sparepart-image">
                                     <img src="<?php echo esc_url($sparepart['image']); ?>" alt="<?php echo esc_attr($sparepart['title']); ?>" loading="lazy">
                                     <?php 
@@ -333,51 +359,69 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('sparepart-search');
+    const categorySelect = document.getElementById('filter-category');
     const sortSelect = document.getElementById('sort-by');
     const cards = document.querySelectorAll('.sparepart-card');
     const grid = document.querySelector('.spareparts-grid');
     
-    // Search functionality with smooth animation
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            let visibleCount = 0;
+    // Function to filter cards
+    function filterCards() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const selectedCategory = categorySelect ? categorySelect.value : '';
+        let visibleCount = 0;
+        
+        cards.forEach((card, index) => {
+            const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+            const desc = card.querySelector('.sparepart-desc');
+            const descText = desc ? desc.textContent.toLowerCase() : '';
+            const sku = card.querySelector('.sparepart-sku')?.textContent.toLowerCase() || '';
+            const cardCategory = card.dataset.category || '';
+            const cardCategories = cardCategory.split(' ').filter(Boolean);
             
-            cards.forEach((card, index) => {
-                const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
-                const desc = card.querySelector('.sparepart-desc');
-                const descText = desc ? desc.textContent.toLowerCase() : '';
-                const sku = card.querySelector('.sparepart-sku')?.textContent.toLowerCase() || '';
-                
-                const matches = !searchTerm || 
-                    title.includes(searchTerm) || 
-                    descText.includes(searchTerm) || 
-                    sku.includes(searchTerm);
-                
-                if (matches) {
-                    card.style.display = 'block';
-                    card.style.opacity = '0';
-                    card.style.animation = 'fadeInUp 0.4s ease forwards';
-                    card.style.animationDelay = (visibleCount * 0.05) + 's';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+            // Search match
+            const searchMatch = !searchTerm || 
+                title.includes(searchTerm) || 
+                descText.includes(searchTerm) || 
+                sku.includes(searchTerm);
             
-            // Show no results message if needed
-            const noResults = document.querySelector('.no-results');
-            if (visibleCount === 0 && searchTerm) {
-                if (!noResults) {
-                    const noResultsDiv = document.createElement('div');
-                    noResultsDiv.className = 'no-results';
-                    noResultsDiv.innerHTML = '<p>Tidak ada spare part yang ditemukan untuk "<strong>' + searchTerm + '</strong>"</p>';
-                    grid.appendChild(noResultsDiv);
-                }
-            } else if (noResults) {
-                noResults.remove();
+            // Category match
+            const categoryMatch = !selectedCategory || cardCategories.includes(selectedCategory);
+            
+            const matches = searchMatch && categoryMatch;
+            
+            if (matches) {
+                card.style.display = 'block';
+                card.style.opacity = '0';
+                card.style.animation = 'fadeInUp 0.4s ease forwards';
+                card.style.animationDelay = (visibleCount * 0.05) + 's';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
             }
         });
+        
+        // Show no results message if needed
+        const noResults = document.querySelector('.no-results');
+        if (visibleCount === 0 && (searchTerm || selectedCategory)) {
+            if (!noResults) {
+                const noResultsDiv = document.createElement('div');
+                noResultsDiv.className = 'no-results';
+                noResultsDiv.innerHTML = '<p>Tidak ada spare part yang ditemukan' + (searchTerm ? ' untuk "<strong>' + searchTerm + '</strong>"' : '') + (selectedCategory ? ' dalam kategori yang dipilih' : '') + '</p>';
+                grid.appendChild(noResultsDiv);
+            }
+        } else if (noResults) {
+            noResults.remove();
+        }
+    }
+    
+    // Search functionality with smooth animation
+    if (searchInput) {
+        searchInput.addEventListener('input', filterCards);
+    }
+    
+    // Category filter functionality
+    if (categorySelect) {
+        categorySelect.addEventListener('change', filterCards);
     }
     
     // Sort functionality with smooth animation

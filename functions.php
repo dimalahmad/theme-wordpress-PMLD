@@ -72,12 +72,14 @@ function inviro_enqueue_files() {
     } elseif (is_page('pelanggan')) {
         wp_enqueue_style('inviro-pelanggan', get_template_directory_uri() . '/assets/css/pelanggan.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
         wp_enqueue_script('inviro-pelanggan-filter', get_template_directory_uri() . '/assets/js/pelanggan-filter.js', array('jquery'), $theme_version, true);
-    } elseif (is_page('paket-usaha') || is_post_type_archive('paket_usaha')) {
+    } elseif (is_page('paket-usaha') || is_page_template('page-paket-usaha.php') || is_post_type_archive('paket_usaha')) {
         wp_enqueue_style('inviro-paket-usaha', get_template_directory_uri() . '/assets/css/paket-usaha.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
     } elseif (is_page('spareparts') || is_page_template('page-spareparts.php')) {
         wp_enqueue_style('inviro-spareparts', get_template_directory_uri() . '/assets/css/spareparts.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
     } elseif (is_singular('spareparts')) {
         wp_enqueue_style('inviro-sparepart-detail', get_template_directory_uri() . '/assets/css/sparepart-detail.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
+    } elseif (is_singular('paket_usaha')) {
+        wp_enqueue_style('inviro-paket-detail', get_template_directory_uri() . '/assets/css/sparepart-detail.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
     } elseif (is_single()) {
         wp_enqueue_style('inviro-single', get_template_directory_uri() . '/assets/css/single.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
     } elseif (is_archive() || is_post_type_archive()) {
@@ -204,6 +206,10 @@ function inviro_custom_navbar_menu() {
                     $current_class = 'current-menu-item';
                 } elseif (strpos($current_url, $item_url) !== false && $item_url !== home_url('/')) {
                     $current_class = 'current-menu-item';
+                } elseif (strpos($item_url, '/paket-usaha') !== false && (is_page('paket-usaha') || is_post_type_archive('paket_usaha') || is_singular('paket_usaha') || (isset($_GET['dummy_id']) && strpos($current_url, '/paket-usaha') !== false))) {
+                    $current_class = 'current-menu-item';
+                } elseif (strpos($item_url, '/spareparts') !== false && (is_page('spareparts') || is_page('spare-parts') || is_post_type_archive('spareparts') || is_singular('spareparts') || (isset($_GET['dummy_id']) && strpos($current_url, '/spareparts') !== false))) {
+                    $current_class = 'current-menu-item';
                 }
             ?>
             <li<?php echo !empty($current_class) ? ' class="' . esc_attr($current_class) . '"' : ''; ?>>
@@ -231,14 +237,14 @@ function inviro_default_menu() {
         <li<?php echo is_page('profil') ? ' class="current-menu-item"' : ''; ?>>
             <a href="<?php echo esc_url(home_url('/profil')); ?>">Profil</a>
         </li>
-        <li<?php echo is_page('paket-usaha') ? ' class="current-menu-item"' : ''; ?>>
+        <li<?php echo (is_page('paket-usaha') || is_post_type_archive('paket_usaha') || is_singular('paket_usaha') || (isset($_GET['dummy_id']) && strpos($_SERVER['REQUEST_URI'], '/paket-usaha') !== false)) ? ' class="current-menu-item"' : ''; ?>>
             <a href="<?php echo esc_url(home_url('/paket-usaha')); ?>">Paket Usaha</a>
         </li>
         <li<?php echo is_page('pelanggan') ? ' class="current-menu-item"' : ''; ?>>
             <a href="<?php echo esc_url(home_url('/pelanggan')); ?>">Pelanggan</a>
         </li>
-        <li<?php echo is_page('spare-parts') ? ' class="current-menu-item"' : ''; ?>>
-            <a href="<?php echo esc_url(home_url('/spare-parts')); ?>">Spare Parts</a>
+        <li<?php echo (is_page('spareparts') || is_page('spare-parts') || is_post_type_archive('spareparts') || is_singular('spareparts') || (isset($_GET['dummy_id']) && strpos($_SERVER['REQUEST_URI'], '/spareparts') !== false)) ? ' class="current-menu-item"' : ''; ?>>
+            <a href="<?php echo esc_url(home_url('/spareparts')); ?>">Spare Parts</a>
         </li>
         <li<?php echo ((is_single() && get_post_type() == 'post') || is_category() || is_tag() || is_date()) ? ' class="current-menu-item"' : ''; ?>>
             <a href="<?php echo esc_url(home_url('/artikel')); ?>">Artikel</a>
@@ -338,7 +344,7 @@ function inviro_register_paket_usaha() {
     
     $args = array(
         'labels'              => $labels,
-        'public'              => false,  // Tidak ada single page
+        'public'              => true,   // Ada single page
         'publicly_queryable'  => true,   // Archive bisa diakses
         'show_ui'             => true,   // Tampil di admin
         'show_in_menu'        => true,
@@ -348,11 +354,36 @@ function inviro_register_paket_usaha() {
         'hierarchical'        => false,
         'menu_position'       => 5,
         'menu_icon'           => 'dashicons-portfolio',
-        'supports'            => array('title', 'thumbnail'),  // Hanya title dan thumbnail, tanpa editor
+        'supports'            => array('title', 'editor', 'thumbnail'),  // Title, editor, dan thumbnail
         'show_in_rest'        => false  // Nonaktifkan Gutenberg editor
     );
     
     register_post_type('paket_usaha', $args);
+    
+    // Register Taxonomy for Paket Usaha Category
+    $taxonomy_labels = array(
+        'name'              => __('Kategori Paket Usaha', 'inviro'),
+        'singular_name'     => __('Kategori Paket Usaha', 'inviro'),
+        'search_items'      => __('Cari Kategori', 'inviro'),
+        'all_items'         => __('Semua Kategori', 'inviro'),
+        'parent_item'       => __('Kategori Induk', 'inviro'),
+        'parent_item_colon' => __('Kategori Induk:', 'inviro'),
+        'edit_item'         => __('Edit Kategori', 'inviro'),
+        'update_item'       => __('Update Kategori', 'inviro'),
+        'add_new_item'      => __('Tambah Kategori Baru', 'inviro'),
+        'new_item_name'     => __('Nama Kategori Baru', 'inviro'),
+        'menu_name'         => __('Kategori', 'inviro'),
+    );
+    
+    register_taxonomy('paket_usaha_category', array('paket_usaha'), array(
+        'hierarchical'      => true,
+        'labels'            => $taxonomy_labels,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'query_var'         => true,
+        'rewrite'           => array('slug' => 'kategori-paket-usaha'),
+        'show_in_rest'      => true,
+    ));
 }
 add_action('init', 'inviro_register_paket_usaha');
 
@@ -790,14 +821,12 @@ function inviro_register_sparepart_reviews() {
         'public'              => false,
         'publicly_queryable'  => false,
         'show_ui'             => true,
-        'show_in_menu'        => true,
+        'show_in_menu'        => 'edit.php?post_type=spareparts', // Submenu di bawah Spare Parts
         'query_var'           => true,
         'rewrite'             => false,
         'capability_type'     => 'post',
         'has_archive'         => false,
         'hierarchical'        => false,
-        'menu_position'       => 10,
-        'menu_icon'           => 'dashicons-star-filled',
         'supports'            => array('title', 'editor'),
         'show_in_rest'        => false,
     );
@@ -844,14 +873,30 @@ function inviro_review_info_callback($post) {
             }
             ?> (<?php echo esc_html($rating); ?>/5)
         </p>
-        <p><strong>Spare Part:</strong><br>
-            <?php if ($sparepart_id) : 
-                $sparepart = get_post($sparepart_id);
-                if ($sparepart) : ?>
-                    <a href="<?php echo get_edit_post_link($sparepart_id); ?>" target="_blank">
-                        <?php echo esc_html($sparepart->post_title); ?>
-                    </a>
-                <?php endif;
+        <p><strong>Produk:</strong><br>
+            <?php 
+            $product_type = get_post_meta($post->ID, '_review_product_type', true);
+            $product_type = $product_type ? $product_type : 'spareparts';
+            if ($sparepart_id) : 
+                if ($product_type == 'paket_usaha') {
+                    $paket = get_post($sparepart_id);
+                    if ($paket) : ?>
+                        <a href="<?php echo get_edit_post_link($sparepart_id); ?>" target="_blank">
+                            <?php echo esc_html($paket->post_title); ?>
+                        </a>
+                    <?php else : ?>
+                        <?php echo esc_html($sparepart_id); ?>
+                    <?php endif;
+                } else {
+                    $sparepart = get_post($sparepart_id);
+                    if ($sparepart) : ?>
+                        <a href="<?php echo get_edit_post_link($sparepart_id); ?>" target="_blank">
+                            <?php echo esc_html($sparepart->post_title); ?>
+                        </a>
+                    <?php else : ?>
+                        <?php echo esc_html($sparepart_id); ?>
+                    <?php endif;
+                }
             endif; ?>
         </p>
     </div>
@@ -924,6 +969,7 @@ function inviro_handle_review_submission() {
     if ($review_id) {
         update_post_meta($review_id, '_review_sparepart_id', $sparepart_id);
         update_post_meta($review_id, '_review_is_dummy', $is_dummy ? '1' : '0');
+        update_post_meta($review_id, '_review_product_type', 'spareparts');
         update_post_meta($review_id, '_reviewer_name', $reviewer_name);
         update_post_meta($review_id, '_reviewer_email', $reviewer_email);
         update_post_meta($review_id, '_review_rating', $rating);
@@ -936,6 +982,182 @@ function inviro_handle_review_submission() {
 }
 add_action('wp_ajax_submit_sparepart_review', 'inviro_handle_review_submission');
 add_action('wp_ajax_nopriv_submit_sparepart_review', 'inviro_handle_review_submission');
+
+// Handle paket usaha review form submission
+function inviro_handle_paket_review_submission() {
+    if (!isset($_POST['review_nonce']) || !wp_verify_nonce($_POST['review_nonce'], 'submit_review')) {
+        wp_send_json_error(array('message' => 'Invalid nonce'));
+        return;
+    }
+    
+    $paket_id_raw = $_POST['paket_id'];
+    $is_dummy = isset($_POST['is_dummy']) && $_POST['is_dummy'] == '1';
+    $paket_id = $is_dummy ? $paket_id_raw : intval($paket_id_raw);
+    $reviewer_name = sanitize_text_field($_POST['reviewer_name']);
+    $reviewer_email = sanitize_email($_POST['reviewer_email']);
+    $rating = intval($_POST['rating']);
+    $review_content = sanitize_textarea_field($_POST['review_content']);
+    
+    if (empty($reviewer_name) || empty($reviewer_email) || empty($review_content) || $rating < 1 || $rating > 5) {
+        wp_send_json_error(array('message' => 'Semua field harus diisi dengan benar'));
+        return;
+    }
+    
+    $review_id = wp_insert_post(array(
+        'post_type'    => 'paket_usaha_review',
+        'post_title'   => 'Ulasan dari ' . $reviewer_name,
+        'post_content' => $review_content,
+        'post_status'  => 'publish',
+    ));
+    
+    if ($review_id) {
+        update_post_meta($review_id, '_review_sparepart_id', $paket_id);
+        update_post_meta($review_id, '_review_is_dummy', $is_dummy ? '1' : '0');
+        update_post_meta($review_id, '_review_product_type', 'paket_usaha');
+        update_post_meta($review_id, '_reviewer_name', $reviewer_name);
+        update_post_meta($review_id, '_reviewer_email', $reviewer_email);
+        update_post_meta($review_id, '_review_rating', $rating);
+        update_post_meta($review_id, '_review_status', 'pending');
+        
+        wp_send_json_success(array('message' => 'Ulasan Anda telah dikirim dan menunggu persetujuan admin.'));
+    } else {
+        wp_send_json_error(array('message' => 'Gagal mengirim ulasan. Silakan coba lagi.'));
+    }
+}
+add_action('wp_ajax_submit_paket_review', 'inviro_handle_paket_review_submission');
+add_action('wp_ajax_nopriv_submit_paket_review', 'inviro_handle_paket_review_submission');
+
+// Register Paket Usaha Reviews Custom Post Type
+function inviro_register_paket_usaha_reviews() {
+    $labels = array(
+        'name'               => __('Ulasan Paket Usaha', 'inviro'),
+        'singular_name'      => __('Ulasan', 'inviro'),
+        'menu_name'          => __('Ulasan Paket Usaha', 'inviro'),
+        'add_new'            => __('Tambah Ulasan', 'inviro'),
+        'add_new_item'       => __('Tambah Ulasan Baru', 'inviro'),
+        'edit_item'          => __('Edit Ulasan', 'inviro'),
+        'new_item'           => __('Ulasan Baru', 'inviro'),
+        'view_item'          => __('Lihat Ulasan', 'inviro'),
+        'search_items'       => __('Cari Ulasan', 'inviro'),
+        'not_found'          => __('Ulasan tidak ditemukan', 'inviro'),
+        'not_found_in_trash' => __('Tidak ada ulasan di trash', 'inviro')
+    );
+    
+    $args = array(
+        'labels'              => $labels,
+        'public'              => false,
+        'publicly_queryable'  => false,
+        'show_ui'             => true,
+        'show_in_menu'        => 'edit.php?post_type=paket_usaha', // Submenu di bawah Paket Usaha
+        'query_var'           => true,
+        'rewrite'             => false,
+        'capability_type'     => 'post',
+        'has_archive'         => false,
+        'hierarchical'        => false,
+        'supports'            => array('title', 'editor'),
+        'show_in_rest'        => false,
+    );
+    
+    register_post_type('paket_usaha_review', $args);
+}
+add_action('init', 'inviro_register_paket_usaha_reviews');
+
+// Add meta boxes for paket usaha reviews
+function inviro_add_paket_review_meta_boxes() {
+    add_meta_box(
+        'paket_review_info',
+        'Informasi Ulasan',
+        'inviro_paket_review_info_callback',
+        'paket_usaha_review',
+        'side',
+        'default'
+    );
+    
+    add_meta_box(
+        'paket_review_status',
+        'Status Ulasan',
+        'inviro_paket_review_status_callback',
+        'paket_usaha_review',
+        'side',
+        'high'
+    );
+}
+add_action('add_meta_boxes', 'inviro_add_paket_review_meta_boxes');
+
+function inviro_paket_review_info_callback($post) {
+    $paket_id = get_post_meta($post->ID, '_review_sparepart_id', true);
+    $reviewer_name = get_post_meta($post->ID, '_reviewer_name', true);
+    $reviewer_email = get_post_meta($post->ID, '_reviewer_email', true);
+    $rating = get_post_meta($post->ID, '_review_rating', true);
+    ?>
+    <div style="padding: 10px 0;">
+        <p><strong>Nama:</strong><br><?php echo esc_html($reviewer_name); ?></p>
+        <p><strong>Email:</strong><br><?php echo esc_html($reviewer_email); ?></p>
+        <p><strong>Rating:</strong><br>
+            <?php 
+            for ($i = 1; $i <= 5; $i++) {
+                echo $i <= $rating ? '★' : '☆';
+            }
+            ?> (<?php echo esc_html($rating); ?>/5)
+        </p>
+        <p><strong>Paket:</strong><br>
+            <?php 
+            if ($paket_id) : 
+                // Check if it's dummy data
+                $is_dummy = get_post_meta($post->ID, '_review_is_dummy', true);
+                if ($is_dummy == '1') {
+                    echo esc_html($paket_id);
+                } else {
+                    $paket = get_post($paket_id);
+                    if ($paket) : ?>
+                        <a href="<?php echo get_edit_post_link($paket_id); ?>" target="_blank">
+                            <?php echo esc_html($paket->post_title); ?>
+                        </a>
+                    <?php else : ?>
+                        <?php echo esc_html($paket_id); ?>
+                    <?php endif;
+                }
+            endif; ?>
+        </p>
+    </div>
+    <?php
+}
+
+function inviro_paket_review_status_callback($post) {
+    $status = get_post_meta($post->ID, '_review_status', true);
+    if (!$status) $status = 'pending';
+    ?>
+    <div style="padding: 10px 0;">
+        <select name="review_status" style="width: 100%; padding: 10px; font-size: 14px;">
+            <option value="approved" <?php selected($status, 'approved'); ?>>Disetujui (Tampilkan)</option>
+            <option value="pending" <?php selected($status, 'pending'); ?>>Menunggu Persetujuan</option>
+            <option value="rejected" <?php selected($status, 'rejected'); ?>>Ditolak (Tidak Tampilkan)</option>
+        </select>
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Pilih status ulasan. Hanya ulasan yang disetujui yang akan ditampilkan di halaman produk.
+        </p>
+    </div>
+    <?php
+}
+
+function inviro_save_paket_review_meta($post_id) {
+    if (get_post_type($post_id) !== 'paket_usaha_review') {
+        return;
+    }
+    
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    
+    if (isset($_POST['review_status'])) {
+        update_post_meta($post_id, '_review_status', sanitize_text_field($_POST['review_status']));
+    }
+}
+add_action('save_post_paket_usaha_review', 'inviro_save_paket_review_meta');
 
 // Artikel Custom Post Type
 function inviro_register_artikel() {
@@ -1151,12 +1373,57 @@ function inviro_add_paket_usaha_meta_boxes() {
     );
     
     add_meta_box(
-        'inviro_paket_price',
-        __('Harga Paket', 'inviro'),
+        'paket_price',
+        '💰 Harga Paket',
         'inviro_paket_price_callback',
+        'paket_usaha',
+        'side',
+        'default'
+    );
+    
+    add_meta_box(
+        'paket_sku',
+        '🏷️ Kode SKU',
+        'inviro_paket_sku_callback',
+        'paket_usaha',
+        'side',
+        'default'
+    );
+    
+    add_meta_box(
+        'paket_promo',
+        '🎯 Promo',
+        'inviro_paket_promo_callback',
+        'paket_usaha',
+        'side',
+        'default'
+    );
+    
+    add_meta_box(
+        'paket_original_price',
+        '💰 Harga Asli (untuk Promo)',
+        'inviro_paket_original_price_callback',
+        'paket_usaha',
+        'side',
+        'default'
+    );
+    
+    add_meta_box(
+        'paket_gallery',
+        '🖼️ Gallery Images',
+        'inviro_paket_gallery_callback',
         'paket_usaha',
         'normal',
         'high'
+    );
+    
+    add_meta_box(
+        'paket_specifications',
+        '⚙️ Spesifikasi',
+        'inviro_paket_specifications_callback',
+        'paket_usaha',
+        'normal',
+        'default'
     );
 }
 add_action('add_meta_boxes', 'inviro_add_paket_usaha_meta_boxes');
@@ -1182,15 +1449,68 @@ function inviro_paket_description_callback($post) {
  * Paket Usaha Price Meta Box Callback
  */
 function inviro_paket_price_callback($post) {
+    wp_nonce_field('inviro_paket_meta_nonce', 'inviro_paket_meta_nonce');
     $price = get_post_meta($post->ID, '_paket_price', true);
     ?>
-    <p>
-        <label for="paket_price"><?php _e('Harga Paket:', 'inviro'); ?></label><br>
-        <input type="text" name="paket_price" id="paket_price" value="<?php echo esc_attr($price); ?>" placeholder="Hubungi Kami" style="width: 100%; padding: 8px;" />
-    </p>
-    <p class="description">
-        <?php _e('Contoh: Rp. 5.000.000 atau "Hubungi Kami" jika harga tidak ditampilkan.', 'inviro'); ?>
-    </p>
+    <div style="padding: 10px 0;">
+        <input type="number" id="paket_price" name="paket_price" 
+               value="<?php echo esc_attr($price); ?>" 
+               placeholder="5000000" 
+               min="0"
+               style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 6px;">
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Harga dalam Rupiah (tanpa titik/koma)
+        </p>
+    </div>
+    <?php
+}
+
+function inviro_paket_sku_callback($post) {
+    $sku = get_post_meta($post->ID, '_paket_sku', true);
+    ?>
+    <div style="padding: 10px 0;">
+        <input type="text" id="paket_sku" name="paket_sku" 
+               value="<?php echo esc_attr($sku); ?>" 
+               placeholder="PKT-001" 
+               style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 6px;">
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Kode unik untuk paket usaha
+        </p>
+    </div>
+    <?php
+}
+
+function inviro_paket_promo_callback($post) {
+    $promo = get_post_meta($post->ID, '_paket_promo', true);
+    ?>
+    <div style="padding: 10px 0;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="paket_promo" name="paket_promo" value="1" 
+                   <?php checked($promo, '1'); ?>
+                   style="width: 20px; height: 20px; cursor: pointer;">
+            <span style="font-size: 14px; font-weight: 500;">Tandai sebagai Promo</span>
+        </label>
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Centang jika paket ini sedang dalam promo
+        </p>
+    </div>
+    <?php
+}
+
+function inviro_paket_original_price_callback($post) {
+    wp_nonce_field('inviro_paket_meta_nonce', 'inviro_paket_meta_nonce');
+    $original_price = get_post_meta($post->ID, '_paket_original_price', true);
+    ?>
+    <div style="padding: 10px 0;">
+        <input type="number" id="paket_original_price" name="paket_original_price" 
+               value="<?php echo esc_attr($original_price); ?>" 
+               placeholder="6000000" 
+               min="0"
+               style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 6px;">
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Harga sebelum promo (akan dicoret). Kosongkan jika tidak ada promo.
+        </p>
+    </div>
     <?php
 }
 
@@ -1220,10 +1540,158 @@ function inviro_save_paket_usaha_meta($post_id) {
     }
     
     if (isset($_POST['paket_price'])) {
-        update_post_meta($post_id, '_paket_price', sanitize_text_field($_POST['paket_price']));
+        update_post_meta($post_id, '_paket_price', absint($_POST['paket_price']));
+    }
+    
+    if (isset($_POST['paket_sku'])) {
+        update_post_meta($post_id, '_paket_sku', sanitize_text_field($_POST['paket_sku']));
+    }
+    
+    if (isset($_POST['paket_promo'])) {
+        update_post_meta($post_id, '_paket_promo', '1');
+    } else {
+        update_post_meta($post_id, '_paket_promo', '0');
+    }
+    
+    if (isset($_POST['paket_original_price'])) {
+        update_post_meta($post_id, '_paket_original_price', absint($_POST['paket_original_price']));
+    }
+    
+    if (isset($_POST['paket_gallery'])) {
+        update_post_meta($post_id, '_paket_gallery', sanitize_text_field($_POST['paket_gallery']));
+    }
+    
+    if (isset($_POST['spec_label']) && isset($_POST['spec_value'])) {
+        $specs = array();
+        foreach ($_POST['spec_label'] as $index => $label) {
+            if (!empty($label) && !empty($_POST['spec_value'][$index])) {
+                $specs[] = array(
+                    'label' => sanitize_text_field($label),
+                    'value' => sanitize_text_field($_POST['spec_value'][$index])
+                );
+            }
+        }
+        update_post_meta($post_id, '_paket_specifications', json_encode($specs));
     }
 }
 add_action('save_post_paket_usaha', 'inviro_save_paket_usaha_meta');
+
+function inviro_paket_gallery_callback($post) {
+    wp_nonce_field('inviro_paket_meta_nonce', 'inviro_paket_meta_nonce');
+    $gallery_ids = get_post_meta($post->ID, '_paket_gallery', true);
+    $gallery_ids = $gallery_ids ? explode(',', $gallery_ids) : array();
+    ?>
+    <div style="padding: 10px 0;">
+        <input type="hidden" id="paket_gallery" name="paket_gallery" value="<?php echo esc_attr(implode(',', $gallery_ids)); ?>">
+        <div id="gallery-preview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+            <?php foreach ($gallery_ids as $img_id) : 
+                if ($img_id) :
+                    $img_url = wp_get_attachment_image_url($img_id, 'thumbnail');
+            ?>
+                <div class="gallery-item" data-id="<?php echo esc_attr($img_id); ?>" style="position: relative; border: 2px solid #ddd; border-radius: 8px; overflow: hidden;">
+                    <img src="<?php echo esc_url($img_url); ?>" style="width: 100%; height: 150px; object-fit: cover; display: block;">
+                    <button type="button" class="remove-gallery-item" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 16px; line-height: 1;">×</button>
+                </div>
+            <?php 
+                endif;
+            endforeach; ?>
+        </div>
+        <button type="button" id="add-gallery-images" class="button" style="margin-top: 15px;">Tambah Gambar ke Gallery</button>
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Tambahkan beberapa gambar untuk ditampilkan di halaman detail paket
+        </p>
+    </div>
+    <script>
+    jQuery(document).ready(function($) {
+        var galleryFrame;
+        $('#add-gallery-images').on('click', function(e) {
+            e.preventDefault();
+            if (galleryFrame) {
+                galleryFrame.open();
+                return;
+            }
+            galleryFrame = wp.media({
+                title: 'Pilih Gambar Gallery',
+                button: { text: 'Gunakan Gambar' },
+                multiple: true
+            });
+            galleryFrame.on('select', function() {
+                var selection = galleryFrame.state().get('selection');
+                var galleryIds = $('#paket_gallery').val().split(',').filter(Boolean);
+                selection.map(function(attachment) {
+                    attachment = attachment.toJSON();
+                    if (galleryIds.indexOf(attachment.id.toString()) === -1) {
+                        galleryIds.push(attachment.id);
+                        $('#gallery-preview').append(
+                            '<div class="gallery-item" data-id="' + attachment.id + '" style="position: relative; border: 2px solid #ddd; border-radius: 8px; overflow: hidden;">' +
+                            '<img src="' + attachment.sizes.thumbnail.url + '" style="width: 100%; height: 150px; object-fit: cover; display: block;">' +
+                            '<button type="button" class="remove-gallery-item" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 16px; line-height: 1;">×</button>' +
+                            '</div>'
+                        );
+                    }
+                });
+                $('#paket_gallery').val(galleryIds.join(','));
+            });
+            galleryFrame.open();
+        });
+        $(document).on('click', '.remove-gallery-item', function() {
+            var item = $(this).closest('.gallery-item');
+            var imgId = item.data('id').toString();
+            var galleryIds = $('#paket_gallery').val().split(',').filter(Boolean);
+            galleryIds = galleryIds.filter(function(id) { return id !== imgId; });
+            $('#paket_gallery').val(galleryIds.join(','));
+            item.remove();
+        });
+    });
+    </script>
+    <?php
+}
+
+function inviro_paket_specifications_callback($post) {
+    wp_nonce_field('inviro_paket_meta_nonce', 'inviro_paket_meta_nonce');
+    $specs = get_post_meta($post->ID, '_paket_specifications', true);
+    $specs = $specs ? json_decode($specs, true) : array();
+    if (empty($specs)) {
+        $specs = array(array('label' => '', 'value' => ''));
+    }
+    ?>
+    <div style="padding: 10px 0;">
+        <div id="specifications-list">
+            <?php foreach ($specs as $index => $spec) : ?>
+                <div class="spec-row" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+                    <input type="text" name="spec_label[]" placeholder="Label (contoh: Kapasitas)" 
+                           value="<?php echo esc_attr($spec['label']); ?>"
+                           style="flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
+                    <input type="text" name="spec_value[]" placeholder="Value (contoh: 10.000 GPD)" 
+                           value="<?php echo esc_attr($spec['value']); ?>"
+                           style="flex: 2; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
+                    <button type="button" class="remove-spec button" style="background: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Hapus</button>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <button type="button" id="add-spec" class="button" style="margin-top: 10px;">Tambah Spesifikasi</button>
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Tambahkan spesifikasi paket (contoh: Kapasitas, Komponen, Garansi, dll)
+        </p>
+    </div>
+    <script>
+    jQuery(document).ready(function($) {
+        $('#add-spec').on('click', function() {
+            $('#specifications-list').append(
+                '<div class="spec-row" style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">' +
+                '<input type="text" name="spec_label[]" placeholder="Label (contoh: Kapasitas)" style="flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">' +
+                '<input type="text" name="spec_value[]" placeholder="Value (contoh: 10.000 GPD)" style="flex: 2; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">' +
+                '<button type="button" class="remove-spec button" style="background: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer;">Hapus</button>' +
+                '</div>'
+            );
+        });
+        $(document).on('click', '.remove-spec', function() {
+            $(this).closest('.spec-row').remove();
+        });
+    });
+    </script>
+    <?php
+}
 
 /**
  * Add custom meta boxes for Testimonials
@@ -2325,6 +2793,52 @@ function inviro_handle_dummy_sparepart_detail() {
 add_action('template_redirect', 'inviro_handle_dummy_sparepart_detail', 1);
 
 /**
+ * Handle dummy paket usaha detail page
+ * Ensure page-paket-usaha.php template is used when dummy_id is present
+ */
+function inviro_handle_dummy_paket_usaha_detail() {
+    // Check if dummy_id is present in query string
+    if (isset($_GET['dummy_id']) && intval($_GET['dummy_id']) > 0) {
+        // Check if we're on paket-usaha page or trying to access dummy detail
+        $request_uri = $_SERVER['REQUEST_URI'];
+        if (strpos($request_uri, '/paket-usaha') !== false) {
+            $dummy_id = intval($_GET['dummy_id']);
+            
+            // Try to find paket-usaha page
+            $paket_usaha_page = get_page_by_path('paket-usaha');
+            if (!$paket_usaha_page) {
+                // Try alternative slug
+                $paket_usaha_page = get_pages(array(
+                    'meta_key' => '_wp_page_template',
+                    'meta_value' => 'page-paket-usaha.php',
+                    'number' => 1
+                ));
+                if (!empty($paket_usaha_page)) {
+                    $paket_usaha_page = $paket_usaha_page[0];
+                }
+            }
+            
+            // If page exists, set up query to use that page
+            if ($paket_usaha_page) {
+                global $wp_query;
+                $wp_query->is_page = true;
+                $wp_query->is_singular = true;
+                $wp_query->is_404 = false;
+                $wp_query->is_archive = false;
+                $wp_query->is_post_type_archive = false;
+                $wp_query->queried_object = $paket_usaha_page;
+                $wp_query->queried_object_id = $paket_usaha_page->ID;
+                $wp_query->posts = array($paket_usaha_page);
+                $wp_query->post_count = 1;
+                $wp_query->found_posts = 1;
+                $wp_query->max_num_pages = 1;
+            }
+        }
+    }
+}
+add_action('template_redirect', 'inviro_handle_dummy_paket_usaha_detail', 1);
+
+/**
  * Force template for dummy sparepart detail
  */
 function inviro_force_spareparts_template($template) {
@@ -2332,7 +2846,7 @@ function inviro_force_spareparts_template($template) {
     if (isset($_GET['dummy_id']) && intval($_GET['dummy_id']) > 0) {
         // Check if current request might be for spareparts page
         $request_uri = $_SERVER['REQUEST_URI'];
-        if (strpos($request_uri, '/spareparts') !== false || is_404()) {
+        if (strpos($request_uri, '/spareparts') !== false || (is_404() && strpos($request_uri, '/spareparts') !== false)) {
             // Try to find spareparts page
             $spareparts_page = get_page_by_path('spareparts');
             if (!$spareparts_page) {
@@ -2351,6 +2865,42 @@ function inviro_force_spareparts_template($template) {
                 $page_template = get_page_template_slug($spareparts_page->ID);
                 if ($page_template == 'page-spareparts.php' || empty($page_template)) {
                     $template_path = locate_template('page-spareparts.php');
+                    if ($template_path) {
+                        return $template_path;
+                    }
+                }
+            }
+        }
+        
+        // Check if current request might be for paket-usaha page
+        if (strpos($request_uri, '/paket-usaha') !== false || (is_404() && strpos($request_uri, '/paket-usaha') !== false)) {
+            // Try to find paket-usaha page
+            $paket_usaha_page = get_page_by_path('paket-usaha');
+            if (!$paket_usaha_page) {
+                $pages = get_pages(array(
+                    'meta_key' => '_wp_page_template',
+                    'meta_value' => 'page-paket-usaha.php',
+                    'number' => 1
+                ));
+                if (!empty($pages)) {
+                    $paket_usaha_page = $pages[0];
+                }
+            }
+            
+            // If paket-usaha page exists, use its template and set query vars
+            if ($paket_usaha_page) {
+                global $wp_query;
+                $wp_query->is_page = true;
+                $wp_query->is_singular = true;
+                $wp_query->is_404 = false;
+                $wp_query->is_archive = false;
+                $wp_query->is_post_type_archive = false;
+                $wp_query->queried_object = $paket_usaha_page;
+                $wp_query->queried_object_id = $paket_usaha_page->ID;
+                
+                $page_template = get_page_template_slug($paket_usaha_page->ID);
+                if ($page_template == 'page-paket-usaha.php' || empty($page_template)) {
+                    $template_path = locate_template('page-paket-usaha.php');
                     if ($template_path) {
                         return $template_path;
                     }
@@ -4215,6 +4765,81 @@ function inviro_spareparts_customize_register($wp_customize) {
     ));
 }
 add_action('customize_register', 'inviro_spareparts_customize_register');
+
+/**
+ * Paket Usaha Customizer Settings
+ */
+function inviro_paket_usaha_customize_register($wp_customize) {
+    // Paket Usaha Section
+    $wp_customize->add_section('inviro_paket_usaha', array(
+        'title' => __('Halaman Paket Usaha', 'inviro'),
+        'priority' => 35,
+    ));
+
+    // Hero Settings
+    $wp_customize->add_setting('inviro_paket_usaha_hero_title', array(
+        'default' => 'Paket Usaha Premium',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_paket_usaha_hero_title', array(
+        'label' => __('Hero - Judul', 'inviro'),
+        'section' => 'inviro_paket_usaha',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_paket_usaha_hero_subtitle', array(
+        'default' => 'Solusi lengkap paket usaha berkualitas tinggi untuk bisnis depot air minum Anda. Dapatkan paket terbaik dengan komponen lengkap dan terpercaya.',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_paket_usaha_hero_subtitle', array(
+        'label' => __('Hero - Subtitle', 'inviro'),
+        'section' => 'inviro_paket_usaha',
+        'type' => 'textarea',
+    ));
+
+    // Search Placeholder
+    $wp_customize->add_setting('inviro_paket_usaha_search_placeholder', array(
+        'default' => 'Cari paket usaha yang Anda butuhkan...',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_paket_usaha_search_placeholder', array(
+        'label' => __('Search - Placeholder', 'inviro'),
+        'section' => 'inviro_paket_usaha',
+        'type' => 'text',
+    ));
+
+    // CTA Settings
+    $wp_customize->add_setting('inviro_paket_usaha_cta_title', array(
+        'default' => 'Butuh Konsultasi Spesialis?',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_paket_usaha_cta_title', array(
+        'label' => __('CTA - Judul', 'inviro'),
+        'section' => 'inviro_paket_usaha',
+        'type' => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_paket_usaha_cta_subtitle', array(
+        'default' => 'Tim ahli kami siap membantu Anda menemukan paket usaha yang tepat untuk kebutuhan bisnis depot air minum Anda',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_paket_usaha_cta_subtitle', array(
+        'label' => __('CTA - Subtitle', 'inviro'),
+        'section' => 'inviro_paket_usaha',
+        'type' => 'textarea',
+    ));
+
+    $wp_customize->add_setting('inviro_paket_usaha_cta_button', array(
+        'default' => 'Chat WhatsApp',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_paket_usaha_cta_button', array(
+        'label' => __('CTA - Teks Button', 'inviro'),
+        'section' => 'inviro_paket_usaha',
+        'type' => 'text',
+    ));
+}
+add_action('customize_register', 'inviro_paket_usaha_customize_register');
 
 add_action('wp_enqueue_scripts', 'inviro_load_frontpage_css_for_custom_pages', 11);
 

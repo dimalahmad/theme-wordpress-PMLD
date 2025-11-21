@@ -1,10 +1,10 @@
 <?php
 /**
- * Single Spare Part Template for Dummy Data
- * This file is included from page-spareparts.php when viewing dummy detail
+ * Single Paket Usaha Template for Dummy Data
+ * This file is included from page-paket-usaha.php when viewing dummy detail
  */
 
-// Variables are already set from page-spareparts.php
+// Variables are already set from page-paket-usaha.php
 ?>
 
 <div class="sparepart-detail-page">
@@ -88,7 +88,7 @@
                         
                         <?php if ($promo == '1') : ?>
                             <div class="promo-banner">
-                                <span>Produk ini sedang dalam promo!</span>
+                                <span>Paket ini sedang dalam promo!</span>
                             </div>
                         <?php endif; ?>
                         
@@ -115,7 +115,7 @@
             <div class="content-grid">
                 <?php if ($description) : ?>
                     <div class="description-section">
-                        <h3>Deskripsi Produk</h3>
+                        <h3>Deskripsi Paket</h3>
                         <div class="description-content">
                             <?php echo wpautop(esc_html($description)); ?>
                         </div>
@@ -164,11 +164,11 @@
             <!-- Review Form -->
             <div class="review-form-wrapper">
                 <h3>Tulis Ulasan</h3>
-                <form id="sparepart-review-form" class="review-form">
+                <form id="paket-review-form" class="review-form">
                     <?php wp_nonce_field('submit_review', 'review_nonce'); ?>
-                    <input type="hidden" name="sparepart_id" value="dummy_<?php echo esc_attr($dummy_id); ?>">
+                    <input type="hidden" name="paket_id" value="dummy_<?php echo esc_attr($dummy_id); ?>">
                     <input type="hidden" name="is_dummy" value="1">
-                    <input type="hidden" name="product_type" value="spareparts">
+                    <input type="hidden" name="product_type" value="paket_usaha">
                     
                     <div class="form-row">
                         <div class="form-group">
@@ -248,7 +248,7 @@ jQuery(document).ready(function($) {
     });
     
     // Review form submission
-    $('#sparepart-review-form').on('submit', function(e) {
+    $('#paket-review-form').on('submit', function(e) {
         e.preventDefault();
         var form = $(this);
         var submitBtn = form.find('button[type="submit"]');
@@ -260,7 +260,7 @@ jQuery(document).ready(function($) {
         $.ajax({
             url: '<?php echo admin_url('admin-ajax.php'); ?>',
             type: 'POST',
-            data: form.serialize() + '&action=submit_sparepart_review',
+            data: form.serialize() + '&action=submit_paket_review',
             success: function(response) {
                 if (response.success) {
                     messageDiv.addClass('success').html(response.data.message);
