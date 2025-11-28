@@ -203,6 +203,7 @@
     flex-direction: column;
     position: relative;
     border: 1px solid rgba(47, 128, 237, 0.1);
+    height: 100%;
 }
 
 .paket-card::before {
@@ -215,7 +216,7 @@
     background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary-medium, #4FB3E8) 50%, var(--inviro-primary, #2F80ED) 100%);
     opacity: 0;
     transition: opacity 0.4s ease;
-    z-index: 1;
+    z-index: 10;
 }
 
 .paket-card::after {
@@ -229,6 +230,7 @@
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;
+    z-index: 0;
 }
 
 .paket-card:hover {
@@ -245,23 +247,69 @@
     opacity: 1;
 }
 
-/* Image Container */
+/* Image Container - Fixed Height */
 .paket-image {
     position: relative;
+    width: 100%;
     height: 240px;
+    min-height: 240px;
+    max-height: 240px;
     overflow: hidden;
     background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    flex-shrink: 0;
 }
 
 .paket-image img {
     width: 100%;
-    height: 100%;
+    height: 240px;
+    min-height: 240px;
+    max-height: 240px;
     object-fit: cover;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    object-position: center;
+    display: block;
+    margin: 0;
+    padding: 0;
 }
 
 .paket-card:hover .paket-image img {
     transform: scale(1.1) rotate(2deg);
+}
+
+.paket-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    min-height: 240px;
+    max-height: 240px;
+    height: 240px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+}
+
+.paket-image-placeholder svg {
+    width: 80px;
+    height: 80px;
+    color: rgba(47, 128, 237, 0.3);
+    display: block;
+}
+
+/* Ensure SVG placeholder is visible even when no image */
+.paket-image svg {
+    width: 80px;
+    height: 80px;
+    color: rgba(47, 128, 237, 0.3);
+    display: block;
+    margin: 0 auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* Stock Badge */
@@ -316,6 +364,7 @@
     flex-direction: column;
     flex: 1;
     gap: 12px;
+    min-height: 0;
 }
 
 .paket-sku {
@@ -661,7 +710,15 @@
     }
     
     .paket-image {
-        height: 200px;
+        height: 200px !important;
+        min-height: 200px !important;
+        max-height: 200px !important;
+    }
+    
+    .paket-image img {
+        height: 200px !important;
+        min-height: 200px !important;
+        max-height: 200px !important;
     }
     
     .paket-usaha-cta {

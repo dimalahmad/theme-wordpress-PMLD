@@ -3,32 +3,34 @@
  * Template Name: Spare Parts
  */
 
-// Ensure this template is used for spareparts page with dummy_id
-if (isset($_GET['dummy_id']) && intval($_GET['dummy_id']) > 0) {
-    // Force this template to be used
-    global $wp_query;
-    if (is_404() || empty($wp_query->posts)) {
-        // Try to find spareparts page
-        $spareparts_page = get_page_by_path('spareparts');
-        if (!$spareparts_page) {
-            $pages = get_pages(array(
-                'meta_key' => '_wp_page_template',
-                'meta_value' => 'page-spareparts.php',
-                'number' => 1
-            ));
-            if (!empty($pages)) {
-                $spareparts_page = $pages[0];
-            }
+// Ensure this template is used for spareparts page
+// Fix query if it's empty or 404
+global $wp_query;
+if (empty($wp_query->posts) || $wp_query->is_404) {
+    // Try to find spareparts page
+    $spareparts_page = get_page_by_path('spareparts');
+    if (!$spareparts_page) {
+        $pages = get_pages(array(
+            'meta_key' => '_wp_page_template',
+            'meta_value' => 'page-spareparts.php',
+            'number' => 1
+        ));
+        if (!empty($pages)) {
+            $spareparts_page = $pages[0];
         }
-        if ($spareparts_page) {
-            $wp_query->is_page = true;
-            $wp_query->is_singular = true;
-            $wp_query->is_404 = false;
-            $wp_query->queried_object = $spareparts_page;
-            $wp_query->queried_object_id = $spareparts_page->ID;
-            $wp_query->posts = array($spareparts_page);
-            $wp_query->post_count = 1;
-        }
+    }
+    if ($spareparts_page) {
+        $wp_query->is_page = true;
+        $wp_query->is_singular = true;
+        $wp_query->is_404 = false;
+        $wp_query->is_archive = false;
+        $wp_query->is_post_type_archive = false;
+        $wp_query->queried_object = $spareparts_page;
+        $wp_query->queried_object_id = $spareparts_page->ID;
+        $wp_query->posts = array($spareparts_page);
+        $wp_query->post_count = 1;
+        $wp_query->found_posts = 1;
+        $wp_query->max_num_pages = 1;
     }
 }
 

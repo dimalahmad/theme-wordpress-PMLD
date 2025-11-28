@@ -1,7 +1,7 @@
 /**
- * Pelanggan Page - Modern & Futuristic Design
+ * Artikel Page - Modern & Futuristic Design
  * Menggunakan warna biru identitas theme dengan gaya modern dan futuristik
- * Senada dengan desain Artikel
+ * Senada dengan desain Spare Parts
  */
 
 /* ============================================
@@ -12,7 +12,7 @@
 /* ============================================
    PAGE LAYOUT
    ============================================ */
-.pelanggan-page {
+.artikel-page {
     padding-top: 80px;
     background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
     min-height: 100vh;
@@ -21,7 +21,7 @@
 /* ============================================
    HERO SECTION - Futuristic
    ============================================ */
-.pelanggan-hero {
+.artikel-hero {
     position: relative;
     background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary-medium, #4FB3E8) 50%, var(--inviro-primary, #2F80ED) 100%);
     color: white;
@@ -30,7 +30,7 @@
     overflow: hidden;
 }
 
-.pelanggan-hero::before {
+.artikel-hero::before {
     content: '';
     position: absolute;
     top: 0;
@@ -43,7 +43,7 @@
     pointer-events: none;
 }
 
-.pelanggan-hero::after {
+.artikel-hero::after {
     content: '';
     position: absolute;
     top: -50%;
@@ -64,12 +64,12 @@
     }
 }
 
-.pelanggan-hero .container {
+.artikel-hero .container {
     position: relative;
     z-index: 1;
 }
 
-.pelanggan-hero h1 {
+.artikel-hero h1 {
     font-size: 3.5rem;
     font-weight: 800;
     margin-bottom: 20px;
@@ -81,7 +81,7 @@
     background-clip: text;
 }
 
-.pelanggan-hero p {
+.artikel-hero p {
     font-size: 1.25rem;
     opacity: 0.95;
     font-weight: 400;
@@ -91,158 +91,10 @@
 }
 
 /* ============================================
-   CONTENT WRAPPER
-   ============================================ */
-.pelanggan-content-wrapper {
-    min-height: calc(100vh - 300px);
-}
-
-/* ============================================
-   REGION SIDEBAR INLINE - Horizontal Scroll
-   ============================================ */
-.region-sidebar-inline {
-    flex: 0 0 75%;
-    min-width: 0;
-    max-width: 75%;
-    overflow: hidden;
-}
-
-.region-sidebar-inline .region-list {
-    display: flex;
-    flex-direction: row;
-    gap: 12px;
-    padding: 0;
-    overflow-x: auto;
-    overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(47, 128, 237, 0.3) transparent;
-}
-
-.region-sidebar-inline .region-list::-webkit-scrollbar {
-    height: 4px;
-}
-
-.region-sidebar-inline .region-list::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.region-sidebar-inline .region-list::-webkit-scrollbar-thumb {
-    background: rgba(47, 128, 237, 0.3);
-    border-radius: 2px;
-}
-
-.region-sidebar-inline .region-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(47, 128, 237, 0.5);
-}
-
-.region-list {
-    display: flex;
-    flex-direction: row;
-    gap: 12px;
-    padding: 0;
-    overflow-x: auto;
-    overflow-y: visible;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(47, 128, 237, 0.3) transparent;
-}
-
-.region-list::-webkit-scrollbar {
-    height: 4px;
-}
-
-.region-list::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.region-list::-webkit-scrollbar-thumb {
-    background: rgba(47, 128, 237, 0.3);
-    border-radius: 2px;
-}
-
-.region-item {
-    display: inline-flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 20px;
-    background: transparent;
-    border: 2px solid transparent;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: left;
-    width: auto;
-    min-width: fit-content;
-    white-space: nowrap;
-    flex-shrink: 0;
-    font-family: var(--font-family, 'Poppins', sans-serif);
-    font-size: 0.95rem;
-    color: #666;
-    position: relative;
-    box-sizing: border-box;
-}
-
-.region-item:hover {
-    background: rgba(47, 128, 237, 0.05);
-    border-color: rgba(47, 128, 237, 0.2);
-    color: var(--inviro-primary, #2F80ED);
-    transform: translateY(-2px);
-}
-
-.region-item.active {
-    background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary-medium, #4FB3E8) 50%, var(--inviro-primary, #2F80ED) 100%);
-    border-color: var(--inviro-primary, #2F80ED);
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(47, 128, 237, 0.3);
-    font-weight: 600;
-}
-
-.region-item.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
-    height: 3px;
-    background: #ffffff;
-    border-radius: 3px 3px 0 0;
-}
-
-.region-name {
-    flex: 1;
-}
-
-.region-count {
-    background: rgba(0, 0, 0, 0.1);
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    min-width: 32px;
-    text-align: center;
-}
-
-.region-item.active .region-count {
-    background: rgba(255, 255, 255, 0.3);
-    color: #ffffff;
-}
-
-/* ============================================
-   MAIN CONTENT AREA
-   ============================================ */
-.pelanggan-main-content {
-    flex: 1;
-    min-width: 0;
-    background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
-}
-
-/* ============================================
    FILTER SECTION - Modern
    ============================================ */
-.pelanggan-filter {
-    padding: 20px 30px;
+.artikel-filter {
+    padding: 20px 0;
     background: transparent;
     border-bottom: 1px solid rgba(47, 128, 237, 0.1);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
@@ -256,17 +108,23 @@
 
 .filter-bar {
     display: flex;
-    gap: 8px;
+    gap: 16px;
     max-width: 100%;
     width: 100%;
+    margin: 0 auto;
     align-items: center;
-    flex-wrap: nowrap;
 }
 
-#pelanggan-search {
+.filter-dropdowns {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+#artikel-search {
     flex: 1;
     min-width: 0;
-    padding: 12px 16px;
+    padding: 12px 20px;
     border: 2px solid rgba(47, 128, 237, 0.2);
     border-radius: 12px;
     font-size: 15px;
@@ -274,49 +132,43 @@
     background: #ffffff;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    width: 100%;
 }
 
-#pelanggan-search:focus {
+#artikel-search:focus {
     outline: none;
     border-color: var(--inviro-primary, #2F80ED);
     box-shadow: 0 0 0 4px rgba(47, 128, 237, 0.1), 0 0 20px rgba(47, 128, 237, 0.3), 0 0 40px rgba(47, 128, 237, 0.2);
     transform: translateY(-2px);
 }
 
-#pelanggan-search::placeholder {
+#artikel-search::placeholder {
     color: #999;
 }
 
+#filter-category,
 #sort-by {
-    min-width: 48px;
-    max-width: 48px;
-    width: 48px;
-    height: 48px;
-    padding: 0;
+    min-width: 200px;
+    max-width: 250px;
+    padding: 12px 20px;
     border: 2px solid rgba(47, 128, 237, 0.2);
     border-radius: 12px;
-    font-size: 0;
+    font-size: 15px;
     font-family: var(--font-family, 'Poppins', sans-serif);
     background: #ffffff;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%232F80ED' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18M7 12h10M11 18h2'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232F80ED' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: center;
-    background-size: 20px 20px;
+    background-position: right 16px center;
+    padding-right: 48px;
     flex-shrink: 0;
     box-sizing: border-box;
-    position: relative;
-    margin-left: 0;
 }
 
-#sort-by option {
-    font-size: 15px;
-    padding: 8px;
-}
-
+#filter-category:focus,
 #sort-by:focus {
     outline: none;
     border-color: var(--inviro-primary, #2F80ED);
@@ -327,21 +179,22 @@
 /* ============================================
    GRID SECTION
    ============================================ */
-.pelanggan-grid-section {
-    padding: 40px 30px 80px;
-    background: transparent;
+.artikel-grid-section {
+    padding: 60px 0 80px;
+    background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
 }
 
-.pelanggan-grid {
+.artikel-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 32px;
+    margin-top: 40px;
 }
 
 /* ============================================
-   PELANGGAN CARD - Futuristic Design
+   ARTIKEL CARD - Futuristic Design
    ============================================ */
-.pelanggan-card {
+.artikel-card {
     background: #ffffff;
     border-radius: 20px;
     overflow: hidden;
@@ -353,7 +206,7 @@
     border: 1px solid rgba(47, 128, 237, 0.1);
 }
 
-.pelanggan-card::before {
+.artikel-card::before {
     content: '';
     position: absolute;
     top: 0;
@@ -366,7 +219,7 @@
     z-index: 1;
 }
 
-.pelanggan-card::after {
+.artikel-card::after {
     content: '';
     position: absolute;
     top: -50%;
@@ -379,41 +232,41 @@
     pointer-events: none;
 }
 
-.pelanggan-card:hover {
+.artikel-card:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 12px 40px rgba(47, 128, 237, 0.25), 0 0 30px rgba(47, 128, 237, 0.5), 0 0 60px rgba(47, 128, 237, 0.3);
     border-color: var(--inviro-primary, #2F80ED);
 }
 
-.pelanggan-card:hover::before {
+.artikel-card:hover::before {
     opacity: 1;
 }
 
-.pelanggan-card:hover::after {
+.artikel-card:hover::after {
     opacity: 1;
 }
 
 /* Image Container */
-.pelanggan-image {
+.artikel-image {
     position: relative;
     height: 240px;
     overflow: hidden;
     background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
 }
 
-.pelanggan-image img {
+.artikel-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.pelanggan-card:hover .pelanggan-image img {
+.artikel-card:hover .artikel-image img {
     transform: scale(1.1) rotate(2deg);
 }
 
 /* Content */
-.pelanggan-content {
+.artikel-content {
     padding: 24px;
     display: flex;
     flex-direction: column;
@@ -421,7 +274,7 @@
     gap: 12px;
 }
 
-.pelanggan-meta-top {
+.artikel-meta-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -431,16 +284,16 @@
     flex-wrap: wrap;
 }
 
-.pelanggan-author {
+.artikel-author {
     font-weight: 600;
     color: var(--inviro-primary, #2F80ED);
 }
 
-.pelanggan-date {
+.artikel-date {
     color: #999;
 }
 
-.pelanggan-content h3 {
+.artikel-content h3 {
     font-size: 1.25rem;
     font-weight: 700;
     margin: 0;
@@ -452,17 +305,17 @@
     overflow: hidden;
 }
 
-.pelanggan-content h3 a {
+.artikel-content h3 a {
     color: #1a1a1a;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
-.pelanggan-content h3 a:hover {
+.artikel-content h3 a:hover {
     color: var(--inviro-primary, #2F80ED);
 }
 
-.pelanggan-excerpt {
+.artikel-excerpt {
     font-size: 0.95rem;
     color: #666;
     line-height: 1.6;
@@ -473,7 +326,7 @@
     overflow: hidden;
 }
 
-.pelanggan-link {
+.artikel-link {
     display: inline-block;
     color: var(--inviro-primary, #2F80ED);
     font-weight: 700;
@@ -485,80 +338,15 @@
     transition: all 0.3s ease;
 }
 
-.pelanggan-link:hover {
+.artikel-link:hover {
     color: var(--inviro-primary-medium, #4FB3E8);
     transform: translateX(5px);
 }
 
 /* ============================================
-   COMPANY LOGOS SECTION
-   ============================================ */
-.company-logos-section {
-    padding: 80px 0;
-    background: white;
-    text-align: center;
-}
-
-.company-logos-section h2 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 10px;
-    color: #1a1a1a;
-    background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary-medium, #4FB3E8) 50%, var(--inviro-primary, #2F80ED) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.logos-subtitle {
-    font-size: 1.1rem;
-    color: #666;
-    margin-bottom: 50px;
-}
-
-.logos-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
-}
-
-.logo-card {
-    background: white;
-    border: 2px solid rgba(47, 128, 237, 0.1);
-    border-radius: 16px;
-    padding: 30px 20px;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 150px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.logo-card:hover {
-    border-color: var(--inviro-primary, #2F80ED);
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(47, 128, 237, 0.2);
-}
-
-.logo-card img {
-    max-width: 100%;
-    max-height: 80px;
-    object-fit: contain;
-    margin-bottom: 10px;
-}
-
-.logo-name {
-    font-size: 0.85rem;
-    color: #666;
-    margin: 0;
-}
-
-/* ============================================
    CTA SECTION - Futuristic
    ============================================ */
-.pelanggan-cta {
+.artikel-cta {
     position: relative;
     background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary-medium, #4FB3E8) 50%, var(--inviro-primary, #2F80ED) 100%);
     color: white;
@@ -567,7 +355,7 @@
     overflow: hidden;
 }
 
-.pelanggan-cta::before {
+.artikel-cta::before {
     content: '';
     position: absolute;
     top: 0;
@@ -580,12 +368,12 @@
     pointer-events: none;
 }
 
-.pelanggan-cta .container {
+.artikel-cta .container {
     position: relative;
     z-index: 1;
 }
 
-.pelanggan-cta h2 {
+.artikel-cta h2 {
     font-size: 2.5rem;
     font-weight: 800;
     margin-bottom: 20px;
@@ -594,7 +382,7 @@
     color: #ffffff;
 }
 
-.pelanggan-cta p {
+.artikel-cta p {
     font-size: 1.2rem;
     margin-bottom: 40px;
     opacity: 0.95;
@@ -603,43 +391,43 @@
     margin-right: auto;
 }
 
-.btn-primary {
+.btn-whatsapp {
     display: inline-block;
-    background: #ffffff;
-    color: var(--inviro-primary, #2F80ED);
+    background: #25D366;
+    color: white;
     padding: 18px 48px;
     border-radius: 16px;
     text-decoration: none;
     font-weight: 700;
     font-size: 1.1rem;
     transition: all 0.3s ease;
-    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
     position: relative;
     overflow: hidden;
 }
 
-.btn-primary::before {
+.btn-whatsapp::before {
     content: '';
     position: absolute;
     top: 0;
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(47, 128, 237, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     transition: left 0.5s ease;
 }
 
-.btn-primary:hover::before {
+.btn-whatsapp:hover::before {
     left: 100%;
 }
 
-.btn-primary:hover {
-    background: #f8f9fa;
+.btn-whatsapp:hover {
+    background: #22c55e;
     transform: translateY(-4px);
-    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 30px rgba(37, 211, 102, 0.5);
 }
 
-.btn-primary:active {
+.btn-whatsapp:active {
     transform: translateY(-2px);
 }
 
@@ -669,227 +457,143 @@
    RESPONSIVE DESIGN
    ============================================ */
 @media (max-width: 1200px) {
-    .pelanggan-grid {
+    .artikel-grid {
         grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
         gap: 28px;
-    }
-    
-    .logos-grid {
-        grid-template-columns: repeat(3, 1fr);
     }
 }
 
 @media (min-width: 769px) and (max-width: 992px) {
     .filter-bar {
         max-width: 100%;
-        gap: 8px;
+        gap: 16px;
     }
     
-    .region-sidebar-inline {
-        flex: 0 0 75%;
-        max-width: 75%;
-    }
-    
-    #pelanggan-search {
+    #artikel-search {
         flex: 1;
-        min-width: 0;
+        min-width: 300px;
     }
     
+    #filter-category,
     #sort-by {
-        min-width: 48px;
-        max-width: 48px;
-        width: 48px;
+        min-width: 200px;
+        max-width: 220px;
     }
 }
 
 @media (max-width: 992px) {
-    .pelanggan-content-wrapper {
-        flex-direction: column;
-    }
-    
-    .pelanggan-main-content {
-        width: 100%;
-    }
-    
-    .pelanggan-filter {
-        padding: 16px 20px;
-    }
-    
-    .filter-bar {
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-    
-    .region-sidebar-inline {
-        order: 1;
-        width: 100%;
-        max-width: 100%;
-        flex: 1 1 100%;
-    }
-    
-    .region-list {
-        gap: 10px;
-    }
-    
-    .region-item {
-        padding: 10px 16px;
-        font-size: 0.9rem;
-    }
-    
-    .region-count {
-        padding: 3px 8px;
-        font-size: 0.8rem;
-        min-width: 28px;
-    }
-    
-    .pelanggan-grid-section {
-        padding: 30px 20px 60px;
-    }
-    
-    .pelanggan-hero h1 {
+    .artikel-hero h1 {
         font-size: 2.5rem;
     }
     
-    .pelanggan-hero p {
+    .artikel-hero p {
         font-size: 1.1rem;
     }
     
-    .pelanggan-grid {
+    .artikel-grid {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: 24px;
     }
     
-    .pelanggan-cta h2 {
-        font-size: 2rem;
-    }
-    
-    .company-logos-section h2 {
+    .artikel-cta h2 {
         font-size: 2rem;
     }
 }
 
 @media (max-width: 768px) {
-    .pelanggan-page {
+    .artikel-page {
         padding-top: 70px;
     }
     
-    .pelanggan-hero {
+    .artikel-hero {
         padding: 60px 0 50px;
     }
     
-    .pelanggan-hero h1 {
+    .artikel-hero h1 {
         font-size: 2rem;
     }
     
-    .pelanggan-hero p {
+    .artikel-hero p {
         font-size: 1rem;
         padding: 0 20px;
     }
     
-    .pelanggan-filter {
+    .artikel-filter {
         top: 70px;
-        padding: 12px 16px;
+        padding: 16px 0;
     }
     
     .filter-bar {
-        flex-wrap: wrap;
-        gap: 8px;
+        flex-direction: column;
+        gap: 12px;
     }
     
-    .region-sidebar-inline {
-        order: 1;
+    .filter-dropdowns {
+        width: 100%;
+        display: flex;
+        gap: 12px;
+        align-items: stretch;
+    }
+    
+    #artikel-search {
         width: 100%;
         max-width: 100%;
-        flex: 1 1 100%;
-    }
-    
-    .region-list {
-        gap: 10px;
-    }
-    
-    .region-item {
-        padding: 10px 16px;
-        font-size: 0.9rem;
-    }
-    
-    .region-count {
-        padding: 3px 8px;
-        font-size: 0.8rem;
-        min-width: 28px;
-    }
-    
-    #pelanggan-search {
-        order: 2;
-        flex: 1;
         min-width: 0;
     }
     
+    #filter-category,
     #sort-by {
-        order: 3;
-        min-width: 48px;
-        max-width: 48px;
-        width: 48px;
-        height: 48px;
-        flex-shrink: 0;
+        flex: 1 1 calc(50% - 6px);
+        width: calc(50% - 6px);
+        min-width: 0 !important;
+        max-width: calc(50% - 6px) !important;
+        box-sizing: border-box;
     }
     
-    .pelanggan-grid-section {
-        padding: 20px 16px 60px;
-    }
-    
-    .pelanggan-grid {
+    .artikel-grid {
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 20px;
     }
     
-    .pelanggan-image {
+    .artikel-image {
         height: 200px;
     }
     
-    .logos-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
-    
-    .pelanggan-cta {
+    .artikel-cta {
         padding: 60px 0;
     }
     
-    .pelanggan-cta h2 {
+    .artikel-cta h2 {
         font-size: 1.75rem;
     }
     
-    .pelanggan-cta p {
+    .artikel-cta p {
         font-size: 1rem;
         padding: 0 20px;
     }
     
-    .btn-primary {
+    .btn-whatsapp {
         padding: 16px 36px;
         font-size: 1rem;
     }
 }
 
 @media (max-width: 480px) {
-    .pelanggan-grid {
+    .artikel-grid {
         grid-template-columns: 1fr;
         gap: 20px;
     }
     
-    .pelanggan-hero h1 {
+    .artikel-hero h1 {
         font-size: 1.75rem;
     }
     
-    .pelanggan-content {
+    .artikel-content {
         padding: 20px;
     }
     
-    .pelanggan-content h3 {
+    .artikel-content h3 {
         font-size: 1.1rem;
-    }
-    
-    .logos-grid {
-        grid-template-columns: 1fr;
     }
 }
 
@@ -907,23 +611,23 @@
     }
 }
 
-.pelanggan-card {
+.artikel-card {
     animation: fadeInUp 0.6s ease forwards;
     opacity: 0;
 }
 
-.pelanggan-card:nth-child(1) { animation-delay: 0.1s; }
-.pelanggan-card:nth-child(2) { animation-delay: 0.2s; }
-.pelanggan-card:nth-child(3) { animation-delay: 0.3s; }
-.pelanggan-card:nth-child(4) { animation-delay: 0.4s; }
-.pelanggan-card:nth-child(5) { animation-delay: 0.5s; }
-.pelanggan-card:nth-child(6) { animation-delay: 0.6s; }
-.pelanggan-card:nth-child(n+7) { animation-delay: 0.7s; }
+.artikel-card:nth-child(1) { animation-delay: 0.1s; }
+.artikel-card:nth-child(2) { animation-delay: 0.2s; }
+.artikel-card:nth-child(3) { animation-delay: 0.3s; }
+.artikel-card:nth-child(4) { animation-delay: 0.4s; }
+.artikel-card:nth-child(5) { animation-delay: 0.5s; }
+.artikel-card:nth-child(6) { animation-delay: 0.6s; }
+.artikel-card:nth-child(n+7) { animation-delay: 0.7s; }
 
 /* ============================================
    LOADING STATE
    ============================================ */
-.pelanggan-card.loading {
+.artikel-card.loading {
     pointer-events: none;
     opacity: 0.6;
 }
@@ -932,13 +636,19 @@
    ACCESSIBILITY
    ============================================ */
 @media (prefers-reduced-motion: reduce) {
-    .pelanggan-card,
-    .pelanggan-card::after,
-    .pelanggan-hero::after {
+    .artikel-card,
+    .artikel-card::after,
+    .artikel-hero::after {
         animation: none;
     }
     
-    .pelanggan-card:hover {
+    .artikel-card:hover {
         transform: translateY(-4px);
     }
 }
+
+
+
+
+
+

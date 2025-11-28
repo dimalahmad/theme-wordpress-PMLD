@@ -1,0 +1,985 @@
+/**
+ * Pelanggan Article Page - Modern & Futuristic Design
+ * Menggunakan warna biru identitas theme dengan gaya modern dan futuristik
+ * Konsisten dengan desain spareparts, paket usaha, dan pelanggan listing
+ */
+
+/* ============================================
+   VARIABLES - Menggunakan warna dari Customizer Identitas Situs
+   ============================================ */
+/* Warna menggunakan CSS variables dari customizer yang sudah didefinisikan di functions.php */
+
+/* ============================================
+   PAGE LAYOUT
+   ============================================ */
+.pelanggan-article-page,
+.paket-article-page {
+    padding-top: 0;
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    min-height: 100vh;
+}
+
+.pelanggan-article,
+.paket-article {
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ============================================
+   ARTICLE HEADER - Modern & Futuristic
+   ============================================ */
+.article-header {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 20px 40px;
+    border-bottom: 2px solid rgba(47, 128, 237, 0.1);
+    position: relative;
+}
+
+.article-title {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #1a1a1a;
+    margin: 0 0 24px;
+    letter-spacing: -0.02em;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a1a 0%, var(--inviro-primary, #2F80ED) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.article-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 0.875rem;
+    color: #6b7280;
+    flex-wrap: wrap;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.meta-author,
+.meta-date,
+.meta-views,
+.meta-region {
+    color: #6b7280;
+    position: relative;
+    padding-left: 20px;
+}
+
+.meta-author::before,
+.meta-date::before,
+.meta-views::before,
+.meta-region::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    background: var(--inviro-primary, #2F80ED);
+    border-radius: 50%;
+}
+
+.meta-separator {
+    display: none;
+}
+
+/* ============================================
+   ARTICLE CONTENT WRAPPER
+   ============================================ */
+.article-content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+}
+
+.article-main-content {
+    min-width: 0;
+    max-width: 900px;
+}
+
+/* ============================================
+   FEATURED IMAGE - Modern Card Style
+   ============================================ */
+.article-featured-image {
+    margin: 0 0 48px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(47, 128, 237, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.article-featured-image:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(47, 128, 237, 0.2);
+}
+
+.article-featured-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+/* ============================================
+   CUSTOMER INFO SECTION - Modern Card
+   ============================================ */
+.customer-info-section,
+.project-info-section {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid rgba(47, 128, 237, 0.1);
+    border-left: 4px solid var(--inviro-primary, #2F80ED);
+    padding: 32px;
+    margin: 0 0 48px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.customer-info-section::before,
+.project-info-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(47, 128, 237, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(50%, -50%);
+}
+
+.customer-info-section h2,
+.project-info-section h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 28px;
+    padding: 0 0 16px;
+    border-bottom: 2px solid rgba(47, 128, 237, 0.2);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    position: relative;
+}
+
+.info-row {
+    margin: 0 0 16px;
+    line-height: 1.7;
+    font-size: 1rem;
+    color: #4a4a4a;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(47, 128, 237, 0.05);
+    transition: all 0.3s ease;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.info-row:hover {
+    padding-left: 8px;
+    background: rgba(47, 128, 237, 0.02);
+    border-radius: 8px;
+}
+
+.info-row strong {
+    color: #1a1a1a;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 240px;
+    margin-right: 8px;
+    position: relative;
+}
+
+.info-row strong::after {
+    content: ':';
+    margin-left: 4px;
+}
+
+.info-row a {
+    color: var(--inviro-primary, #2F80ED);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 2px;
+}
+
+.info-row a:hover {
+    color: var(--inviro-primary-medium, #4FB3E8);
+    border-bottom-color: var(--inviro-primary-medium, #4FB3E8);
+}
+
+/* ============================================
+   ARTICLE BODY - Modern Typography
+   ============================================ */
+.article-body {
+    margin: 0 0 48px;
+    font-size: 1.125rem;
+    line-height: 1.9;
+    color: #4a4a4a;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.article-body h2,
+.article-body h3,
+.article-body h4 {
+    color: #1a1a1a;
+    margin: 48px 0 24px;
+    font-weight: 700;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.article-body h2 {
+    font-size: 2rem;
+    line-height: 1.3;
+    background: linear-gradient(135deg, #1a1a1a 0%, var(--inviro-primary, #2F80ED) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.article-body h3 {
+    font-size: 1.5rem;
+    line-height: 1.4;
+    color: var(--inviro-primary, #2F80ED);
+}
+
+.article-body h4 {
+    font-size: 1.25rem;
+    line-height: 1.5;
+}
+
+.article-body p {
+    margin: 0 0 24px;
+    line-height: 1.9;
+}
+
+.article-body p:last-child {
+    margin-bottom: 0;
+}
+
+.article-body ul,
+.article-body ol {
+    margin: 0 0 24px;
+    padding-left: 32px;
+    line-height: 1.9;
+}
+
+.article-body li {
+    margin: 0 0 12px;
+}
+
+.article-body li:last-child {
+    margin-bottom: 0;
+}
+
+.article-body a {
+    color: var(--inviro-primary, #2F80ED);
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    padding-bottom: 2px;
+}
+
+.article-body a:hover {
+    color: var(--inviro-primary-medium, #4FB3E8);
+    border-bottom-color: var(--inviro-primary-medium, #4FB3E8);
+}
+
+.article-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 20px;
+    margin: 32px 0;
+    display: block;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.article-inline-image {
+    margin: 32px 0;
+    background: #ffffff;
+    border: 2px solid rgba(47, 128, 237, 0.1);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.article-inline-image:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(47, 128, 237, 0.2);
+}
+
+.article-inline-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* ============================================
+   GALLERY SECTION
+   ============================================ */
+.article-gallery {
+    margin: 64px 0;
+}
+
+.article-gallery h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 32px;
+    padding: 0 0 16px;
+    border-bottom: 2px solid rgba(47, 128, 237, 0.2);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-top: 32px;
+}
+
+.gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    background: #f8f9fa;
+    aspect-ratio: 4/3;
+    border: 2px solid rgba(47, 128, 237, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-item:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(47, 128, 237, 0.25);
+    border-color: var(--inviro-primary, #2F80ED);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.1);
+}
+
+.gallery-caption {
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(47, 128, 237, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ============================================
+   ADDITIONAL INFO SECTION
+   ============================================ */
+.additional-info-section {
+    margin: 64px 0;
+    padding: 32px;
+    background: linear-gradient(135deg, rgba(47, 128, 237, 0.05) 0%, rgba(117, 198, 241, 0.05) 100%);
+    border: 2px solid rgba(47, 128, 237, 0.1);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.additional-info-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(47, 128, 237, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+}
+
+.additional-info-section h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 24px;
+    padding: 0 0 16px;
+    border-bottom: 2px solid rgba(47, 128, 237, 0.2);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    position: relative;
+}
+
+.additional-info-content {
+    font-size: 1.125rem;
+    line-height: 1.9;
+    color: #4a4a4a;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    position: relative;
+    z-index: 1;
+}
+
+.additional-info-content p {
+    margin: 0 0 24px;
+}
+
+.additional-info-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* ============================================
+   ARTICLE FOOTER
+   ============================================ */
+.article-footer {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 2px solid rgba(47, 128, 237, 0.1);
+}
+
+.article-closing {
+    font-size: 1.125rem;
+    line-height: 1.9;
+    color: #4a4a4a;
+    margin: 0 0 32px;
+    font-style: italic;
+    padding: 24px;
+    background: linear-gradient(135deg, rgba(47, 128, 237, 0.03) 0%, rgba(117, 198, 241, 0.03) 100%);
+    border-left: 4px solid var(--inviro-primary, #2F80ED);
+    border-radius: 12px;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Share Buttons - Modern Icon Style */
+.share-buttons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 32px;
+    flex-wrap: wrap;
+    padding: 24px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 2px solid rgba(47, 128, 237, 0.1);
+    border-radius: 20px;
+}
+
+.share-label {
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-right: 8px;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    background: #ffffff;
+    color: #6b7280;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(47, 128, 237, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.share-btn svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+}
+
+.share-btn:hover {
+    transform: translateY(-4px) scale(1.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border-color: transparent;
+}
+
+.share-btn:hover svg {
+    transform: scale(1.2);
+}
+
+.share-facebook:hover {
+    background: #1877f2;
+    color: #ffffff;
+}
+
+.share-twitter:hover {
+    background: #1da1f2;
+    color: #ffffff;
+}
+
+.share-whatsapp:hover {
+    background: #25d366;
+    color: #ffffff;
+}
+
+.share-linkedin:hover {
+    background: #0077b5;
+    color: #ffffff;
+}
+
+/* Article Taxonomy */
+.article-taxonomy {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(47, 128, 237, 0.1);
+}
+
+.article-categories {
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.article-categories strong {
+    color: #1a1a1a;
+    margin-right: 8px;
+    font-weight: 700;
+}
+
+.article-categories a {
+    color: var(--inviro-primary, #2F80ED);
+    text-decoration: none;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 2px;
+}
+
+.article-categories a:hover {
+    color: var(--inviro-primary-medium, #4FB3E8);
+    border-bottom-color: var(--inviro-primary-medium, #4FB3E8);
+}
+
+.article-categories span {
+    color: #6b7280;
+}
+
+/* ============================================
+   SIDEBAR - Modern Card Style
+   ============================================ */
+.article-sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.related-posts-widget {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    padding: 24px;
+    border-radius: 20px;
+    border: 2px solid rgba(47, 128, 237, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.related-posts-widget h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 20px;
+    padding: 0 0 16px;
+    border-bottom: 2px solid rgba(47, 128, 237, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.related-posts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.related-posts-list li {
+    margin: 0 0 16px;
+    padding: 0 0 16px;
+    border-bottom: 1px solid rgba(47, 128, 237, 0.1);
+    transition: all 0.3s ease;
+}
+
+.related-posts-list li:hover {
+    padding-left: 8px;
+}
+
+.related-posts-list li:last-child {
+    margin: 0;
+    padding: 0;
+    border-bottom: none;
+}
+
+.related-posts-list a {
+    color: #4a4a4a;
+    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    transition: all 0.3s ease;
+    display: block;
+    font-weight: 500;
+    position: relative;
+    padding-left: 20px;
+}
+
+.related-posts-list a::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--inviro-primary, #2F80ED);
+    font-weight: 700;
+    transition: transform 0.3s ease;
+}
+
+.related-posts-list a:hover {
+    color: var(--inviro-primary, #2F80ED);
+}
+
+.related-posts-list a:hover::before {
+    transform: translateX(4px);
+}
+
+/* ============================================
+   COMMENTS SECTION - Modern Style
+   ============================================ */
+.article-comments {
+    background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+    padding: 64px 0;
+    margin-top: 64px;
+    border-top: 2px solid rgba(47, 128, 237, 0.1);
+}
+
+.comments-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.comments-wrapper h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 32px;
+    padding: 0 0 16px;
+    border-bottom: 2px solid rgba(47, 128, 237, 0.2);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a1a 0%, var(--inviro-primary, #2F80ED) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.comment-form-wrapper {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid rgba(47, 128, 237, 0.1);
+    padding: 32px;
+    margin-bottom: 32px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.comment-form-wrapper h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 24px;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.comment-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.comment-form .form-group {
+    margin-bottom: 20px;
+}
+
+.comment-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #1a1a1a;
+    font-size: 0.9375rem;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.comment-form input[type="text"],
+.comment-form input[type="email"],
+.comment-form textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid rgba(47, 128, 237, 0.2);
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    transition: all 0.3s ease;
+    background: #ffffff;
+    color: #4a4a4a;
+}
+
+.comment-form input:focus,
+.comment-form textarea:focus {
+    outline: none;
+    border-color: var(--inviro-primary, #2F80ED);
+    box-shadow: 0 0 0 4px rgba(47, 128, 237, 0.1);
+}
+
+.comment-form textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.btn-submit-comment {
+    background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary-medium, #4FB3E8) 50%, var(--inviro-primary, #2F80ED) 100%);
+    color: #ffffff;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 15px rgba(47, 128, 237, 0.3);
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.btn-submit-comment:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(47, 128, 237, 0.4);
+}
+
+.form-message {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+}
+
+.form-message.success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    border: 2px solid #10b981;
+}
+
+.form-message.error {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+    border: 2px solid #ef4444;
+}
+
+.comments-list {
+    margin-top: 32px;
+}
+
+.comment-item {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid rgba(47, 128, 237, 0.1);
+    padding: 24px;
+    margin-bottom: 24px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.comment-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(47, 128, 237, 0.15);
+    border-color: rgba(47, 128, 237, 0.2);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.commenter-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.commenter-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary, #2F80ED) 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.125rem;
+    box-shadow: 0 4px 15px rgba(47, 128, 237, 0.3);
+}
+
+.commenter-details h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 4px;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.comment-date {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.comment-content {
+    color: #4a4a4a;
+    line-height: 1.8;
+    font-size: 1rem;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.no-comments {
+    text-align: center;
+    color: #6b7280;
+    padding: 48px 32px;
+    font-style: italic;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 2px dashed rgba(47, 128, 237, 0.2);
+    border-radius: 20px;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 992px) {
+    .article-content-wrapper {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 40px 20px 60px;
+    }
+    
+    .article-sidebar {
+        position: relative;
+        top: 0;
+    }
+    
+    .article-title {
+        font-size: 2.25rem;
+    }
+    
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pelanggan-article-page,
+    .paket-article-page {
+        padding-top: 0;
+    }
+    
+    .article-header {
+        padding: 40px 20px 32px;
+    }
+    
+    .article-title {
+        font-size: 1.875rem;
+        line-height: 1.3;
+    }
+    
+    .article-meta {
+        font-size: 0.75rem;
+        gap: 12px;
+    }
+    
+    .article-content-wrapper {
+        padding: 32px 20px 48px;
+    }
+    
+    .customer-info-section,
+    .project-info-section {
+        padding: 24px;
+    }
+    
+    .customer-info-section h2,
+    .project-info-section h2 {
+        font-size: 1.25rem;
+    }
+    
+    .info-row strong {
+        display: block;
+        margin-bottom: 8px;
+        min-width: auto;
+    }
+    
+    .article-body {
+        font-size: 1rem;
+    }
+    
+    .article-body h2 {
+        font-size: 1.5rem;
+    }
+    
+    .article-body h3 {
+        font-size: 1.25rem;
+    }
+    
+    .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .share-buttons {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .share-btn {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .article-featured-image {
+        margin-bottom: 32px;
+    }
+    
+    .comment-form .form-row {
+        grid-template-columns: 1fr;
+    }
+}

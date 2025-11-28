@@ -1,18 +1,17 @@
 <?php
 /**
- * Template Name: Paket Usaha
+ * Template Name: Paket Usaha (Dummy Style)
+ * Menggunakan struktur tampilan dummy tapi mengambil data dari WordPress
  */
 
 // Ensure this template is used for paket-usaha page
-// Fix query if it's empty or 404
 global $wp_query;
 if (empty($wp_query->posts) || $wp_query->is_404) {
-    // Try to find paket-usaha page
     $paket_usaha_page = get_page_by_path('paket-usaha');
     if (!$paket_usaha_page) {
         $pages = get_pages(array(
             'meta_key' => '_wp_page_template',
-            'meta_value' => 'page-paket-usaha.php',
+            'meta_value' => 'page-paket-usaha-dummy-style.php',
             'number' => 1
         ));
         if (!empty($pages)) {
@@ -35,107 +34,6 @@ if (empty($wp_query->posts) || $wp_query->is_404) {
 }
 
 get_header();
-
-// Check if viewing dummy detail
-$dummy_id = isset($_GET['dummy_id']) ? intval($_GET['dummy_id']) : 0;
-$viewing_dummy_detail = false;
-$dummy_detail_data = null;
-
-if ($dummy_id > 0) {
-    // Load dummy data
-    $dummy_pakets = array();
-    if (function_exists('inviro_get_dummy_paket_usaha')) {
-        $dummy_pakets = inviro_get_dummy_paket_usaha();
-    }
-    if (empty($dummy_pakets)) {
-        $json_file = get_template_directory() . '/dummy-data/paket-usaha.json';
-        if (file_exists($json_file)) {
-            $json_content = file_get_contents($json_file);
-            $dummy_pakets = json_decode($json_content, true);
-        }
-    }
-    
-    // Find dummy data by ID
-    foreach ($dummy_pakets as $item) {
-        if (isset($item['id']) && $item['id'] == $dummy_id) {
-            $dummy_detail_data = $item;
-            $viewing_dummy_detail = true;
-            break;
-        }
-    }
-}
-
-// If viewing dummy detail, redirect to single template logic
-if ($viewing_dummy_detail && $dummy_detail_data) {
-    // Include single template with dummy data
-    $price = isset($dummy_detail_data['price']) ? $dummy_detail_data['price'] : '';
-    $original_price = isset($dummy_detail_data['original_price']) ? $dummy_detail_data['original_price'] : null;
-    $sku = isset($dummy_detail_data['sku']) ? $dummy_detail_data['sku'] : '';
-    $promo = isset($dummy_detail_data['promo']) && $dummy_detail_data['promo'] ? '1' : '0';
-    $gallery = isset($dummy_detail_data['gallery']) ? $dummy_detail_data['gallery'] : array();
-    $specifications = isset($dummy_detail_data['specifications']) ? $dummy_detail_data['specifications'] : array();
-    $category_name = isset($dummy_detail_data['category']) ? $dummy_detail_data['category'] : '';
-    $categories = $category_name ? array((object)array('name' => $category_name)) : array();
-    $title = isset($dummy_detail_data['title']) ? $dummy_detail_data['title'] : '';
-    $description = isset($dummy_detail_data['description']) ? $dummy_detail_data['description'] : '';
-    $main_image = isset($dummy_detail_data['image']) ? $dummy_detail_data['image'] : '';
-    
-    // Get reviews for dummy data
-    $reviews = array();
-    $avg_rating = 0;
-    $review_paket_id = 'dummy_' . $dummy_id;
-    
-    $reviews_query = new WP_Query(array(
-        'post_type' => 'paket_usaha_review',
-        'posts_per_page' => -1,
-        'meta_query' => array(
-            'relation' => 'AND',
-            array(
-                'key' => '_review_sparepart_id',
-                'value' => $review_paket_id,
-                'compare' => '='
-            ),
-            array(
-                'key' => '_review_is_dummy',
-                'value' => '1',
-                'compare' => '='
-            ),
-            array(
-                'key' => '_review_status',
-                'value' => 'approved',
-                'compare' => '='
-            )
-        )
-    ));
-    
-    if ($reviews_query->have_posts()) {
-        while ($reviews_query->have_posts()) {
-            $reviews_query->the_post();
-            $reviews[] = array(
-                'id' => get_the_ID(),
-                'name' => get_post_meta(get_the_ID(), '_reviewer_name', true),
-                'email' => get_post_meta(get_the_ID(), '_reviewer_email', true),
-                'rating' => get_post_meta(get_the_ID(), '_review_rating', true),
-                'content' => get_the_content(),
-                'date' => get_the_date('d F Y')
-            );
-        }
-        wp_reset_postdata();
-    }
-    
-    if (!empty($reviews)) {
-        $total_rating = 0;
-        foreach ($reviews as $review) {
-            $total_rating += intval($review['rating']);
-        }
-        $avg_rating = round($total_rating / count($reviews), 1);
-    }
-    
-    // Include single template
-    include(get_template_directory() . '/single-paket-usaha-dummy.php');
-    get_footer();
-    exit;
-}
 ?>
 
 <div class="paket-usaha-page">
@@ -163,46 +61,7 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                             'hide_empty' => false,
                         ));
                         if (!is_wp_error($categories) && !empty($categories)) {
-                            // Pisahkan kategori status (Promo/Tersedia) dan kategori lainnya
-                            $status_categories = array();
-                            $other_categories = array();
-                            
                             foreach ($categories as $category) {
-                                if (in_array($category->slug, array('promo', 'tersedia'))) {
-                                    $status_categories[] = $category;
-                                } else {
-                                    $other_categories[] = $category;
-                                }
-                            }
-                            
-                            // Tampilkan Promo dulu, lalu Tersedia
-                            $promo_cat = null;
-                            $tersedia_cat = null;
-                            foreach ($status_categories as $cat) {
-                                if ($cat->slug == 'promo') {
-                                    $promo_cat = $cat;
-                                } elseif ($cat->slug == 'tersedia') {
-                                    $tersedia_cat = $cat;
-                                }
-                            }
-                            
-                            // Tampilkan Promo
-                            if ($promo_cat) {
-                                echo '<option value="' . esc_attr($promo_cat->slug) . '">' . esc_html($promo_cat->name) . '</option>';
-                            }
-                            
-                            // Tampilkan Tersedia
-                            if ($tersedia_cat) {
-                                echo '<option value="' . esc_attr($tersedia_cat->slug) . '">' . esc_html($tersedia_cat->name) . '</option>';
-                            }
-                            
-                            // Tampilkan separator jika ada kategori lain
-                            if (!empty($other_categories) && (!empty($status_categories))) {
-                                echo '<option value="" disabled>──────────</option>';
-                            }
-                            
-                            // Tampilkan kategori lainnya
-                            foreach ($other_categories as $category) {
                                 echo '<option value="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</option>';
                             }
                         }
@@ -245,23 +104,6 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                         $category_slugs = '';
                         if ($categories && !is_wp_error($categories)) {
                             $category_slugs = implode(' ', array_map(function($cat) { return $cat->slug; }, $categories));
-                        }
-                        
-                        // Tentukan status promo - cek dari meta field atau original_price
-                        $is_promo = false;
-                        if ($promo == '1' || $promo === 1 || $promo === '1') {
-                            $is_promo = true;
-                        } elseif ($original_price && $original_price > 0 && $price && $original_price > $price) {
-                            // Jika ada original_price yang lebih besar dari price, berarti promo
-                            $is_promo = true;
-                        } elseif ($categories && !is_wp_error($categories)) {
-                            // Cek apakah ada kategori "promo"
-                            foreach ($categories as $cat) {
-                                if ($cat->slug == 'promo') {
-                                    $is_promo = true;
-                                    break;
-                                }
-                            }
                         }
                         
                         // Get image - Priority: Featured Image > Gallery
@@ -317,7 +159,7 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                                     </div>
                                 <?php endif; ?>
                                 
-                                <?php if ($is_promo) : ?>
+                                <?php if ($promo == '1') : ?>
                                     <span class="stock-badge promo-badge">Promo</span>
                                 <?php else : ?>
                                     <span class="stock-badge in-stock">Tersedia</span>
@@ -388,7 +230,6 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
         </div>
     </section>
 </div>
-
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -493,3 +334,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <?php get_footer(); ?>
+
+

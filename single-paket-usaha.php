@@ -1,10 +1,16 @@
 <?php
 /**
  * Single Paket Usaha Template
- * Modern & Futuristic Design
+ * Modern & Futuristic Design - Sama dengan detail sparepart
  */
 
 get_header();
+
+// Debug: Ensure this template is being used
+// Remove this after confirming template works
+if (current_user_can('administrator')) {
+    // Uncomment to debug: echo '<!-- Template: single-paket-usaha.php is being used -->';
+}
 
 // Check if this is dummy data
 $dummy_id = isset($_GET['dummy_id']) ? intval($_GET['dummy_id']) : 0;
@@ -13,20 +19,20 @@ $dummy_data = null;
 
 if ($dummy_id > 0) {
     // Load dummy data
-    $dummy_pakets = array();
+    $dummy_paket = array();
     if (function_exists('inviro_get_dummy_paket_usaha')) {
-        $dummy_pakets = inviro_get_dummy_paket_usaha();
+        $dummy_paket = inviro_get_dummy_paket_usaha();
     }
-    if (empty($dummy_pakets)) {
+    if (empty($dummy_paket)) {
         $json_file = get_template_directory() . '/dummy-data/paket-usaha.json';
         if (file_exists($json_file)) {
             $json_content = file_get_contents($json_file);
-            $dummy_pakets = json_decode($json_content, true);
+            $dummy_paket = json_decode($json_content, true);
         }
     }
     
     // Find dummy data by ID
-    foreach ($dummy_pakets as $item) {
+    foreach ($dummy_paket as $item) {
         if (isset($item['id']) && $item['id'] == $dummy_id) {
             $dummy_data = $item;
             $is_dummy = true;
@@ -61,16 +67,36 @@ if ($is_dummy && $dummy_data) {
     $specifications = $specifications ? json_decode($specifications, true) : array();
     $categories = get_the_terms(get_the_ID(), 'paket_usaha_category');
     $title = get_the_title();
-    $description = get_the_content();
+    $description_meta = get_post_meta(get_the_ID(), '_paket_description', true);
+    $description = $description_meta ? $description_meta : ''; // For real posts, use the_content() directly
     $main_image = has_post_thumbnail() ? get_the_post_thumbnail_url(get_the_ID(), 'large') : '';
     
-    // Convert gallery IDs to URLs
+    // Determine promo status
+    $is_promo = false;
+    if ($promo == '1' || $promo === 1 || $promo === '1') {
+        $is_promo = true;
+    } elseif ($original_price && $original_price > 0 && $price && $original_price > $price) {
+        $is_promo = true;
+    } elseif ($categories && !is_wp_error($categories)) {
+        foreach ($categories as $cat) {
+            if ($cat->slug == 'promo') {
+                $is_promo = true;
+                break;
+            }
+        }
+    }
+    
+    // Convert gallery IDs to URLs - SAMA PERSIS DENGAN SPAREPART
     $gallery = array();
     foreach ($gallery_ids as $img_id) {
         if ($img_id) {
-            $img_url = wp_get_attachment_image_url($img_id, 'large');
-            if ($img_url) {
-                $gallery[] = $img_url;
+            $img_id = trim($img_id);
+            if (is_numeric($img_id)) {
+                $img_id = intval($img_id);
+                $img_url = wp_get_attachment_image_url($img_id, 'large');
+                if ($img_url) {
+                    $gallery[] = $img_url;
+                }
             }
         }
     }
@@ -79,13 +105,14 @@ if ($is_dummy && $dummy_data) {
     }
 }
 
+// Always render if we have post data (dummy or real)
 if ($is_dummy || (isset($title) && $title)) :
     
     // Get approved reviews
     $reviews = array();
     $avg_rating = 0;
     
-    $review_paket_id = $is_dummy ? 'dummy_' . $dummy_id : get_the_ID();
+    $review_paket_id = $is_dummy ? 'dummy_' . $dummy_id : (have_posts() ? get_the_ID() : 0);
     
     $reviews_query = new WP_Query(array(
         'post_type' => 'paket_usaha_review',
@@ -133,6 +160,9 @@ if ($is_dummy || (isset($title) && $title)) :
         }
         $avg_rating = round($total_rating / count($reviews), 1);
     }
+    
+    // Use is_promo from real data or promo from dummy
+    $display_promo = $is_dummy ? ($promo == '1') : (isset($is_promo) ? $is_promo : false);
 ?>
 
 <div class="sparepart-detail-page">
@@ -150,7 +180,7 @@ if ($is_dummy || (isset($title) && $title)) :
                                 if ($display_main_image) :
                                 ?>
                                     <img id="main-gallery-image" src="<?php echo esc_url($display_main_image); ?>" alt="<?php echo esc_attr($title); ?>" loading="eager">
-                                    <?php if ($promo == '1') : ?>
+                                    <?php if ($display_promo) : ?>
                                         <span class="promo-badge-large">Promo</span>
                                     <?php endif; ?>
                                 <?php endif; ?>
@@ -159,13 +189,16 @@ if ($is_dummy || (isset($title) && $title)) :
                             <?php if (!empty($gallery) && count($gallery) > 1) : ?>
                                 <div class="gallery-thumbnails">
                                     <?php foreach ($gallery as $index => $img_url) : 
-                                        // Create thumbnail URL (for dummy data, use same URL, for real images we'd need thumbnail version)
+                                        // Create thumbnail URL
                                         $thumb_url = $img_url;
                                         if (!$is_dummy && strpos($img_url, 'wp-content') !== false) {
                                             // Try to get thumbnail version for real images
                                             $attachment_id = attachment_url_to_postid($img_url);
                                             if ($attachment_id) {
                                                 $thumb_url = wp_get_attachment_image_url($attachment_id, 'thumbnail');
+                                                if (!$thumb_url) {
+                                                    $thumb_url = $img_url;
+                                                }
                                             }
                                         }
                                     ?>
@@ -212,7 +245,7 @@ if ($is_dummy || (isset($title) && $title)) :
                         <?php if ($price) : ?>
                             <div class="detail-price">
                                 <?php 
-                                if ($promo == '1' && $original_price && $original_price > $price) : ?>
+                                if ($display_promo && $original_price && $original_price > 0 && $original_price > $price) : ?>
                                     <div class="price-wrapper">
                                         <span class="price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
                                         <span class="price-amount price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
@@ -223,7 +256,7 @@ if ($is_dummy || (isset($title) && $title)) :
                             </div>
                         <?php endif; ?>
                         
-                        <?php if ($promo == '1') : ?>
+                        <?php if ($display_promo) : ?>
                             <div class="promo-banner">
                                 <span>Paket ini sedang dalam promo!</span>
                             </div>
@@ -250,7 +283,7 @@ if ($is_dummy || (isset($title) && $title)) :
     <section class="sparepart-detail-content">
         <div class="container">
             <div class="content-grid">
-                <?php if (($is_dummy && $description) || (!$is_dummy && get_the_content())) : ?>
+                <?php if (($is_dummy && $description) || (!$is_dummy && ($description_meta || get_the_content()))) : ?>
                     <div class="description-section">
                         <h3>Deskripsi Paket</h3>
                         <div class="description-content">
@@ -258,7 +291,11 @@ if ($is_dummy || (isset($title) && $title)) :
                             if ($is_dummy) {
                                 echo wpautop(esc_html($description));
                             } else {
-                                the_content();
+                                if ($description_meta) {
+                                    echo wpautop(esc_html($description_meta));
+                                } else {
+                                    the_content();
+                                }
                             }
                             ?>
                         </div>
@@ -270,11 +307,13 @@ if ($is_dummy || (isset($title) && $title)) :
                         <h3>Spesifikasi</h3>
                         <div class="specifications-table">
                             <?php foreach ($specifications as $spec) : 
-                                if (!empty($spec['label']) && !empty($spec['value'])) :
+                                $label = isset($spec['label']) ? $spec['label'] : '';
+                                $value = isset($spec['value']) ? $spec['value'] : '';
+                                if (!empty($label) && !empty($value)) :
                             ?>
                                 <div class="spec-row">
-                                    <div class="spec-label"><?php echo esc_html($spec['label']); ?></div>
-                                    <div class="spec-value"><?php echo esc_html($spec['value']); ?></div>
+                                    <div class="spec-label"><?php echo esc_html($label); ?></div>
+                                    <div class="spec-value"><?php echo esc_html($value); ?></div>
                                 </div>
                             <?php 
                                 endif;
@@ -291,7 +330,7 @@ if ($is_dummy || (isset($title) && $title)) :
     <section class="sparepart-reviews-section">
         <div class="container">
             <div class="reviews-header">
-                <h2>Ulasan Produk</h2>
+                <h2>Ulasan Paket</h2>
                 <?php if ($avg_rating > 0) : ?>
                     <div class="average-rating">
                         <div class="rating-stars">
@@ -336,7 +375,7 @@ if ($is_dummy || (isset($title) && $title)) :
                     
                     <div class="form-group">
                         <label for="review_content">Ulasan *</label>
-                        <textarea id="review_content" name="review_content" rows="5" required placeholder="Bagikan pengalaman Anda dengan produk ini..."></textarea>
+                        <textarea id="review_content" name="review_content" rows="5" required placeholder="Bagikan pengalaman Anda dengan paket ini..."></textarea>
                     </div>
                     
                     <button type="submit" class="btn-submit-review">Kirim Ulasan</button>
@@ -372,7 +411,7 @@ if ($is_dummy || (isset($title) && $title)) :
                     <?php endforeach; ?>
                 <?php else : ?>
                     <div class="no-reviews">
-                        <p>Belum ada ulasan untuk produk ini. Jadilah yang pertama memberikan ulasan!</p>
+                        <p>Belum ada ulasan untuk paket ini. Jadilah yang pertama memberikan ulasan!</p>
                     </div>
                 <?php endif; ?>
             </div>
@@ -466,4 +505,3 @@ jQuery(document).ready(function($) {
 endif; // End if dummy or real post
 get_footer();
 ?>
-

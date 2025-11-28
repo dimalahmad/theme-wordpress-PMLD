@@ -1,47 +1,10 @@
 <?php
 /**
- * Template Name: Pelanggan
- * 
- * @package INVIRO
+ * Archive Template for Proyek Pelanggan
+ * This template is used when viewing the proyek_pelanggan archive page
  */
 
 get_header();
-
-// Check if this is a dummy detail page
-$dummy_id = isset($_GET['dummy_id']) ? intval($_GET['dummy_id']) : 0;
-if ($dummy_id > 0) {
-    // Load dummy detail template
-    $dummy_pelanggan = array();
-    if (function_exists('inviro_get_dummy_pelanggan')) {
-        $dummy_pelanggan = inviro_get_dummy_pelanggan();
-    }
-    if (empty($dummy_pelanggan)) {
-        $json_file = get_template_directory() . '/dummy-data/pelanggan.json';
-        if (file_exists($json_file)) {
-            $json_content = file_get_contents($json_file);
-            $dummy_pelanggan = json_decode($json_content, true);
-        }
-    }
-    
-    // Find dummy data by ID
-    $dummy_detail_data = null;
-    foreach ($dummy_pelanggan as $item) {
-        if (isset($item['id']) && $item['id'] == $dummy_id) {
-            $dummy_detail_data = $item;
-            break;
-        }
-    }
-    
-    if ($dummy_detail_data) {
-        // Include dummy detail template
-        $dummy_template = get_template_directory() . '/single-pelanggan-dummy.php';
-        if (file_exists($dummy_template)) {
-            include $dummy_template;
-            get_footer();
-            exit;
-        }
-    }
-}
 ?>
 
 <div class="pelanggan-page">
