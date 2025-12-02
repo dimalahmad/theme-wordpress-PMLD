@@ -173,10 +173,6 @@ $products_query = new WP_Query($args);
                 <p class="no-products"><?php esc_html_e('Belum ada produk yang tersedia.', 'inviro'); ?></p>
             <?php endif; ?>
         </div>
-        
-        <div class="section-footer">
-            <a href="<?php echo esc_url(get_permalink(25)); ?>" class="btn-view-all-products"><?php esc_html_e('Lihat Semua Produk', 'inviro'); ?></a>
-        </div>
     </div>
 </section>
 

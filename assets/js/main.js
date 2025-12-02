@@ -15,6 +15,7 @@
         initSmoothScroll();
         initLazyLoad();
         initStickyHeader();
+        initArtikelImageSizing();
     });
 
     /**
@@ -222,22 +223,34 @@
         const prevBtn = $('.testimonial-prev');
         const nextBtn = $('.testimonial-next');
         let currentIndex = 0;
-        const visibleCards = 3; // Always show 3 cards
+        
+        // Detect mobile vs desktop
+        function getVisibleCards() {
+            return window.innerWidth <= 768 ? 2 : 3;
+        }
+        
+        // Check if desktop
+        function isDesktop() {
+            return window.innerWidth > 768;
+        }
+        
+        let visibleCards = getVisibleCards();
 
         if (cards.length === 0) return;
 
         // Total slides based on moving 1 card at a time
-        const maxIndex = cards.length - visibleCards;
+        const maxIndex = Math.max(0, cards.length - visibleCards);
 
         // Create indicators based on total cards
         function createIndicators() {
             const indicatorsContainer = $('.testimonials-indicators');
             indicatorsContainer.empty();
             
-            // Create indicators for each possible position
-            const totalIndicators = Math.min(cards.length, maxIndex + 1);
+            visibleCards = getVisibleCards();
+            const maxIndexNew = Math.max(0, cards.length - visibleCards);
             
-            for (let i = 0; i <= maxIndex; i++) {
+            // Create indicators for each possible position
+            for (let i = 0; i <= maxIndexNew; i++) {
                 const indicator = $('<button class="testimonial-indicator"></button>');
                 if (i === 0) indicator.addClass('active');
                 indicator.on('click', function() {
@@ -249,14 +262,23 @@
 
         // Update carousel position with smooth transition
         function updateCarousel(animate = true) {
+            visibleCards = getVisibleCards();
+            const maxIndexNew = Math.max(0, cards.length - visibleCards);
+            
+            // Adjust currentIndex if needed
+            if (currentIndex > maxIndexNew) {
+                currentIndex = maxIndexNew;
+            }
+            
             if (animate) {
                 track.css('transition', 'transform 0.5s ease-in-out');
             } else {
                 track.css('transition', 'none');
             }
             
-            // Calculate percentage to move (each card is 33.333% width)
-            const movePercentage = -(currentIndex * (100 / 3));
+            // Calculate percentage to move based on visible cards
+            const cardWidth = 100 / visibleCards;
+            const movePercentage = -(currentIndex * cardWidth);
             track.css('transform', `translateX(${movePercentage}%)`);
             
             updateIndicators();
@@ -271,13 +293,16 @@
 
         // Update button states
         function updateButtons() {
+            visibleCards = getVisibleCards();
+            const maxIndexNew = Math.max(0, cards.length - visibleCards);
+            
             if (currentIndex === 0) {
                 prevBtn.css('opacity', '0.5').prop('disabled', true);
             } else {
                 prevBtn.css('opacity', '1').prop('disabled', false);
             }
             
-            if (currentIndex >= maxIndex) {
+            if (currentIndex >= maxIndexNew) {
                 nextBtn.css('opacity', '0.5').prop('disabled', true);
             } else {
                 nextBtn.css('opacity', '1').prop('disabled', false);
@@ -286,7 +311,9 @@
 
         // Go to specific slide
         function goToSlide(index) {
-            if (index >= 0 && index <= maxIndex) {
+            visibleCards = getVisibleCards();
+            const maxIndexNew = Math.max(0, cards.length - visibleCards);
+            if (index >= 0 && index <= maxIndexNew) {
                 currentIndex = index;
                 updateCarousel();
             }
@@ -294,7 +321,9 @@
 
         // Next slide (move 1 card)
         function nextSlide() {
-            if (currentIndex < maxIndex) {
+            visibleCards = getVisibleCards();
+            const maxIndexNew = Math.max(0, cards.length - visibleCards);
+            if (currentIndex < maxIndexNew) {
                 currentIndex++;
                 updateCarousel();
             }
@@ -313,12 +342,23 @@
         nextBtn.on('click', nextSlide);
 
         // Initialize
-        if (cards.length > visibleCards) {
-            createIndicators();
-            updateCarousel(false);
+        visibleCards = getVisibleCards();
+        const maxIndexInit = Math.max(0, cards.length - visibleCards);
+        
+        // Only initialize carousel on desktop (width > 768px)
+        if (isDesktop()) {
+            if (cards.length > visibleCards) {
+                $('.testimonials-controls, .testimonials-indicators').show();
+                createIndicators();
+                updateCarousel(false);
+            } else {
+                // If cards <= visible cards, hide controls
+                $('.testimonials-controls, .testimonials-indicators').hide();
+            }
         } else {
-            // If 3 or less cards, hide controls
+            // Mobile: hide controls and disable carousel
             $('.testimonials-controls, .testimonials-indicators').hide();
+            track.css('transform', 'none');
         }
 
         // Handle window resize
@@ -326,7 +366,25 @@
         $(window).on('resize', function() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function() {
-                updateCarousel(false);
+                if (isDesktop()) {
+                    // Desktop: show controls and update carousel
+                    if (cards.length > getVisibleCards()) {
+                        $('.testimonials-controls, .testimonials-indicators').show();
+                        visibleCards = getVisibleCards();
+                        const maxIndexResize = Math.max(0, cards.length - visibleCards);
+                        if (currentIndex > maxIndexResize) {
+                            currentIndex = maxIndexResize;
+                        }
+                        createIndicators();
+                        updateCarousel(false);
+                    } else {
+                        $('.testimonials-controls, .testimonials-indicators').hide();
+                    }
+                } else {
+                    // Mobile: hide controls and reset transform
+                    $('.testimonials-controls, .testimonials-indicators').hide();
+                    track.css('transform', 'none');
+                }
             }, 250);
         });
     }
@@ -529,6 +587,200 @@
 
     // Initialize scroll animations
     initScrollAnimation();
+
+    /**
+     * Fix Artikel Detail Image Sizing
+     * Memastikan semua gambar di detail artikel memiliki ukuran yang sama
+     */
+    function initArtikelImageSizing() {
+        // Hanya jalankan di halaman detail artikel
+        if (!$('.artikel-single').length) {
+            return;
+        }
+
+        console.log('Artikel image sizing initialized');
+        console.log('Artikel single page found:', $('.artikel-single').length);
+
+        function setImageSizes() {
+            const isMobile = window.innerWidth <= 480;
+            const isTablet = window.innerWidth <= 768 && window.innerWidth > 480;
+            
+            // Sama dengan ukuran di spareparts detail
+            let targetHeight = '655px'; // Desktop
+            if (isMobile || isTablet) {
+                targetHeight = '400px'; // Tablet & Mobile
+            }
+
+            // Cari semua gambar dengan berbagai selector (termasuk hero image)
+            const $allImages = $('.artikel-single .hero-image img, .artikel-content-full img, .artikel-content-full figure img, .artikel-content-full p img, .artikel-content-full .wp-block-image img, .artikel-content-full * img');
+            
+            console.log('Setting image sizes to:', targetHeight);
+            console.log('Total images found:', $allImages.length);
+            console.log('Hero images:', $('.artikel-single .hero-image img').length);
+            console.log('Content images:', $('.artikel-content-full img').length);
+
+            if ($allImages.length === 0) {
+                console.warn('No images found! Checking content...');
+                console.log('Content preview:', $('.artikel-content-full').html().substring(0, 500));
+                
+                // Coba lagi setelah delay
+                setTimeout(function() {
+                    const $retryImages = $('.artikel-content-full img');
+                    console.log('Retry: Images found:', $retryImages.length);
+                    if ($retryImages.length > 0) {
+                        setImageSizes();
+                    }
+                }, 500);
+                return;
+            }
+
+            // Set ukuran untuk semua gambar di dalam artikel-content-full
+            $allImages.each(function(index) {
+                const $img = $(this);
+                const imgSrc = $img.attr('src') || 'no-src';
+                
+                // Set inline styles untuk memastikan ukuran dengan !important
+                const newStyle = 
+                    'width: 100% !important; ' +
+                    'height: ' + targetHeight + ' !important; ' +
+                    'max-width: 100% !important; ' +
+                    'max-height: ' + targetHeight + ' !important; ' +
+                    'min-height: ' + targetHeight + ' !important; ' +
+                    'object-fit: cover !important; ' +
+                    'object-position: center !important; ' +
+                    'display: block !important; ' +
+                    'visibility: visible !important; ' +
+                    'opacity: 1 !important; ' +
+                    'border-radius: 12px; ' +
+                    'margin: 0 !important; ' +
+                    'padding: 0 !important; ' +
+                    'position: relative; ' +
+                    'box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);';
+                
+                $img.attr('style', newStyle);
+                $img.css({
+                    'width': '100%',
+                    'height': targetHeight,
+                    'max-width': '100%',
+                    'max-height': targetHeight,
+                    'min-height': targetHeight,
+                    'object-fit': 'cover',
+                    'object-position': 'center'
+                });
+
+                console.log('Image ' + index + ' styled:', imgSrc.substring(0, 50) + '...');
+
+                // Set ukuran untuk wrapper (figure, wp-block-image, hero-image)
+                const $wrapper = $img.closest('figure, .wp-block-image, .hero-image, p');
+                if ($wrapper.length && !$wrapper.hasClass('artikel-content-full')) {
+                    // Khusus untuk hero-image, set height juga
+                    if ($wrapper.hasClass('hero-image')) {
+                        $wrapper.css({
+                            'height': targetHeight,
+                            'max-height': targetHeight,
+                            'min-height': targetHeight
+                        });
+                    }
+                    const wrapperStyle = 
+                        'margin: 30px 0; ' +
+                        'width: 100%; ' +
+                        'height: ' + targetHeight + ' !important; ' +
+                        'max-height: ' + targetHeight + ' !important; ' +
+                        'min-height: ' + targetHeight + ' !important; ' +
+                        'overflow: hidden; ' +
+                        'border-radius: 12px; ' +
+                        'box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); ' +
+                        'position: relative; ' +
+                        'display: block; ' +
+                        'line-height: 0; ' +
+                        'padding: 0;';
+                    
+                    $wrapper.attr('style', wrapperStyle);
+                }
+            });
+        }
+
+        // Jalankan dengan delay untuk memastikan DOM sudah ready
+        setTimeout(function() {
+            setImageSizes();
+        }, 100);
+
+        // Jalankan saat halaman dimuat
+        $(document).ready(function() {
+            setTimeout(setImageSizes, 200);
+        });
+
+        // Jalankan lagi setelah semua gambar dimuat
+        $(window).on('load', function() {
+            console.log('Window loaded, setting image sizes again');
+            setTimeout(setImageSizes, 300);
+        });
+
+        // Jalankan saat window di-resize
+        let resizeTimer;
+        $(window).on('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                console.log('Window resized, updating image sizes');
+                setImageSizes();
+            }, 250);
+        });
+
+        // Jalankan saat gambar baru dimuat (lazy load) - lebih agresif
+        if ('MutationObserver' in window) {
+            const observer = new MutationObserver(function(mutations) {
+                let shouldUpdate = false;
+                mutations.forEach(function(mutation) {
+                    if (mutation.addedNodes.length) {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1) { // Element node
+                                if (node.tagName === 'IMG' || node.querySelector && node.querySelector('img')) {
+                                    shouldUpdate = true;
+                                }
+                            }
+                        });
+                    }
+                });
+                if (shouldUpdate) {
+                    console.log('New images detected, updating image sizes');
+                    setTimeout(setImageSizes, 100);
+                }
+            });
+
+            const contentArea = document.querySelector('.artikel-content-full');
+            if (contentArea) {
+                observer.observe(contentArea, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['src', 'srcset']
+                });
+            }
+        }
+
+        // Fallback: Check setiap detik untuk gambar baru (untuk lazy load)
+        let checkInterval = setInterval(function() {
+            const $images = $('.artikel-content-full img');
+            $images.each(function() {
+                const $img = $(this);
+                const currentHeight = $img.css('height');
+                const isMobile = window.innerWidth <= 480;
+                const isTablet = window.innerWidth <= 768 && window.innerWidth > 480;
+                const targetHeight = isMobile ? '250px' : (isTablet ? '300px' : '400px');
+                
+                if (currentHeight !== targetHeight && currentHeight !== 'auto') {
+                    console.log('Image height mismatch detected, fixing...');
+                    setImageSizes();
+                    clearInterval(checkInterval);
+                }
+            });
+        }, 1000);
+
+        // Stop checking after 10 seconds
+        setTimeout(function() {
+            clearInterval(checkInterval);
+        }, 10000);
+    }
 
 })(jQuery);
 

@@ -153,61 +153,8 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
     <section class="paket-usaha-filter">
         <div class="container">
             <div class="filter-bar">
-                <input type="text" id="paket-search" placeholder="<?php echo esc_attr(get_theme_mod('inviro_paket_usaha_search_placeholder', 'Cari paket usaha yang Anda butuhkan...')); ?>" />
+                <input type="text" id="paket-search" placeholder="<?php echo esc_attr(get_theme_mod('inviro_paket_usaha_search_placeholder', 'Cari produk yang Anda butuhkan...')); ?>" />
                 <div class="filter-dropdowns">
-                    <select id="filter-category">
-                        <option value="">Semua Kategori</option>
-                        <?php
-                        $categories = get_terms(array(
-                            'taxonomy' => 'paket_usaha_category',
-                            'hide_empty' => false,
-                        ));
-                        if (!is_wp_error($categories) && !empty($categories)) {
-                            // Pisahkan kategori status (Promo/Tersedia) dan kategori lainnya
-                            $status_categories = array();
-                            $other_categories = array();
-                            
-                            foreach ($categories as $category) {
-                                if (in_array($category->slug, array('promo', 'tersedia'))) {
-                                    $status_categories[] = $category;
-                                } else {
-                                    $other_categories[] = $category;
-                                }
-                            }
-                            
-                            // Tampilkan Promo dulu, lalu Tersedia
-                            $promo_cat = null;
-                            $tersedia_cat = null;
-                            foreach ($status_categories as $cat) {
-                                if ($cat->slug == 'promo') {
-                                    $promo_cat = $cat;
-                                } elseif ($cat->slug == 'tersedia') {
-                                    $tersedia_cat = $cat;
-                                }
-                            }
-                            
-                            // Tampilkan Promo
-                            if ($promo_cat) {
-                                echo '<option value="' . esc_attr($promo_cat->slug) . '">' . esc_html($promo_cat->name) . '</option>';
-                            }
-                            
-                            // Tampilkan Tersedia
-                            if ($tersedia_cat) {
-                                echo '<option value="' . esc_attr($tersedia_cat->slug) . '">' . esc_html($tersedia_cat->name) . '</option>';
-                            }
-                            
-                            // Tampilkan separator jika ada kategori lain
-                            if (!empty($other_categories) && (!empty($status_categories))) {
-                                echo '<option value="" disabled>──────────</option>';
-                            }
-                            
-                            // Tampilkan kategori lainnya
-                            foreach ($other_categories as $category) {
-                                echo '<option value="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</option>';
-                            }
-                        }
-                        ?>
-                    </select>
                     <select id="sort-by">
                         <option value="latest">Terbaru</option>
                         <option value="price-low">Harga: Rendah - Tinggi</option>
@@ -219,96 +166,95 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
         </div>
     </section>
 
-    <!-- Paket Usaha Grid - Menggunakan struktur dummy tapi data dari WordPress -->
+    <!-- Produk Grid - Menampilkan produk dari post type produk -->
     <section class="paket-usaha-grid-section">
         <div class="container">
             <div class="paket-usaha-grid">
                 <?php
-                $pakets = new WP_Query(array(
-                    'post_type' => 'paket_usaha',
+                $products = new WP_Query(array(
+                    'post_type' => 'produk',
                     'posts_per_page' => -1,
+                    'post_status' => 'publish',
                     'orderby' => 'date',
                     'order' => 'DESC'
                 ));
                 
-                if ($pakets->have_posts()) :
-                    while ($pakets->have_posts()) : $pakets->the_post();
+                if ($products->have_posts()) :
+                    while ($products->have_posts()) : $products->the_post();
                         $post_id = get_the_ID();
                         
-                        // Get all data from WordPress - SAMA PERSIS DENGAN STRUKTUR DUMMY
-                        $price = get_post_meta($post_id, '_paket_price', true);
-                        $original_price = get_post_meta($post_id, '_paket_original_price', true);
-                        $sku = get_post_meta($post_id, '_paket_sku', true);
-                        $promo = get_post_meta($post_id, '_paket_promo', true);
-                        $description = get_post_meta($post_id, '_paket_description', true);
-                        $categories = get_the_terms($post_id, 'paket_usaha_category');
-                        $category_slugs = '';
-                        if ($categories && !is_wp_error($categories)) {
-                            $category_slugs = implode(' ', array_map(function($cat) { return $cat->slug; }, $categories));
+                        // Get product data from WordPress
+                        $price_raw = get_post_meta($post_id, '_product_price', true);
+                        $original_price_raw = get_post_meta($post_id, '_product_original_price', true);
+                        $description = get_post_meta($post_id, '_product_description', true);
+                        $buy_url = get_post_meta($post_id, '_product_buy_url', true);
+                        
+                        // Parse price - remove "Rp", spaces, dots, and commas
+                        $price = 0;
+                        if (!empty($price_raw)) {
+                            $price_clean = preg_replace('/[^0-9]/', '', $price_raw);
+                            $price = absint($price_clean);
                         }
                         
-                        // Tentukan status promo - cek dari meta field atau original_price
+                        $original_price = 0;
+                        if (!empty($original_price_raw)) {
+                            $original_price_clean = preg_replace('/[^0-9]/', '', $original_price_raw);
+                            $original_price = absint($original_price_clean);
+                        }
+                        
+                        // Set buy URL - fallback to WhatsApp
+                        if (empty($buy_url)) {
+                            $wa_number = get_theme_mod('inviro_whatsapp', '6281234567890');
+                            $buy_url = 'https://wa.me/' . $wa_number;
+                        }
+                        
+                        // Determine promo status - check if original_price > price
                         $is_promo = false;
-                        if ($promo == '1' || $promo === 1 || $promo === '1') {
+                        if ($original_price > 0 && $price > 0 && $original_price > $price) {
                             $is_promo = true;
-                        } elseif ($original_price && $original_price > 0 && $price && $original_price > $price) {
-                            // Jika ada original_price yang lebih besar dari price, berarti promo
-                            $is_promo = true;
-                        } elseif ($categories && !is_wp_error($categories)) {
-                            // Cek apakah ada kategori "promo"
-                            foreach ($categories as $cat) {
-                                if ($cat->slug == 'promo') {
-                                    $is_promo = true;
-                                    break;
-                                }
-                            }
                         }
                         
-                        // Get image - Priority: Featured Image > Gallery
-                        $paket_image_url = '';
-                        if (has_post_thumbnail($post_id)) {
-                            $paket_image_url = get_the_post_thumbnail_url($post_id, 'medium');
-                            if (empty($paket_image_url)) {
-                                $paket_image_url = get_the_post_thumbnail_url($post_id, 'large');
-                            }
-                        }
+                        // Get image - use featured image with helper function
+                        $product_image_url = '';
+                        $thumbnail_id = get_post_thumbnail_id($post_id);
                         
-                        if (empty($paket_image_url)) {
-                            $gallery_ids_raw = get_post_meta($post_id, '_paket_gallery', true);
-                            if (!empty($gallery_ids_raw)) {
-                                if (is_string($gallery_ids_raw)) {
-                                    $gallery_ids = array_map('absint', explode(',', trim($gallery_ids_raw)));
-                                } elseif (is_array($gallery_ids_raw)) {
-                                    $gallery_ids = array_map('absint', $gallery_ids_raw);
-                                } else {
-                                    $gallery_ids = array();
+                        if ($thumbnail_id) {
+                            // Use helper function if available
+                            if (function_exists('inviro_get_product_image_url')) {
+                                $product_image_url = inviro_get_product_image_url($post_id, 'medium');
+                            }
+                            
+                            // Fallback methods
+                            if (empty($product_image_url)) {
+                                $product_image_url = get_the_post_thumbnail_url($post_id, 'medium');
+                                if (empty($product_image_url)) {
+                                    $product_image_url = get_the_post_thumbnail_url($post_id, 'large');
                                 }
-                                
-                                $gallery_ids = array_filter($gallery_ids, function($id) {
-                                    return $id > 0;
-                                });
-                                
-                                if (!empty($gallery_ids)) {
-                                    $first_id = $gallery_ids[0];
-                                    if (wp_attachment_is_image($first_id)) {
-                                        $paket_image_url = wp_get_attachment_image_url($first_id, 'medium');
-                                        if (empty($paket_image_url)) {
-                                            $paket_image_url = wp_get_attachment_image_url($first_id, 'large');
-                                        }
-                                        if (empty($paket_image_url)) {
-                                            $paket_image_url = wp_get_attachment_url($first_id);
-                                        }
-                                    }
+                                if (empty($product_image_url)) {
+                                    $product_image_url = get_the_post_thumbnail_url($post_id, 'full');
                                 }
+                            }
+                            
+                            // Last resort: wp_get_attachment_image_src
+                            if (empty($product_image_url)) {
+                                $image_data = wp_get_attachment_image_src($thumbnail_id, 'medium');
+                                if ($image_data && !empty($image_data[0])) {
+                                    $product_image_url = $image_data[0];
+                                }
+                            }
+                            
+                            // Normalize URL if needed
+                            if ($product_image_url && function_exists('inviro_normalize_image_url')) {
+                                $product_image_url = inviro_normalize_image_url($product_image_url);
                             }
                         }
                     ?>
-                        <div class="paket-card" data-price="<?php echo esc_attr($price ? $price : 0); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>" data-category="<?php echo esc_attr($category_slugs); ?>">
+                        <div class="paket-card" data-price="<?php echo esc_attr($price); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>">
                             <div class="paket-image" style="height: 240px; min-height: 240px; max-height: 240px; overflow: hidden;">
-                                <?php if (!empty($paket_image_url)) : ?>
-                                    <img src="<?php echo esc_url($paket_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" style="width: 100%; height: 240px; object-fit: cover; object-position: center; display: block;">
+                                <?php if (!empty($product_image_url)) : ?>
+                                    <img src="<?php echo esc_url($product_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" style="width: 100%; height: 240px; object-fit: cover; object-position: center; display: block;">
                                 <?php else : ?>
-                                    <div class="paket-image-placeholder" style="display: flex; align-items: center; justify-content: center; height: 240px;">
+                                    <div class="paket-image-placeholder" style="display: flex; align-items: center; justify-content: center; height: 240px; background: #f5f5f5;">
                                         <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                                             <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -325,10 +271,6 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                             </div>
                             
                             <div class="paket-content">
-                                <?php if ($sku) : ?>
-                                    <span class="paket-sku"><?php echo esc_html($sku); ?></span>
-                                <?php endif; ?>
-                                
                                 <h3><?php the_title(); ?></h3>
                                 
                                 <?php if ($description) : ?>
@@ -338,8 +280,8 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                                 <?php endif; ?>
                                 
                                 <div class="paket-meta">
-                                    <?php if ($price) : ?>
-                                        <?php if ($original_price && $original_price > 0 && $original_price > $price) : ?>
+                                    <?php if ($price > 0) : ?>
+                                        <?php if ($is_promo && $original_price > 0) : ?>
                                             <div class="paket-price-wrapper">
                                                 <span class="paket-price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
                                                 <span class="paket-price paket-price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
@@ -349,12 +291,14 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                                                 Rp <?php echo number_format($price, 0, ',', '.'); ?>
                                             </span>
                                         <?php endif; ?>
+                                    <?php else : ?>
+                                        <span class="paket-price">Hubungi Kami</span>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <div class="paket-actions">
-                                    <a href="<?php echo esc_url(get_permalink()); ?>" class="btn-order">
-                                        Pesan
+                                    <a href="<?php echo esc_url($buy_url); ?>" class="btn-order" target="_blank" rel="noopener">
+                                        Beli
                                     </a>
                                 </div>
                             </div>
@@ -365,7 +309,7 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                 else :
                     ?>
                     <div class="no-results">
-                        <p>Belum ada paket usaha. Silakan tambahkan di <strong>Paket Usaha</strong> > <strong>Tambah Paket</strong></p>
+                        <p>Belum ada produk. Silakan tambahkan di <strong>Produk</strong> > <strong>Tambah Produk</strong></p>
                     </div>
                     <?php
                 endif; 
@@ -393,34 +337,24 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('paket-search');
-    const categorySelect = document.getElementById('filter-category');
     const sortSelect = document.getElementById('sort-by');
     const cards = document.querySelectorAll('.paket-card');
     const grid = document.querySelector('.paket-usaha-grid');
     
     function filterCards() {
         const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
-        const selectedCategory = categorySelect ? categorySelect.value : '';
         let visibleCount = 0;
         
         cards.forEach((card, index) => {
             const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
             const desc = card.querySelector('.paket-desc');
             const descText = desc ? desc.textContent.toLowerCase() : '';
-            const sku = card.querySelector('.paket-sku')?.textContent.toLowerCase() || '';
-            const cardCategory = card.dataset.category || '';
-            const cardCategories = cardCategory.split(' ').filter(Boolean);
             
             const searchMatch = !searchTerm || 
                 title.includes(searchTerm) || 
-                descText.includes(searchTerm) || 
-                sku.includes(searchTerm);
+                descText.includes(searchTerm);
             
-            const categoryMatch = !selectedCategory || cardCategories.includes(selectedCategory);
-            
-            const matches = searchMatch && categoryMatch;
-            
-            if (matches) {
+            if (searchMatch) {
                 card.style.display = 'block';
                 card.style.opacity = '0';
                 card.style.animation = 'fadeInUp 0.4s ease forwards';
@@ -432,11 +366,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         const noResults = document.querySelector('.no-results');
-        if (visibleCount === 0 && (searchTerm || selectedCategory)) {
+        if (visibleCount === 0 && searchTerm) {
             if (!noResults) {
                 const noResultsDiv = document.createElement('div');
                 noResultsDiv.className = 'no-results';
-                noResultsDiv.innerHTML = '<p>Tidak ada paket usaha yang ditemukan' + (searchTerm ? ' untuk "<strong>' + searchTerm + '</strong>"' : '') + (selectedCategory ? ' dalam kategori yang dipilih' : '') + '</p>';
+                noResultsDiv.innerHTML = '<p>Tidak ada produk yang ditemukan' + (searchTerm ? ' untuk "<strong>' + searchTerm + '</strong>"' : '') + '</p>';
                 grid.appendChild(noResultsDiv);
             }
         } else if (noResults) {
@@ -446,10 +380,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (searchInput) {
         searchInput.addEventListener('input', filterCards);
-    }
-    
-    if (categorySelect) {
-        categorySelect.addEventListener('change', filterCards);
     }
     
     if (sortSelect) {

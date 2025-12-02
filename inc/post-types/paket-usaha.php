@@ -12,10 +12,8 @@ if (!defined('ABSPATH')) {
 
 /**
  * Register Paket Usaha Custom Post Type
- * DISABLED - Diganti dengan post type 'produk'
  */
-function inviro_register_paket_usaha_DISABLED() {
-    return; // Disabled - paket usaha sekarang menggunakan post type 'produk'
+function inviro_register_paket_usaha() {
     $labels = array(
         'name'               => __('Paket Usaha', 'inviro'),
         'singular_name'      => __('Paket Usaha', 'inviro'),
@@ -73,5 +71,5 @@ function inviro_register_paket_usaha_DISABLED() {
         'show_in_rest'      => true,
     ));
 }
-// add_action('init', 'inviro_register_paket_usaha'); // DISABLED - menggunakan 'produk' sekarang
+add_action('init', 'inviro_register_paket_usaha');
 

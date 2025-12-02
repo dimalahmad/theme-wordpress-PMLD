@@ -90,19 +90,26 @@ get_header();
                         }
                 ?>
                 <div class="artikel-card" data-date="<?php echo esc_attr(get_the_date('Y-m-d')); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>" data-category="<?php echo esc_attr($category_slugs); ?>">
-                    <?php if (has_post_thumbnail()) : ?>
-                        <div class="artikel-image">
-                            <a href="<?php the_permalink(); ?>">
-                                <?php the_post_thumbnail('medium_large'); ?>
-                            </a>
-                        </div>
-                    <?php else : ?>
-                        <div class="artikel-image">
-                            <a href="<?php the_permalink(); ?>">
-                                <img src="https://via.placeholder.com/600x400/75C6F1/FFFFFF?text=Artikel" alt="<?php the_title(); ?>" loading="lazy">
-                            </a>
-                        </div>
-                    <?php endif; ?>
+                    <div class="artikel-image">
+                        <?php 
+                        $image_url = '';
+                        if (has_post_thumbnail()) {
+                            $image_url = get_the_post_thumbnail_url(get_the_ID(), 'medium_large');
+                            if (empty($image_url)) {
+                                $image_url = get_the_post_thumbnail_url(get_the_ID(), 'large');
+                            }
+                            if (empty($image_url)) {
+                                $image_url = get_the_post_thumbnail_url(get_the_ID(), 'full');
+                            }
+                        }
+                        if (empty($image_url)) {
+                            $image_url = 'https://via.placeholder.com/600x400/75C6F1/FFFFFF?text=Artikel';
+                        }
+                        ?>
+                        <a href="<?php the_permalink(); ?>">
+                            <img src="<?php echo esc_url($image_url); ?>" alt="<?php the_title(); ?>" style="width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; visibility: visible !important; opacity: 1 !important; position: absolute !important; top: 0 !important; left: 0 !important; margin: 0 !important; padding: 0 !important; border: none !important;">
+                        </a>
+                    </div>
                     
                     <div class="artikel-content">
                         <div class="artikel-meta-top">
@@ -151,7 +158,7 @@ get_header();
                             <div class="artikel-card" data-date="<?php echo esc_attr($date_str); ?>" data-name="<?php echo esc_attr($title); ?>" data-category="<?php echo esc_attr($category_slug); ?>">
                                 <div class="artikel-image">
                                     <a href="#">
-                                        <img src="<?php echo esc_url($image); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy">
+                                        <img src="<?php echo esc_url($image); ?>" alt="<?php echo esc_attr($title); ?>" style="width: 100% !important; height: 100% !important; object-fit: cover !important; display: block !important; visibility: visible !important; opacity: 1 !important; position: absolute !important; top: 0 !important; left: 0 !important; margin: 0 !important; padding: 0 !important; border: none !important;">
                                     </a>
                                 </div>
                                 <div class="artikel-content">

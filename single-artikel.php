@@ -21,14 +21,37 @@ while (have_posts()) : the_post();
 <div class="artikel-single">
     <!-- Hero Section -->
     <section class="artikel-hero-single">
-        <?php if (has_post_thumbnail()) : ?>
-            <div class="hero-image">
-                <?php the_post_thumbnail('full'); ?>
-                <div class="hero-overlay"></div>
-            </div>
-        <?php endif; ?>
-        
         <div class="container">
+            <?php 
+            $thumbnail_url = '';
+            if (has_post_thumbnail()) {
+                $thumbnail_url = get_the_post_thumbnail_url(get_the_ID(), 'full');
+                if (empty($thumbnail_url)) {
+                    $thumbnail_url = get_the_post_thumbnail_url(get_the_ID(), 'large');
+                }
+                if (empty($thumbnail_url)) {
+                    $thumbnail_url = get_the_post_thumbnail_url(get_the_ID(), 'medium_large');
+                }
+                if (empty($thumbnail_url)) {
+                    $thumbnail_url = get_the_post_thumbnail_url(get_the_ID(), 'medium');
+                }
+                if (empty($thumbnail_url)) {
+                    $thumbnail_id = get_post_thumbnail_id(get_the_ID());
+                    if ($thumbnail_id) {
+                        $image_data = wp_get_attachment_image_src($thumbnail_id, 'full');
+                        if ($image_data && !empty($image_data[0])) {
+                            $thumbnail_url = $image_data[0];
+                        }
+                    }
+                }
+            }
+            if (!empty($thumbnail_url)) :
+            ?>
+                <div class="hero-image">
+                    <img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" style="width: 100% !important; height: 100% !important; max-height: 655px !important; display: block !important; visibility: visible !important; opacity: 1 !important; object-fit: cover !important; object-position: center !important; position: absolute !important; top: 0 !important; left: 0 !important; margin: 0 !important; padding: 0 !important;">
+                </div>
+            <?php endif; ?>
+            
             <div class="hero-content-single">
                 <h1><?php the_title(); ?></h1>
                 <div class="artikel-meta">
@@ -37,9 +60,6 @@ while (have_posts()) : the_post();
                     </span>
                     <span class="meta-item">
                         📅 <?php echo esc_html($post_date); ?>
-                    </span>
-                    <span class="meta-item">
-                        ⏱️ <?php echo $reading_time; ?> menit
                     </span>
                 </div>
             </div>
@@ -140,11 +160,35 @@ while (have_posts()) : the_post();
                         if ($related->have_posts()) :
                         ?>
                             <div class="related-articles">
-                                <?php while ($related->have_posts()) : $related->the_post(); ?>
+                                <?php while ($related->have_posts()) : $related->the_post(); 
+                                    $related_id = get_the_ID();
+                                    $related_image_url = '';
+                                    if (has_post_thumbnail($related_id)) {
+                                        $related_image_url = get_the_post_thumbnail_url($related_id, 'medium_large');
+                                        if (empty($related_image_url)) {
+                                            $related_image_url = get_the_post_thumbnail_url($related_id, 'large');
+                                        }
+                                        if (empty($related_image_url)) {
+                                            $related_image_url = get_the_post_thumbnail_url($related_id, 'medium');
+                                        }
+                                        if (empty($related_image_url)) {
+                                            $related_image_url = get_the_post_thumbnail_url($related_id, 'thumbnail');
+                                        }
+                                        if (empty($related_image_url)) {
+                                            $related_thumb_id = get_post_thumbnail_id($related_id);
+                                            if ($related_thumb_id) {
+                                                $related_image_data = wp_get_attachment_image_src($related_thumb_id, 'medium');
+                                                if ($related_image_data && !empty($related_image_data[0])) {
+                                                    $related_image_url = $related_image_data[0];
+                                                }
+                                            }
+                                        }
+                                    }
+                                ?>
                                 <div class="related-item">
-                                    <?php if (has_post_thumbnail()) : ?>
+                                    <?php if (!empty($related_image_url)) : ?>
                                         <a href="<?php the_permalink(); ?>" class="related-thumb">
-                                            <?php the_post_thumbnail('thumbnail'); ?>
+                                            <img src="<?php echo esc_url($related_image_url); ?>" alt="<?php echo esc_attr(get_the_title($related_id)); ?>" style="width: 90px !important; height: 90px !important; object-fit: cover !important; display: block !important; visibility: visible !important; opacity: 1 !important;">
                                         </a>
                                     <?php endif; ?>
                                     <div class="related-content">
@@ -175,372 +219,6 @@ while (have_posts()) : the_post();
         </div>
     </section>
 </div>
-
-<style>
-.artikel-single {
-    padding-top: 80px;
-}
-
-.artikel-hero-single {
-    position: relative;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 120px 0 60px;
-    overflow: hidden;
-}
-
-.hero-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-}
-
-.hero-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.3;
-}
-
-.hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.9));
-}
-
-.hero-content-single {
-    position: relative;
-    z-index: 1;
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.hero-content-single h1 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    line-height: 1.3;
-}
-
-.artikel-meta {
-    display: flex;
-    justify-content: center;
-    gap: 25px;
-    flex-wrap: wrap;
-}
-
-.meta-item {
-    font-size: 0.95rem;
-    opacity: 0.95;
-}
-
-.artikel-content-section {
-    padding: 60px 0;
-    background: white;
-}
-
-.artikel-layout {
-    display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 50px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.artikel-content-full {
-    font-size: 1.05rem;
-    line-height: 1.8;
-    color: #333;
-}
-
-.artikel-content-full p {
-    margin-bottom: 20px;
-}
-
-.artikel-content-full h2,
-.artikel-content-full h3 {
-    margin-top: 30px;
-    margin-bottom: 15px;
-    color: #667eea;
-}
-
-.artikel-content-full img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin: 20px 0;
-}
-
-.artikel-content-full ul,
-.artikel-content-full ol {
-    margin-bottom: 20px;
-    padding-left: 30px;
-}
-
-.artikel-content-full li {
-    margin-bottom: 10px;
-}
-
-.artikel-share {
-    margin-top: 40px;
-    padding-top: 30px;
-    border-top: 2px solid #e0e0e0;
-}
-
-.artikel-share h4 {
-    margin-bottom: 15px;
-    color: #333;
-}
-
-.share-buttons {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.share-btn {
-    padding: 10px 20px;
-    border-radius: 6px;
-    text-decoration: none;
-    color: white;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.share-btn.facebook {
-    background: #3b5998;
-}
-
-.share-btn.twitter {
-    background: #1da1f2;
-}
-
-.share-btn.whatsapp {
-    background: #25D366;
-}
-
-.share-btn:hover {
-    opacity: 0.9;
-    transform: translateY(-2px);
-}
-
-.author-bio {
-    display: flex;
-    gap: 20px;
-    padding: 30px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    margin-top: 40px;
-}
-
-.author-avatar img {
-    border-radius: 50%;
-}
-
-.author-info h4 {
-    margin-bottom: 5px;
-    color: #667eea;
-}
-
-.author-info h5 {
-    margin-bottom: 10px;
-    color: #333;
-}
-
-.author-info p {
-    color: #666;
-    line-height: 1.6;
-    margin: 0;
-}
-
-.artikel-navigation {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 50px;
-}
-
-.nav-previous,
-.nav-next {
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: all 0.3s;
-}
-
-.nav-previous:hover,
-.nav-next:hover {
-    border-color: #667eea;
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-}
-
-.nav-previous a,
-.nav-next a {
-    display: block;
-    padding: 20px;
-    text-decoration: none;
-    color: #333;
-}
-
-.nav-next a {
-    text-align: right;
-}
-
-.nav-label {
-    display: block;
-    font-size: 0.85rem;
-    color: #667eea;
-    margin-bottom: 8px;
-    font-weight: 600;
-}
-
-.nav-title {
-    display: block;
-    font-size: 1rem;
-    line-height: 1.4;
-}
-
-.artikel-comments {
-    margin-top: 50px;
-    padding-top: 40px;
-    border-top: 2px solid #e0e0e0;
-}
-
-.artikel-sidebar {
-    position: sticky;
-    top: 100px;
-    height: fit-content;
-}
-
-.sidebar-widget {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 25px;
-}
-
-.sidebar-widget h3 {
-    margin-bottom: 20px;
-    color: #333;
-    border-bottom: 2px solid #667eea;
-    padding-bottom: 10px;
-}
-
-.related-item {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.related-item:last-child {
-    margin-bottom: 0;
-}
-
-.related-thumb {
-    flex-shrink: 0;
-}
-
-.related-thumb img {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.related-content a {
-    display: block;
-    color: #333;
-    text-decoration: none;
-    font-weight: 600;
-    line-height: 1.4;
-    margin-bottom: 5px;
-    transition: color 0.3s;
-}
-
-.related-content a:hover {
-    color: #667eea;
-}
-
-.related-date {
-    font-size: 0.85rem;
-    color: #999;
-}
-
-.cta-widget {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
-.cta-widget h3 {
-    color: white;
-    border-color: rgba(255,255,255,0.3);
-}
-
-.cta-widget p {
-    margin-bottom: 20px;
-    line-height: 1.6;
-}
-
-.btn-wa {
-    display: inline-block;
-    width: 100%;
-    padding: 12px 20px;
-    background: #25D366;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.btn-wa:hover {
-    background: #1fb855;
-    transform: translateY(-2px);
-}
-
-@media (max-width: 992px) {
-    .artikel-layout {
-        grid-template-columns: 1fr;
-        gap: 40px;
-    }
-    
-    .artikel-sidebar {
-        position: static;
-    }
-    
-    .hero-content-single h1 {
-        font-size: 2rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .artikel-navigation {
-        grid-template-columns: 1fr;
-    }
-    
-    .nav-next a {
-        text-align: left;
-    }
-    
-    .author-bio {
-        flex-direction: column;
-        text-align: center;
-    }
-    
-    .artikel-meta {
-        flex-direction: column;
-        gap: 10px;
-    }
-}
-</style>
 
 <?php
 endwhile;

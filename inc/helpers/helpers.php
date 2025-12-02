@@ -330,7 +330,66 @@ function inviro_render_hero_card($post, $size = 'large') {
         $formatted_date = date('M d', strtotime($post['proyek_date']));
     }
     
-    $image_url = inviro_get_image_url($post_id, 'large');
+    // Ambil gambar dengan metode yang sama seperti di template single yang berhasil
+    // Gunakan get_the_post_thumbnail_url dengan post_id (sama seperti page-pelanggan.php)
+    $image_url = '';
+    
+    // Method 1: Cek dulu apakah ada thumbnail dengan post_id
+    if (has_post_thumbnail($post_id)) {
+        // Coba ambil URL dengan berbagai size sebagai fallback (sama seperti page-pelanggan.php yang menggunakan medium_large)
+        $image_url = get_the_post_thumbnail_url($post_id, 'medium_large');
+        
+        // Jika medium_large tidak ada, coba size lain
+        if (empty($image_url)) {
+            $image_url = get_the_post_thumbnail_url($post_id, 'full');
+        }
+        if (empty($image_url)) {
+            $image_url = get_the_post_thumbnail_url($post_id, 'large');
+        }
+        if (empty($image_url)) {
+            $image_url = get_the_post_thumbnail_url($post_id, 'medium');
+        }
+        if (empty($image_url)) {
+            $image_url = get_the_post_thumbnail_url($post_id, 'thumbnail');
+        }
+        
+        // Normalize URL jika perlu (untuk domain changes)
+        if (!empty($image_url) && strpos($image_url, 'wp-content/uploads') !== false) {
+            $image_url = inviro_normalize_image_url($image_url);
+        }
+    }
+    
+    // Method 2: Jika masih kosong, coba dengan wp_get_attachment_image_src langsung
+    if (empty($image_url)) {
+        $thumb_id = get_post_thumbnail_id($post_id);
+        if ($thumb_id) {
+            $image_data = wp_get_attachment_image_src($thumb_id, 'medium_large');
+            if ($image_data && !empty($image_data[0])) {
+                $image_url = $image_data[0];
+                if (strpos($image_url, 'wp-content/uploads') !== false) {
+                    $image_url = inviro_normalize_image_url($image_url);
+                }
+            } else {
+                // Coba size lain
+                $image_data = wp_get_attachment_image_src($thumb_id, 'full');
+                if ($image_data && !empty($image_data[0])) {
+                    $image_url = $image_data[0];
+                    if (strpos($image_url, 'wp-content/uploads') !== false) {
+                        $image_url = inviro_normalize_image_url($image_url);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Method 3: Jika masih kosong, coba dengan inviro_get_image_url sebagai fallback
+    if (empty($image_url)) {
+        $image_url = inviro_get_image_url($post_id, 'large');
+        if (empty($image_url)) {
+            $image_url = inviro_get_image_url($post_id, 'full');
+        }
+    }
+    
     $card_class = 'hero-article-card';
     $title_tag = 'h2';
     
@@ -353,21 +412,21 @@ function inviro_render_hero_card($post, $size = 'large') {
     ?>
     <article class="<?php echo esc_attr($card_class); ?>" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
         <a href="<?php echo esc_url($post['permalink']); ?>" class="hero-article-link">
-            <?php if (!empty($image_url)) : ?>
-                <div class="hero-article-image">
-                    <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($post['title']); ?>" class="hero-image" loading="<?php echo esc_attr($loading); ?>" itemprop="image">
+            <div class="hero-article-image">
+                <?php if (!empty($image_url)) : ?>
+                    <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($post['title']); ?>" class="hero-image" loading="<?php echo esc_attr($loading); ?>" itemprop="image" style="display: block !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; height: 100% !important; object-fit: cover !important;">
                     <div class="hero-article-overlay"></div>
-                </div>
-            <?php else : ?>
-                <div class="hero-article-image hero-article-placeholder">
-                    <div class="hero-article-overlay"></div>
-                    <div class="placeholder-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="<?php echo $size === 'large' ? '60' : ($size === 'small-top' ? '40' : '30'); ?>" height="<?php echo $size === 'large' ? '60' : ($size === 'small-top' ? '40' : '30'); ?>" viewBox="0 0 24 24" fill="white" opacity="0.3">
-                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                        </svg>
+                <?php else : ?>
+                    <div class="hero-article-placeholder">
+                        <div class="hero-article-overlay"></div>
+                        <div class="placeholder-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="<?php echo $size === 'large' ? '60' : ($size === 'small-top' ? '40' : '30'); ?>" height="<?php echo $size === 'large' ? '60' : ($size === 'small-top' ? '40' : '30'); ?>" viewBox="0 0 24 24" fill="white" opacity="0.3">
+                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                            </svg>
+                        </div>
                     </div>
-                </div>
-            <?php endif; ?>
+                <?php endif; ?>
+            </div>
             
             <?php if ($region_name) : ?>
                 <span class="<?php echo esc_attr($category_class); ?>" itemprop="articleSection"><?php echo esc_html($region_name); ?></span>
@@ -477,15 +536,89 @@ function inviro_render_branch_card($branch_id) {
         return;
     }
     
-    $branch_image_url = inviro_get_image_url($branch_id, 'inviro-branch');
+    // Ambil gambar dengan metode yang sama seperti hero card yang sudah berhasil
+    $branch_title = get_the_title($branch_id);
+    $branch_image_url = '';
+    $branch_image_alt = $branch_title;
+    
+    // Method 1: Cek dulu apakah ada thumbnail dengan post_id (sama seperti hero card)
+    if (has_post_thumbnail($branch_id)) {
+        // Coba ambil URL dengan berbagai size sebagai fallback
+        $branch_image_url = get_the_post_thumbnail_url($branch_id, 'medium_large');
+        
+        // Jika medium_large tidak ada, coba size lain
+        if (empty($branch_image_url)) {
+            $branch_image_url = get_the_post_thumbnail_url($branch_id, 'full');
+        }
+        if (empty($branch_image_url)) {
+            $branch_image_url = get_the_post_thumbnail_url($branch_id, 'large');
+        }
+        if (empty($branch_image_url)) {
+            $branch_image_url = get_the_post_thumbnail_url($branch_id, 'inviro-branch');
+        }
+        if (empty($branch_image_url)) {
+            $branch_image_url = get_the_post_thumbnail_url($branch_id, 'medium');
+        }
+        if (empty($branch_image_url)) {
+            $branch_image_url = get_the_post_thumbnail_url($branch_id, 'thumbnail');
+        }
+        
+        // Normalize URL jika perlu (untuk domain changes)
+        if (!empty($branch_image_url) && strpos($branch_image_url, 'wp-content/uploads') !== false) {
+            $branch_image_url = inviro_normalize_image_url($branch_image_url);
+        }
+        
+        // Ambil alt text dari attachment
+        $thumb_id = get_post_thumbnail_id($branch_id);
+        if ($thumb_id) {
+            $alt_text = get_post_meta($thumb_id, '_wp_attachment_image_alt', true);
+            if (!empty($alt_text)) {
+                $branch_image_alt = $alt_text;
+            }
+        }
+    }
+    
+    // Method 2: Jika masih kosong, coba dengan wp_get_attachment_image_src langsung
+    if (empty($branch_image_url)) {
+        $thumb_id = get_post_thumbnail_id($branch_id);
+        if ($thumb_id) {
+            $image_data = wp_get_attachment_image_src($thumb_id, 'medium_large');
+            if ($image_data && !empty($image_data[0])) {
+                $branch_image_url = $image_data[0];
+                if (strpos($branch_image_url, 'wp-content/uploads') !== false) {
+                    $branch_image_url = inviro_normalize_image_url($branch_image_url);
+                }
+            } else {
+                // Coba size lain
+                $image_data = wp_get_attachment_image_src($thumb_id, 'full');
+                if ($image_data && !empty($image_data[0])) {
+                    $branch_image_url = $image_data[0];
+                    if (strpos($branch_image_url, 'wp-content/uploads') !== false) {
+                        $branch_image_url = inviro_normalize_image_url($branch_image_url);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Method 3: Jika masih kosong, coba dengan inviro_get_image_url sebagai fallback
+    if (empty($branch_image_url)) {
+        $branch_image_url = inviro_get_image_url($branch_id, 'inviro-branch');
+        if (empty($branch_image_url)) {
+            $branch_image_url = inviro_get_image_url($branch_id, 'large');
+        }
+        if (empty($branch_image_url)) {
+            $branch_image_url = inviro_get_image_url($branch_id, 'full');
+        }
+    }
     ?>
     <div class="branch-card">
-        <?php if (!empty($branch_image_url)) : ?>
-            <div class="branch-image">
-                <img src="<?php echo esc_url($branch_image_url); ?>" alt="<?php echo esc_attr(get_the_title($branch_id)); ?>" loading="lazy">
-            </div>
-        <?php endif; ?>
-        <h3 class="branch-name"><?php echo esc_html(get_the_title($branch_id)); ?></h3>
+        <div class="branch-image">
+            <?php if (!empty($branch_image_url)) : ?>
+                <img src="<?php echo esc_url($branch_image_url); ?>" alt="<?php echo esc_attr($branch_image_alt); ?>" loading="lazy" style="display: block !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; height: 100% !important; object-fit: cover !important;">
+            <?php endif; ?>
+        </div>
+        <h3 class="branch-name" style="display: block !important; visibility: visible !important; opacity: 1 !important;"><?php echo esc_html($branch_title); ?></h3>
     </div>
     <?php
 }

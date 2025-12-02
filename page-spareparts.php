@@ -144,9 +144,9 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
 }
 ?>
 
-<div class="spareparts-page">
+<div class="paket-usaha-page">
     <!-- Hero Section -->
-    <section class="spareparts-hero">
+    <section class="paket-usaha-hero">
         <div class="container">
             <div class="hero-content">
                 <h1><?php echo esc_html(get_theme_mod('inviro_spareparts_hero_title', 'Spare Parts Premium')); ?></h1>
@@ -156,25 +156,11 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
     </section>
 
     <!-- Search & Filter -->
-    <section class="spareparts-filter">
+    <section class="paket-usaha-filter">
         <div class="container">
             <div class="filter-bar">
-                <input type="text" id="sparepart-search" placeholder="<?php echo esc_attr(get_theme_mod('inviro_spareparts_search_placeholder', 'Cari spare part yang Anda butuhkan...')); ?>" />
+                <input type="text" id="paket-search" placeholder="<?php echo esc_attr(get_theme_mod('inviro_spareparts_search_placeholder', 'Cari spare part yang Anda butuhkan...')); ?>" />
                 <div class="filter-dropdowns">
-                    <select id="filter-category">
-                        <option value="">Semua Kategori</option>
-                        <?php
-                        $categories = get_terms(array(
-                            'taxonomy' => 'sparepart_category',
-                            'hide_empty' => false,
-                        ));
-                        if (!is_wp_error($categories) && !empty($categories)) {
-                            foreach ($categories as $category) {
-                                echo '<option value="' . esc_attr($category->slug) . '">' . esc_html($category->name) . '</option>';
-                            }
-                        }
-                        ?>
-                    </select>
                     <select id="sort-by">
                         <option value="latest">Terbaru</option>
                         <option value="price-low">Harga: Rendah - Tinggi</option>
@@ -186,156 +172,153 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
         </div>
     </section>
 
-    <!-- Spare Parts Grid -->
-    <section class="spareparts-grid-section">
+    <!-- Spare Parts Grid - Menampilkan spare parts dari post type spareparts -->
+    <section class="paket-usaha-grid-section">
         <div class="container">
-            <div class="spareparts-grid">
+            <div class="paket-usaha-grid">
                 <?php
                 $spareparts = new WP_Query(array(
                     'post_type' => 'spareparts',
                     'posts_per_page' => -1,
+                    'post_status' => 'publish',
                     'orderby' => 'date',
                     'order' => 'DESC'
                 ));
                 
-                // Check if we have real posts
-                $has_real_posts = ($spareparts->post_count > 0);
-                
-                if ($has_real_posts) :
-                while ($spareparts->have_posts()) : $spareparts->the_post();
-                    $price = get_post_meta(get_the_ID(), '_sparepart_price', true);
-                    $original_price = get_post_meta(get_the_ID(), '_sparepart_original_price', true);
-                    $stock = get_post_meta(get_the_ID(), '_sparepart_stock', true);
-                    $sku = get_post_meta(get_the_ID(), '_sparepart_sku', true);
-                    $promo = get_post_meta(get_the_ID(), '_sparepart_promo', true);
-                    $categories = get_the_terms(get_the_ID(), 'sparepart_category');
-                    $category_slugs = '';
-                    if ($categories && !is_wp_error($categories)) {
-                        $category_slugs = implode(' ', array_map(function($cat) { return $cat->slug; }, $categories));
-                    }
-                ?>
-                <div class="sparepart-card" data-price="<?php echo esc_attr($price); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>" data-category="<?php echo esc_attr($category_slugs); ?>">
-                    <?php if (has_post_thumbnail()) : ?>
-                        <div class="sparepart-image">
-                            <?php the_post_thumbnail('medium'); ?>
-                            <?php if ($promo == '1') : ?>
-                                <span class="stock-badge promo-badge">Promo</span>
-                            <?php elseif ($stock && $stock > 0) : ?>
-                                <span class="stock-badge in-stock">Tersedia</span>
-                            <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
-                    
-                    <div class="sparepart-content">
-                        <?php if ($sku) : ?>
-                            <span class="sparepart-sku"><?php echo esc_html($sku); ?></span>
-                        <?php endif; ?>
+                if ($spareparts->have_posts()) :
+                    while ($spareparts->have_posts()) : $spareparts->the_post();
+                        $post_id = get_the_ID();
                         
-                        <h3><?php the_title(); ?></h3>
+                        // Get sparepart data from WordPress
+                        $price_raw = get_post_meta($post_id, '_sparepart_price', true);
+                        $original_price_raw = get_post_meta($post_id, '_sparepart_original_price', true);
+                        $description = get_post_meta($post_id, '_sparepart_description', true);
+                        $stock = get_post_meta($post_id, '_sparepart_stock', true);
+                        $promo = get_post_meta($post_id, '_sparepart_promo', true);
                         
-                        <?php if (has_excerpt()) : ?>
-                            <p class="sparepart-desc"><?php echo wp_trim_words(get_the_excerpt(), 15); ?></p>
-                        <?php endif; ?>
-                        
-                        <div class="sparepart-meta">
-                            <?php if ($price) : ?>
-                                <?php if ($promo == '1' && $original_price && $original_price > $price) : ?>
-                                    <div class="sparepart-price-wrapper">
-                                        <span class="sparepart-price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
-                                        <span class="sparepart-price sparepart-price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
-                                    </div>
-                                <?php else : ?>
-                                    <span class="sparepart-price">
-                                        Rp <?php echo number_format($price, 0, ',', '.'); ?>
-                                    </span>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <div class="sparepart-actions">
-                            <a href="<?php echo esc_url(get_permalink()); ?>" 
-                               class="btn-order">
-                                Pesan
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <?php
-                    endwhile;
-                    wp_reset_postdata();
-                endif;
-                
-                // Load dummy data if no real posts
-                if (!$has_real_posts) :
-                    $dummy_spareparts = array();
-                    if (function_exists('inviro_get_dummy_spareparts')) {
-                        $dummy_spareparts = inviro_get_dummy_spareparts();
-                    }
-                    // Direct fallback if helper doesn't work
-                    if (empty($dummy_spareparts)) {
-                        $json_file = get_template_directory() . '/dummy-data/spareparts.json';
-                        if (file_exists($json_file)) {
-                            $json_content = file_get_contents($json_file);
-                            $dummy_spareparts = json_decode($json_content, true);
+                        // Parse price - remove "Rp", spaces, dots, and commas
+                        $price = 0;
+                        if (!empty($price_raw)) {
+                            $price_clean = preg_replace('/[^0-9]/', '', $price_raw);
+                            $price = absint($price_clean);
                         }
-                    }
-                    if (!empty($dummy_spareparts)) :
-                        foreach ($dummy_spareparts as $sparepart) :
-                            $dummy_category = isset($sparepart['category']) ? $sparepart['category'] : '';
-                            $dummy_category_slug = $dummy_category ? sanitize_title($dummy_category) : '';
-                            ?>
-                            <div class="sparepart-card" data-price="<?php echo esc_attr($sparepart['price']); ?>" data-name="<?php echo esc_attr($sparepart['title']); ?>" data-category="<?php echo esc_attr($dummy_category_slug); ?>">
-                                <div class="sparepart-image">
-                                    <img src="<?php echo esc_url($sparepart['image']); ?>" alt="<?php echo esc_attr($sparepart['title']); ?>" loading="lazy">
-                                    <?php 
-                                    $dummy_promo = !empty($sparepart['promo']) ? $sparepart['promo'] : false;
-                                    if ($dummy_promo) : ?>
+                        
+                        $original_price = 0;
+                        if (!empty($original_price_raw)) {
+                            $original_price_clean = preg_replace('/[^0-9]/', '', $original_price_raw);
+                            $original_price = absint($original_price_clean);
+                        }
+                        
+                        // Set buy URL - fallback to WhatsApp
+                        $wa_number = get_theme_mod('inviro_whatsapp', '6281234567890');
+                        $buy_url = 'https://wa.me/' . $wa_number;
+                        
+                        // Determine promo status - check if original_price > price or promo meta
+                        $is_promo = false;
+                        if ($promo == '1' || ($original_price > 0 && $price > 0 && $original_price > $price)) {
+                            $is_promo = true;
+                        }
+                        
+                        // Get image - use featured image with helper function
+                        $sparepart_image_url = '';
+                        $thumbnail_id = get_post_thumbnail_id($post_id);
+                        
+                        if ($thumbnail_id) {
+                            // Use helper function if available
+                            if (function_exists('inviro_get_product_image_url')) {
+                                $sparepart_image_url = inviro_get_product_image_url($post_id, 'medium');
+                            }
+                            
+                            // Fallback methods
+                            if (empty($sparepart_image_url)) {
+                                $sparepart_image_url = get_the_post_thumbnail_url($post_id, 'medium');
+                                if (empty($sparepart_image_url)) {
+                                    $sparepart_image_url = get_the_post_thumbnail_url($post_id, 'large');
+                                }
+                                if (empty($sparepart_image_url)) {
+                                    $sparepart_image_url = get_the_post_thumbnail_url($post_id, 'full');
+                                }
+                            }
+                            
+                            // Last resort: wp_get_attachment_image_src
+                            if (empty($sparepart_image_url)) {
+                                $image_data = wp_get_attachment_image_src($thumbnail_id, 'medium');
+                                if ($image_data && !empty($image_data[0])) {
+                                    $sparepart_image_url = $image_data[0];
+                                }
+                            }
+                            
+                            // Normalize URL if needed
+                            if ($sparepart_image_url && function_exists('inviro_normalize_image_url')) {
+                                $sparepart_image_url = inviro_normalize_image_url($sparepart_image_url);
+                            }
+                        }
+                    ?>
+                        <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="paket-card-link" style="text-decoration: none; color: inherit; display: block;">
+                            <div class="paket-card" data-price="<?php echo esc_attr($price); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>">
+                                <div class="paket-image" style="height: 240px; min-height: 240px; max-height: 240px; overflow: hidden;">
+                                    <?php if (!empty($sparepart_image_url)) : ?>
+                                        <img src="<?php echo esc_url($sparepart_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" style="width: 100%; height: 240px; object-fit: cover; object-position: center; display: block;">
+                                    <?php else : ?>
+                                        <div class="paket-image-placeholder" style="display: flex; align-items: center; justify-content: center; height: 240px; background: #f5f5f5;">
+                                            <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                                <polyline points="21 15 16 10 5 21"></polyline>
+                                            </svg>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($is_promo) : ?>
                                         <span class="stock-badge promo-badge">Promo</span>
-                                    <?php elseif (!empty($sparepart['stock']) && $sparepart['stock'] > 0) : ?>
+                                    <?php elseif ($stock && $stock > 0) : ?>
                                         <span class="stock-badge in-stock">Tersedia</span>
                                     <?php endif; ?>
                                 </div>
-                                <div class="sparepart-content">
-                                    <?php if (!empty($sparepart['sku'])) : ?>
-                                        <span class="sparepart-sku"><?php echo esc_html($sparepart['sku']); ?></span>
+                                
+                                <div class="paket-content">
+                                    <h3><?php the_title(); ?></h3>
+                                    
+                                    <?php if ($description) : ?>
+                                        <p class="paket-desc"><?php echo esc_html(wp_trim_words($description, 15)); ?></p>
+                                    <?php elseif (get_the_excerpt()) : ?>
+                                        <p class="paket-desc"><?php echo esc_html(wp_trim_words(get_the_excerpt(), 15)); ?></p>
                                     <?php endif; ?>
-                                    <h3><?php echo esc_html($sparepart['title']); ?></h3>
-                                    <?php if (!empty($sparepart['description'])) : ?>
-                                        <p class="sparepart-desc"><?php echo esc_html(wp_trim_words($sparepart['description'], 15)); ?></p>
-                                    <?php endif; ?>
-                                    <div class="sparepart-meta">
-                                        <?php 
-                                        $dummy_price = $sparepart['price'];
-                                        $dummy_original_price = isset($sparepart['original_price']) ? $sparepart['original_price'] : null;
-                                        $dummy_promo = !empty($sparepart['promo']) ? $sparepart['promo'] : false;
-                                        if ($dummy_promo && $dummy_original_price && $dummy_original_price > $dummy_price) : ?>
-                                            <div class="sparepart-price-wrapper">
-                                                <span class="sparepart-price-original">Rp <?php echo number_format($dummy_original_price, 0, ',', '.'); ?></span>
-                                                <span class="sparepart-price sparepart-price-promo">Rp <?php echo number_format($dummy_price, 0, ',', '.'); ?></span>
-                                            </div>
+                                    
+                                    <div class="paket-meta">
+                                        <?php if ($price > 0) : ?>
+                                            <?php if ($is_promo && $original_price > 0) : ?>
+                                                <div class="paket-price-wrapper">
+                                                    <span class="paket-price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
+                                                    <span class="paket-price paket-price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
+                                                </div>
+                                            <?php else : ?>
+                                                <span class="paket-price">
+                                                    Rp <?php echo number_format($price, 0, ',', '.'); ?>
+                                                </span>
+                                            <?php endif; ?>
                                         <?php else : ?>
-                                            <span class="sparepart-price">
-                                                Rp <?php echo number_format($dummy_price, 0, ',', '.'); ?>
-                                            </span>
+                                            <span class="paket-price">Hubungi Kami</span>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="sparepart-actions">
-                                        <a href="<?php echo esc_url(home_url('/spareparts/?dummy_id=' . $sparepart['id'])); ?>" 
-                                           class="btn-order">
-                                            Pesan
-                                        </a>
+                                    
+                                    <div class="paket-actions">
+                                        <span class="btn-order">
+                                            Beli atau Tanya Lebih Lanjut
+                                        </span>
                                     </div>
                                 </div>
                             </div>
-                            <?php
-                        endforeach;
-                    else :
-                        ?>
-                        <div class="no-results">
-                            <p>Belum ada spare part. Silakan tambahkan di <strong>Spare Parts</strong> > <strong>Tambah Spare Part</strong></p>
-                        </div>
-                        <?php
-                    endif;
+                        </a>
+                    <?php
+                    endwhile;
+                    wp_reset_postdata();
+                else :
+                    ?>
+                    <div class="no-results">
+                        <p>Belum ada spare part. Silakan tambahkan di <strong>Spare Parts</strong> > <strong>Tambah Spare Part</strong></p>
+                    </div>
+                    <?php
                 endif; 
                 ?>
             </div>
@@ -343,7 +326,7 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
     </section>
 
     <!-- CTA Section -->
-    <section class="spareparts-cta">
+    <section class="paket-usaha-cta">
         <div class="container">
             <div class="cta-content">
                 <h2><?php echo esc_html(get_theme_mod('inviro_spareparts_cta_title', 'Butuh Konsultasi Spesialis?')); ?></h2>
@@ -360,38 +343,25 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('sparepart-search');
-    const categorySelect = document.getElementById('filter-category');
+    const searchInput = document.getElementById('paket-search');
     const sortSelect = document.getElementById('sort-by');
-    const cards = document.querySelectorAll('.sparepart-card');
-    const grid = document.querySelector('.spareparts-grid');
+    const cards = document.querySelectorAll('.paket-card');
+    const grid = document.querySelector('.paket-usaha-grid');
     
-    // Function to filter cards
     function filterCards() {
         const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
-        const selectedCategory = categorySelect ? categorySelect.value : '';
         let visibleCount = 0;
         
         cards.forEach((card, index) => {
             const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
-            const desc = card.querySelector('.sparepart-desc');
+            const desc = card.querySelector('.paket-desc');
             const descText = desc ? desc.textContent.toLowerCase() : '';
-            const sku = card.querySelector('.sparepart-sku')?.textContent.toLowerCase() || '';
-            const cardCategory = card.dataset.category || '';
-            const cardCategories = cardCategory.split(' ').filter(Boolean);
             
-            // Search match
             const searchMatch = !searchTerm || 
                 title.includes(searchTerm) || 
-                descText.includes(searchTerm) || 
-                sku.includes(searchTerm);
+                descText.includes(searchTerm);
             
-            // Category match
-            const categoryMatch = !selectedCategory || cardCategories.includes(selectedCategory);
-            
-            const matches = searchMatch && categoryMatch;
-            
-            if (matches) {
+            if (searchMatch) {
                 card.style.display = 'block';
                 card.style.opacity = '0';
                 card.style.animation = 'fadeInUp 0.4s ease forwards';
@@ -402,13 +372,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Show no results message if needed
         const noResults = document.querySelector('.no-results');
-        if (visibleCount === 0 && (searchTerm || selectedCategory)) {
+        if (visibleCount === 0 && searchTerm) {
             if (!noResults) {
                 const noResultsDiv = document.createElement('div');
                 noResultsDiv.className = 'no-results';
-                noResultsDiv.innerHTML = '<p>Tidak ada spare part yang ditemukan' + (searchTerm ? ' untuk "<strong>' + searchTerm + '</strong>"' : '') + (selectedCategory ? ' dalam kategori yang dipilih' : '') + '</p>';
+                noResultsDiv.innerHTML = '<p>Tidak ada spare part yang ditemukan' + (searchTerm ? ' untuk "<strong>' + searchTerm + '</strong>"' : '') + '</p>';
                 grid.appendChild(noResultsDiv);
             }
         } else if (noResults) {
@@ -416,17 +385,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Search functionality with smooth animation
     if (searchInput) {
         searchInput.addEventListener('input', filterCards);
     }
     
-    // Category filter functionality
-    if (categorySelect) {
-        categorySelect.addEventListener('change', filterCards);
-    }
-    
-    // Sort functionality with smooth animation
     if (sortSelect) {
         sortSelect.addEventListener('change', function() {
             const sortValue = this.value;
@@ -440,12 +402,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         return parseInt(b.dataset.price || 0) - parseInt(a.dataset.price || 0);
                     case 'name':
                         return (a.dataset.name || '').localeCompare(b.dataset.name || '');
-                    default: // latest
+                    default:
                         return 0;
                 }
             });
             
-            // Reorder with animation
             visibleCards.forEach((card, index) => {
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(20px)';
@@ -459,7 +420,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Add loading animation on page load
     cards.forEach((card, index) => {
         card.style.opacity = '0';
         setTimeout(() => {

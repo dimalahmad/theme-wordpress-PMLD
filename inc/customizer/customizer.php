@@ -1901,6 +1901,41 @@ function inviro_spareparts_customize_register($wp_customize) {
         'section' => 'inviro_spareparts',
         'type' => 'text',
     ));
+
+    // Contact Settings for Spare Parts Detail Page
+    $wp_customize->add_setting('inviro_spareparts_whatsapp', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_spareparts_whatsapp', array(
+        'label'       => __('Nomor WhatsApp (Detail Page)', 'inviro'),
+        'description' => __('Nomor WhatsApp khusus untuk halaman detail spare parts. Kosongkan untuk menggunakan nomor WhatsApp umum.', 'inviro'),
+        'section'     => 'inviro_spareparts',
+        'type'        => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_spareparts_email', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_email',
+    ));
+    $wp_customize->add_control('inviro_spareparts_email', array(
+        'label'       => __('Email (Detail Page)', 'inviro'),
+        'description' => __('Email khusus untuk halaman detail spare parts. Kosongkan untuk menggunakan email umum.', 'inviro'),
+        'section'     => 'inviro_spareparts',
+        'type'        => 'email',
+    ));
+
+    // Buy Button Text for Spare Parts Detail Page
+    $wp_customize->add_setting('inviro_spareparts_buy_button', array(
+        'default'           => 'Beli',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_spareparts_buy_button', array(
+        'label'       => __('Teks Button Beli (Detail Page)', 'inviro'),
+        'description' => __('Teks untuk tombol "Beli" di halaman detail spare parts.', 'inviro'),
+        'section'     => 'inviro_spareparts',
+        'type'        => 'text',
+    ));
 }
 add_action('customize_register', 'inviro_spareparts_customize_register');
 

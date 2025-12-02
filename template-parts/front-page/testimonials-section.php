@@ -10,9 +10,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Get selected testimonials
+// Get selected testimonials (up to 32)
 $selected_testimonials = array();
-for ($i = 1; $i <= 10; $i++) {
+for ($i = 1; $i <= 32; $i++) {
     $testimonial_id = get_theme_mod('inviro_testimonial_' . $i);
     if ($testimonial_id) {
         $selected_testimonials[] = $testimonial_id;

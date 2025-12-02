@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$map_url = get_theme_mod('inviro_contact_map_url', '');
+$map_url = get_theme_mod('inviro_contact_map_url', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3952.5775443510283!2d110.36378417593333!3d-7.8344554921866685!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a57b27e98278d%3A0x894c7b28ef19130d!2sINVIRO%20Jogja!5e0!3m2!1sid!2sid!4v1764681840160!5m2!1sid!2sid');
 ?>
 
 <section id="contact" class="contact-section" itemscope itemtype="https://schema.org/ContactPage">
@@ -55,8 +55,8 @@ $map_url = get_theme_mod('inviro_contact_map_url', '');
                         <iframe 
                             src="<?php echo esc_attr($map_url); ?>" 
                             width="100%" 
-                            height="400" 
-                            style="border:0;" 
+                            height="100%" 
+                            style="border:0; position: absolute; top: 0; left: 0;" 
                             allowfullscreen="" 
                             loading="lazy" 
                             referrerpolicy="no-referrer-when-downgrade"
