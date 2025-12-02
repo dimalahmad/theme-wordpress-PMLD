@@ -38,9 +38,12 @@ function inviro_enqueue_files() {
     // Page specific styles (conditional loading)
     if (is_front_page()) {
         wp_enqueue_style('inviro-front-page', get_template_directory_uri() . '/assets/css/front-page.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
+        wp_enqueue_style('inviro-hero-fix', get_template_directory_uri() . '/assets/css/hero-section-fix.css', array('inviro-front-page'), $theme_version);
+        // Product fix disabled - using front-page.css only for consistency
     } elseif (is_page('profil')) {
         wp_enqueue_style('inviro-profil', get_template_directory_uri() . '/assets/css/profil.css', array('inviro-base'), $theme_version);
         wp_enqueue_style('inviro-front-page', get_template_directory_uri() . '/assets/css/front-page.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
+        wp_enqueue_style('inviro-hero-fix', get_template_directory_uri() . '/assets/css/hero-section-fix.css', array('inviro-front-page'), $theme_version);
     } elseif (is_page('pelanggan') || is_page_template('page-pelanggan.php') || is_post_type_archive('proyek_pelanggan')) {
         wp_enqueue_style('inviro-pelanggan', get_template_directory_uri() . '/assets/css/pelanggan.css', array('inviro-base', 'inviro-components-cards'), $theme_version . '.' . filemtime(get_template_directory() . '/assets/css/pelanggan.css'));
     } elseif (is_page('paket-usaha') || is_page_template('page-paket-usaha.php') || is_post_type_archive('paket_usaha')) {

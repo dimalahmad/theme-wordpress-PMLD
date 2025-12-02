@@ -1,0 +1,155 @@
+/**
+ * Hero Section Image Fix Styles
+ */
+
+/* Ensure images display properly */
+.hero-article-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #1a1a1a;
+    z-index: 0;
+}
+
+.hero-article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block !important;
+    position: relative !important;
+    z-index: 10 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Placeholder for missing images */
+.hero-article-placeholder {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.placeholder-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+/* Fix for large card */
+.hero-article-large {
+    height: 100%;
+    min-height: 0;
+}
+
+.hero-article-large .hero-article-image {
+    height: 100%;
+}
+
+/* Fix for small cards */
+.hero-article-small-top {
+    height: 100%;
+    min-height: 0;
+}
+
+.hero-article-small-bottom-left,
+.hero-article-small-bottom-right {
+    height: 100%;
+    min-height: 0;
+}
+
+/* New bottom row layout for 2 cards */
+.hero-articles-bottom-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    height: 100%;
+    min-height: 0;
+}
+
+.hero-article-small {
+    height: 100%;
+    min-height: 0;
+    position: relative;
+}
+
+.hero-article-small-top .hero-article-image,
+.hero-article-small-bottom-left .hero-article-image,
+.hero-article-small-bottom-right .hero-article-image,
+.hero-article-small .hero-article-image {
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Adjust category position for small cards */
+.hero-article-category-small {
+    top: 15px;
+    left: 15px;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.65rem;
+    width: auto;
+    max-width: fit-content;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+/* Ensure overlay doesn't hide images - Vignette effect */
+.hero-article-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, 
+        rgba(0,0,0,0) 0%, 
+        rgba(0,0,0,0) 50%,
+        rgba(0,0,0,0.15) 80%,
+        rgba(0,0,0,0.3) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Fix z-index issues */
+.hero-article-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    z-index: 2;
+    background: linear-gradient(to top, 
+        rgba(0,0,0,0.95) 0%, 
+        rgba(0,0,0,0.85) 30%,
+        rgba(0,0,0,0.5) 60%,
+        rgba(0,0,0,0) 100%);
+}
+
+.hero-article-category {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 2;
+}
+
+.hero-article-category-top {
+    top: 20px;
+    left: 20px;
+}
+
+.hero-article-category-bottom {
+    bottom: 60px;
+    left: 20px;
+    top: auto;
+}

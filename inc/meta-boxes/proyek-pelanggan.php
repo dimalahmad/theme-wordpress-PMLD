@@ -17,6 +17,9 @@ function inviro_add_proyek_meta_boxes() {
     // Remove default editor (we'll add custom one)
     remove_post_type_support('proyek_pelanggan', 'editor');
     
+    // Add notice for featured image
+    add_action('admin_notices', 'inviro_proyek_featured_image_notice');
+    
     // Panduan Lengkap
     add_meta_box(
         'proyek_panduan',
@@ -217,5 +220,34 @@ function inviro_save_proyek_meta($post_id) {
     }
 }
 add_action('save_post_proyek_pelanggan', 'inviro_save_proyek_meta');
+
+/**
+ * Show admin notice if proyek doesn't have featured image
+ */
+function inviro_proyek_featured_image_notice() {
+    global $post, $pagenow;
+    
+    // Only show on proyek_pelanggan edit screen
+    if ($pagenow === 'post.php' && isset($post) && $post->post_type === 'proyek_pelanggan') {
+        if (!has_post_thumbnail($post->ID)) {
+            ?>
+            <div class="notice notice-error">
+                <p><strong>⚠️ Perhatian:</strong> Proyek ini belum memiliki Featured Image/Gambar Utama!</p>
+                <p>Gambar diperlukan agar proyek bisa tampil dengan baik di Hero Section dan halaman lainnya. Silakan tambahkan gambar di panel "Featured Image" di sidebar kanan.</p>
+            </div>
+            <?php
+        }
+    }
+    
+    // Show on new proyek screen
+    if ($pagenow === 'post-new.php' && isset($_GET['post_type']) && $_GET['post_type'] === 'proyek_pelanggan') {
+        ?>
+        <div class="notice notice-info">
+            <p><strong>💡 Tips:</strong> Jangan lupa upload Featured Image/Gambar Utama untuk proyek ini!</p>
+            <p>Gambar akan ditampilkan di Hero Section homepage, halaman pelanggan, dan archive. Ukuran yang disarankan: minimal 800x600 piksel.</p>
+        </div>
+        <?php
+    }
+}
 
 

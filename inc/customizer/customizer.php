@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Customizer Settings
  *
@@ -14,6 +14,9 @@ if (!defined('ABSPATH')) {
  * Main Customizer Register Function
  */
 function inviro_customize_register($wp_customize) {
+    // Include custom control class
+    require_once get_template_directory() . '/inc/customizer/class-multiple-select-posts-control.php';
+    
     // Site Identity - Color Settings
     $wp_customize->add_setting('inviro_primary_color', array(
         'default'           => '#2F80ED',
@@ -287,35 +290,34 @@ function inviro_customize_register($wp_customize) {
     
     $wp_customize->add_control('inviro_products_count', array(
         'label'       => __('Jumlah Produk yang Ditampilkan', 'inviro'),
-        'description' => __('Masukkan jumlah produk yang akan ditampilkan di halaman depan', 'inviro'),
+        'description' => __('Masukkan jumlah produk yang akan ditampilkan di halaman depan (max 12)', 'inviro'),
         'section'     => 'inviro_products',
         'type'        => 'number',
         'input_attrs' => array(
             'min'  => 1,
-            'max'  => 20,
+            'max'  => 12,
             'step' => 1,
         ),
     ));
     
-    // Get all product posts
-    $products_query = new WP_Query(array(
+    // Get all produk posts for dropdown
+    $produk_posts = get_posts(array(
         'post_type' => 'produk',
-        'posts_per_page' => -1,
-        'orderby' => 'date',
-        'order' => 'DESC'
+        'numberposts' => -1,
+        'orderby' => 'title',
+        'order' => 'ASC',
+        'post_status' => 'publish'
     ));
     
     $product_choices = array('' => __('-- Pilih Produk --', 'inviro'));
-    if ($products_query->have_posts()) {
-        while ($products_query->have_posts()) {
-            $products_query->the_post();
-            $product_choices[get_the_ID()] = get_the_title();
+    if (!empty($produk_posts)) {
+        foreach ($produk_posts as $produk) {
+            $product_choices[$produk->ID] = $produk->post_title;
         }
-        wp_reset_postdata();
     }
     
     // Featured products - manual selection
-    for ($i = 1; $i <= 8; $i++) {
+    for ($i = 1; $i <= 12; $i++) {
         $wp_customize->add_setting('inviro_featured_product_' . $i, array(
             'default'           => '',
             'sanitize_callback' => 'absint',
@@ -523,6 +525,45 @@ function inviro_customize_register($wp_customize) {
         'description' => __('Kustomisasi statistik yang ditampilkan di bagian hero homepage. Anda dapat mengubah angka dan label untuk setiap statistik.', 'inviro'),
         'priority' => 25,
         'panel'    => '', // Bisa ditambahkan ke panel jika diperlukan
+    ));
+    
+    // Hero Display Mode
+    $wp_customize->add_setting('inviro_hero_display_mode', array(
+        'default'           => 'selected',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ));
+    
+    $wp_customize->add_control('inviro_hero_display_mode', array(
+        'label'       => __('Mode Tampilan Proyek', 'inviro'),
+        'description' => __('Pilih apakah menampilkan proyek terbaru atau proyek yang dipilih secara manual', 'inviro'),
+        'section'     => 'inviro_stats',
+        'type'        => 'select',
+        'choices'     => array(
+            'latest'   => __('Proyek Terbaru (4 proyek)', 'inviro'),
+            'selected' => __('Proyek Terpilih (maksimal 4 proyek)', 'inviro'),
+        ),
+        'priority'    => 4,
+    ));
+    
+    // Hero Section Projects Selection
+    $wp_customize->add_setting('inviro_hero_selected_projects', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ));
+    
+    $wp_customize->add_control(new Inviro_Multiple_Select_Posts_Control(
+        $wp_customize,
+        'inviro_hero_selected_projects',
+        array(
+            'label'       => __('Pilih Proyek untuk Hero Section', 'inviro'),
+            'description' => __('Pilih maksimal 4 proyek pelanggan yang akan ditampilkan di Hero Section homepage. Proyek pertama akan ditampilkan lebih besar.', 'inviro'),
+            'section'     => 'inviro_stats',
+            'post_type'   => 'proyek_pelanggan',
+            'max_posts'   => 4,
+            'priority'    => 5,
+        )
     ));
     
     // Statistik 1
