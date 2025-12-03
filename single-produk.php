@@ -47,7 +47,8 @@ while (have_posts()) : the_post();
     // Query reviews - show all published reviews
     // If post_status = 'publish', it means admin approved it
     $reviews_query = new WP_Query(array(
-        'post_type' => 'sparepart_review',
+        // Ambil ulasan dari CPT khusus produk, dengan fallback ke sparepart_review untuk data lama
+        'post_type' => array('product_review', 'sparepart_review'),
         'post_status' => 'publish',
         'posts_per_page' => -1,
         'meta_query' => array(
@@ -546,4 +547,6 @@ jQuery(document).ready(function($) {
 endwhile;
 get_footer();
 ?>
+
+
 

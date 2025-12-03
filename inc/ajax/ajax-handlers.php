@@ -60,7 +60,7 @@ function inviro_ajax_save_paket_gallery() {
 add_action('wp_ajax_save_paket_gallery', 'inviro_ajax_save_paket_gallery');
 
 /**
- * Handle review form submission (Spare Parts)
+ * Handle review form submission (Spare Parts & Produk)
  */
 function inviro_handle_review_submission() {
     if (!isset($_POST['review_nonce']) || !wp_verify_nonce($_POST['review_nonce'], 'submit_review')) {
@@ -76,13 +76,22 @@ function inviro_handle_review_submission() {
     $rating = intval($_POST['rating']);
     $review_content = sanitize_textarea_field($_POST['review_content']);
     
+    // Ambil product_type dari form, default ke 'spareparts' untuk kompatibilitas lama
+    $product_type = isset($_POST['product_type']) ? sanitize_text_field($_POST['product_type']) : 'spareparts';
+    if (!in_array($product_type, array('spareparts', 'produk'), true)) {
+        $product_type = 'spareparts';
+    }
+    
     if (empty($reviewer_name) || empty($reviewer_email) || empty($review_content) || $rating < 1 || $rating > 5) {
         wp_send_json_error(array('message' => 'Semua field harus diisi dengan benar'));
         return;
     }
     
+    // Tentukan post type ulasan berdasarkan product_type
+    $review_post_type = ($product_type === 'produk') ? 'product_review' : 'sparepart_review';
+    
     $review_id = wp_insert_post(array(
-        'post_type'    => 'sparepart_review',
+        'post_type'    => $review_post_type,
         'post_title'   => 'Ulasan dari ' . $reviewer_name,
         'post_content' => $review_content,
         'post_status'  => 'pending',
@@ -91,7 +100,7 @@ function inviro_handle_review_submission() {
     if ($review_id) {
         update_post_meta($review_id, '_review_sparepart_id', $sparepart_id);
         update_post_meta($review_id, '_review_is_dummy', $is_dummy ? '1' : '0');
-        update_post_meta($review_id, '_review_product_type', 'spareparts');
+        update_post_meta($review_id, '_review_product_type', $product_type);
         update_post_meta($review_id, '_reviewer_name', $reviewer_name);
         update_post_meta($review_id, '_reviewer_email', $reviewer_email);
         update_post_meta($review_id, '_review_rating', $rating);

@@ -21,6 +21,7 @@ require_once get_template_directory() . '/inc/enqueue/enqueue.php';
 
 // Load custom post types
 require_once get_template_directory() . '/inc/post-types/products.php';
+require_once get_template_directory() . '/inc/post-types/product-reviews.php';
 require_once get_template_directory() . '/inc/post-types/testimonials.php';
 require_once get_template_directory() . '/inc/post-types/branches.php';
 require_once get_template_directory() . '/inc/post-types/layanan.php';
@@ -39,6 +40,7 @@ require_once get_template_directory() . '/inc/meta-boxes/layanan.php';
 require_once get_template_directory() . '/inc/meta-boxes/proyek-pelanggan.php';
 require_once get_template_directory() . '/inc/meta-boxes/spareparts.php';
 require_once get_template_directory() . '/inc/meta-boxes/sparepart-reviews.php';
+require_once get_template_directory() . '/inc/meta-boxes/product-reviews.php';
 require_once get_template_directory() . '/inc/meta-boxes/unduhan.php';
 require_once get_template_directory() . '/inc/meta-boxes/contact-submissions.php';
 
