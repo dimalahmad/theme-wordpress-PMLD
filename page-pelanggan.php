@@ -127,7 +127,8 @@ if ($dummy_id > 0) {
 
             <!-- Customers Grid -->
             <section class="pelanggan-grid-section">
-                <div class="pelanggan-grid">
+                <div class="container">
+                    <div class="pelanggan-grid">
                 <?php
                 // Load dummy data directly
                 $dummy_pelanggan = array();
@@ -149,6 +150,7 @@ if ($dummy_id > 0) {
                 $projects = new WP_Query(array(
                     'post_type' => 'proyek_pelanggan',
                     'posts_per_page' => -1,
+                    'post_status' => 'publish',
                     'orderby' => 'date',
                     'order' => 'DESC'
                 ));
@@ -160,7 +162,12 @@ if ($dummy_id > 0) {
                     while ($projects->have_posts()) : $projects->the_post();
                         $client_name = get_post_meta(get_the_ID(), '_proyek_client_name', true);
                         $proyek_date = get_post_meta(get_the_ID(), '_proyek_date', true);
-                        $excerpt = get_post_meta(get_the_ID(), '_proyek_excerpt', true);
+                        // Use excerpt from content (like artikel and spare parts)
+                        $excerpt = get_the_excerpt();
+                        if (empty($excerpt)) {
+                            $content = get_the_content();
+                            $excerpt = wp_trim_words(strip_tags($content), 20, '...');
+                        }
                         
                         // Get region taxonomy
                         $regions = get_the_terms(get_the_ID(), 'region');
@@ -182,19 +189,59 @@ if ($dummy_id > 0) {
                         }
                 ?>
                 <div class="pelanggan-card" data-date="<?php echo esc_attr($date_str); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>" data-region="<?php echo esc_attr($region_slugs); ?>">
-                    <?php if (has_post_thumbnail()) : ?>
-                        <div class="pelanggan-image">
-                            <a href="<?php the_permalink(); ?>">
-                                <?php the_post_thumbnail('medium_large'); ?>
-                            </a>
-                        </div>
-                    <?php else : ?>
-                        <div class="pelanggan-image">
-                            <a href="<?php the_permalink(); ?>">
-                                <img src="https://via.placeholder.com/600x400/75C6F1/FFFFFF?text=Proyek" alt="<?php the_title(); ?>" loading="lazy">
-                            </a>
-                        </div>
-                    <?php endif; ?>
+                    <?php
+                    // Get image URL with robust fallback logic (same as hero and branches)
+                    $post_id = get_the_ID();
+                    $image_url = '';
+                    
+                    // Method 1: Check post thumbnail first
+                    if (has_post_thumbnail($post_id)) {
+                        // Try multiple sizes as fallback
+                        $image_url = get_the_post_thumbnail_url($post_id, 'medium_large');
+                        if (empty($image_url)) {
+                            $image_url = get_the_post_thumbnail_url($post_id, 'full');
+                        }
+                        if (empty($image_url)) {
+                            $image_url = get_the_post_thumbnail_url($post_id, 'large');
+                        }
+                        if (empty($image_url)) {
+                            $image_url = get_the_post_thumbnail_url($post_id, 'medium');
+                        }
+                        if (empty($image_url)) {
+                            $image_url = get_the_post_thumbnail_url($post_id, 'thumbnail');
+                        }
+                        
+                        // Try wp_get_attachment_image_src as additional fallback
+                        if (empty($image_url)) {
+                            $thumbnail_id = get_post_thumbnail_id($post_id);
+                            if ($thumbnail_id) {
+                                $image_data = wp_get_attachment_image_src($thumbnail_id, 'medium_large');
+                                if ($image_data && !empty($image_data[0])) {
+                                    $image_url = $image_data[0];
+                                }
+                            }
+                        }
+                        
+                        // Normalize URL if needed
+                        if (!empty($image_url) && function_exists('inviro_normalize_image_url')) {
+                            $image_url = inviro_normalize_image_url($image_url);
+                        }
+                    }
+                    
+                    // Method 2: Use helper function if available
+                    if (empty($image_url) && function_exists('inviro_get_image_url')) {
+                        $image_url = inviro_get_image_url($post_id, 'large');
+                    }
+                    ?>
+                    <div class="pelanggan-image">
+                        <a href="<?php the_permalink(); ?>">
+                            <?php if (!empty($image_url)) : ?>
+                                <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy" style="display: block !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; height: 100% !important; object-fit: cover !important;">
+                            <?php else : ?>
+                                <img src="https://via.placeholder.com/600x400/75C6F1/FFFFFF?text=Proyek" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy" style="display: block !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; height: 100% !important; object-fit: cover !important;">
+                            <?php endif; ?>
+                        </a>
+                    </div>
                     <div class="pelanggan-content">
                         <div class="pelanggan-meta-top">
                             <span class="pelanggan-author">Oleh <?php echo esc_html($client_name ? $client_name : 'Admin INVIRO'); ?></span>
@@ -238,7 +285,7 @@ if ($dummy_id > 0) {
                         <div class="pelanggan-card" data-date="<?php echo esc_attr($date_str); ?>" data-name="<?php echo esc_attr($proyek['title']); ?>" data-region="<?php echo esc_attr($region); ?>">
                             <div class="pelanggan-image">
                                 <a href="<?php echo esc_url(home_url('/pelanggan/?dummy_id=' . $proyek['id'])); ?>">
-                                    <img src="<?php echo esc_url($proyek['image']); ?>" alt="<?php echo esc_attr($proyek['title']); ?>" loading="lazy">
+                                    <img src="<?php echo esc_url($proyek['image']); ?>" alt="<?php echo esc_attr($proyek['title']); ?>" loading="lazy" style="display: block !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; height: 100% !important; object-fit: cover !important;">
                                 </a>
                             </div>
                             <div class="pelanggan-content">
@@ -270,6 +317,7 @@ if ($dummy_id > 0) {
                     <?php
                 endif;
                 ?>
+                    </div>
                 </div>
             </section>
         </div>
@@ -398,6 +446,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
         let visibleCount = 0;
         
+        // Reset all cards first
+        cards.forEach((card) => {
+            card.style.display = '';
+            card.style.opacity = '';
+            card.style.animation = '';
+            card.style.animationDelay = '';
+            card.style.transform = '';
+            card.style.transition = '';
+        });
+        
         cards.forEach((card, index) => {
             const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
             const excerptEl = card.querySelector('.pelanggan-excerpt');
@@ -410,15 +468,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 title.includes(searchTerm) || 
                 excerpt.includes(searchTerm);
             
-            // Region match
+            // Region match - handle empty string for "all"
             const regionMatch = !selectedRegion || 
+                selectedRegion === '' ||
                 selectedRegion === 'all' || 
                 cardRegions.includes(selectedRegion);
             
             const matches = searchMatch && regionMatch;
             
             if (matches) {
-                card.style.display = 'block';
+                card.style.display = 'flex'; // Use flex for horizontal layout
                 card.style.opacity = '0';
                 card.style.animation = 'fadeInUp 0.4s ease forwards';
                 card.style.animationDelay = (visibleCount * 0.05) + 's';
@@ -430,11 +489,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show no results message if needed
         const noResults = document.querySelector('.no-results');
-        if (visibleCount === 0 && (searchTerm || selectedRegion)) {
+        if (visibleCount === 0 && (searchTerm || (selectedRegion && selectedRegion !== '' && selectedRegion !== 'all'))) {
             if (!noResults) {
                 const noResultsDiv = document.createElement('div');
                 noResultsDiv.className = 'no-results';
-                noResultsDiv.innerHTML = '<p>Tidak ada proyek pelanggan yang ditemukan' + (searchTerm ? ' untuk "<strong>' + searchTerm + '</strong>"' : '') + (selectedRegion && selectedRegion !== 'all' ? ' di daerah yang dipilih' : '') + '</p>';
+                noResultsDiv.innerHTML = '<p>Tidak ada proyek pelanggan yang ditemukan' + (searchTerm ? ' untuk "<strong>' + searchTerm + '</strong>"' : '') + (selectedRegion && selectedRegion !== '' && selectedRegion !== 'all' ? ' di daerah yang dipilih' : '') + '</p>';
                 grid.appendChild(noResultsDiv);
             }
         } else if (noResults) {
@@ -451,8 +510,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add active class to clicked button
             this.classList.add('active');
             
-            // Get filter value
-            selectedRegion = this.dataset.filter || '';
+            // Get filter value - handle "all" case
+            const filterValue = this.dataset.filter || '';
+            selectedRegion = (filterValue === 'all' || filterValue === '') ? '' : filterValue;
             
             // Filter cards
             filterCards();

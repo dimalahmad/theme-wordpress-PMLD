@@ -65,8 +65,75 @@ function inviro_theme_setup() {
     add_image_size('inviro-hero', 1920, 800, true);
     add_image_size('inviro-hero-mobile', 768, 600, true);
     add_image_size('inviro-hero-tablet', 1024, 700, true);
+    
+    // Hero articles grid sizes
+    add_image_size('inviro-hero-large', 800, 600, true);      // For the large card
+    add_image_size('inviro-hero-medium', 400, 300, true);     // For medium cards
+    add_image_size('inviro-hero-small', 300, 200, true);      // For small cards
 }
 add_action('after_setup_theme', 'inviro_theme_setup');
+
+/**
+ * Admin Notice for Regenerating Thumbnails
+ * Show notice to regenerate thumbnails after adding new image sizes
+ */
+function inviro_admin_notice_regenerate_thumbnails() {
+    // Check if we've shown this notice before
+    $notice_shown = get_option('inviro_thumbnail_notice_shown');
+    
+    // Also check if user has dismissed the notice
+    $notice_dismissed = get_option('inviro_thumbnail_notice_dismissed');
+    
+    if (!$notice_shown && !$notice_dismissed && current_user_can('manage_options')) {
+        ?>
+        <div class="notice notice-warning is-dismissible" id="inviro-regenerate-thumbnails-notice">
+            <p><strong>INVIRO Theme:</strong> Ukuran gambar baru telah ditambahkan untuk Hero Section.</p>
+            <p>Untuk memastikan gambar proyek pelanggan tampil dengan baik di Hero Section, silakan:</p>
+            <ol>
+                <li>Install plugin "Regenerate Thumbnails" jika belum ada</li>
+                <li>Pergi ke <strong>Tools → Regenerate Thumbnails</strong></li>
+                <li>Klik "Regenerate All Thumbnails"</li>
+            </ol>
+            <p>Atau Anda bisa upload ulang featured image untuk proyek pelanggan yang ingin ditampilkan di Hero Section.</p>
+            <p><a href="#" class="button button-primary" id="inviro-dismiss-thumbnail-notice">Saya Mengerti</a></p>
+        </div>
+        <script>
+        jQuery(document).ready(function($) {
+            $('#inviro-dismiss-thumbnail-notice, #inviro-regenerate-thumbnails-notice .notice-dismiss').on('click', function(e) {
+                if ($(this).attr('id') === 'inviro-dismiss-thumbnail-notice') {
+                    e.preventDefault();
+                }
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: {
+                        action: 'inviro_dismiss_thumbnail_notice',
+                        nonce: '<?php echo wp_create_nonce("inviro_dismiss_notice"); ?>'
+                    }
+                });
+                $('#inviro-regenerate-thumbnails-notice').fadeOut();
+            });
+        });
+        </script>
+        <?php
+        // Mark that we've shown the notice
+        update_option('inviro_thumbnail_notice_shown', true);
+    }
+}
+add_action('admin_notices', 'inviro_admin_notice_regenerate_thumbnails');
+
+/**
+ * AJAX handler to dismiss the thumbnail notice
+ */
+function inviro_dismiss_thumbnail_notice() {
+    if (!wp_verify_nonce($_POST['nonce'], 'inviro_dismiss_notice')) {
+        wp_die('Security check failed');
+    }
+    
+    update_option('inviro_thumbnail_notice_dismissed', true);
+    wp_die();
+}
+add_action('wp_ajax_inviro_dismiss_thumbnail_notice', 'inviro_dismiss_thumbnail_notice');
 
 /**
  * Custom Navbar Menu dari Customizer

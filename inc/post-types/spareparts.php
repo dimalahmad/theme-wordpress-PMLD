@@ -41,7 +41,7 @@ function inviro_register_spareparts() {
         'hierarchical'        => false,
         'menu_position'       => 9,
         'menu_icon'           => 'dashicons-admin-tools',
-        'supports'            => array('title', 'editor', 'thumbnail', 'excerpt'),
+        'supports'            => array('title', 'editor', 'thumbnail'),
         'show_in_rest'        => true,
     );
     

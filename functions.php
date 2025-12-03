@@ -25,3 +25,4 @@ if (file_exists(get_template_directory() . '/dummy-data/helper.php')) {
 if (file_exists(get_template_directory() . '/inc/loader.php')) {
     require_once get_template_directory() . '/inc/loader.php';
 }
+

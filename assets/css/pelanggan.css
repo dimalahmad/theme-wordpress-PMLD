@@ -328,29 +328,41 @@
    GRID SECTION
    ============================================ */
 .pelanggan-grid-section {
-    padding: 40px 30px 80px;
-    background: transparent;
+    padding: 60px 0 80px; /* Sama dengan artikel */
+    background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%); /* Sama dengan artikel */
 }
 
 .pelanggan-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 32px;
+    grid-template-columns: 1fr; /* 1 kolom saja */
+    gap: 16px; /* Sama dengan artikel */
+    margin-top: 40px; /* Sama dengan artikel */
+}
+
+/* Ensure hidden cards don't break grid layout */
+.pelanggan-card[style*="display: none"] {
+    display: none !important;
+}
+
+.pelanggan-card:not([style*="display: none"]) {
+    display: flex !important;
 }
 
 /* ============================================
-   PELANGGAN CARD - Futuristic Design
+   PELANGGAN CARD - List Artikel Style (Horizontal)
    ============================================ */
 .pelanggan-card {
     background: #ffffff;
-    border-radius: 20px;
+    border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(117, 198, 241, 0.1);
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: stretch; /* Stretch agar gambar dan konten sama tinggi */
     position: relative;
     border: 1px solid rgba(47, 128, 237, 0.1);
+    height: auto; /* Mengikuti konten */
 }
 
 .pelanggan-card::before {
@@ -380,8 +392,8 @@
 }
 
 .pelanggan-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 12px 40px rgba(47, 128, 237, 0.25), 0 0 30px rgba(47, 128, 237, 0.5), 0 0 60px rgba(47, 128, 237, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(47, 128, 237, 0.2), 0 0 20px rgba(47, 128, 237, 0.3);
     border-color: var(--inviro-primary, #2F80ED);
 }
 
@@ -393,42 +405,66 @@
     opacity: 1;
 }
 
-/* Image Container */
+/* Image Container - Horizontal Layout (sama dengan artikel) */
 .pelanggan-image {
     position: relative;
-    height: 240px;
+    width: 320px; /* Sama dengan artikel */
+    min-width: 320px;
+    height: 100%; /* Sama dengan height card */
+    min-height: 280px; /* Sama dengan artikel */
     overflow: hidden;
     background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    flex-shrink: 0;
+    display: flex !important;
+    align-items: stretch;
+    z-index: 0;
+    line-height: 0; /* Hilangkan space di bawah gambar */
+    margin: 0;
+    padding: 0;
 }
 
 .pelanggan-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 100% !important;
+    height: 100% !important; /* Mengisi container - sama dengan height card */
+    object-fit: cover !important;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
 }
 
 .pelanggan-card:hover .pelanggan-image img {
-    transform: scale(1.1) rotate(2deg);
+    transform: scale(1.08);
 }
 
-/* Content */
+/* Content - Horizontal Layout (sama dengan artikel) */
 .pelanggan-content {
-    padding: 24px;
+    padding: 20px 24px; /* Sama dengan artikel */
     display: flex;
     flex-direction: column;
     flex: 1;
-    gap: 12px;
+    gap: 8px; /* Sama dengan artikel */
+    justify-content: flex-start;
+    min-height: 280px; /* Sama dengan artikel */
+    min-width: 0;
 }
 
 .pelanggan-meta-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
-    font-size: 0.85rem;
+    gap: 12px;
+    font-size: 0.85rem; /* Sama dengan artikel */
     color: #666;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* Sama dengan artikel */
+    margin-bottom: 4px;
 }
 
 .pelanggan-author {
@@ -441,15 +477,14 @@
 }
 
 .pelanggan-content h3 {
-    font-size: 1.25rem;
+    font-size: 1.3rem; /* Sama dengan artikel */
     font-weight: 700;
-    margin: 0;
+    margin: 0 0 8px 0; /* Sama dengan artikel */
     color: #1a1a1a;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    line-height: 1.4; /* Sama dengan artikel */
+    display: block; /* Sama dengan artikel */
+    white-space: normal;
+    overflow: visible;
 }
 
 .pelanggan-content h3 a {
@@ -463,12 +498,12 @@
 }
 
 .pelanggan-excerpt {
-    font-size: 0.95rem;
+    font-size: 0.95rem; /* Sama dengan artikel */
     color: #666;
-    line-height: 1.6;
-    margin: 0;
+    line-height: 1.6; /* Sama dengan artikel */
+    margin: 0 0 8px 0; /* Sama dengan artikel */
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 4; /* Sama dengan artikel */
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -476,12 +511,13 @@
 .pelanggan-link {
     display: inline-block;
     color: var(--inviro-primary, #2F80ED);
-    font-weight: 700;
+    font-weight: 600; /* Sama dengan artikel */
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 0.95rem; /* Sama dengan artikel */
     margin-top: auto;
-    padding-top: 16px;
-    border-top: 1px solid rgba(47, 128, 237, 0.1);
+    padding-top: 0; /* Sama dengan artikel */
+    margin-top: 0; /* Sama dengan artikel */
+    border-top: none; /* Sama dengan artikel */
     transition: all 0.3s ease;
 }
 
@@ -670,12 +706,18 @@
    ============================================ */
 @media (max-width: 1200px) {
     .pelanggan-grid {
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 28px;
+        grid-template-columns: 1fr; /* Tetap 1 kolom */
+        gap: 16px; /* Sama dengan artikel */
     }
     
-    .logos-grid {
-        grid-template-columns: repeat(3, 1fr);
+    .pelanggan-image {
+        width: 280px; /* Sedikit lebih kecil */
+        min-width: 280px;
+        min-height: 260px; /* Tambah min-height */
+    }
+    
+    .pelanggan-content {
+        min-height: 260px; /* Tambah min-height */
     }
 }
 
@@ -743,7 +785,7 @@
     }
     
     .pelanggan-grid-section {
-        padding: 30px 20px 60px;
+        padding: 60px 0 80px; /* Sama dengan artikel */
     }
     
     .pelanggan-hero h1 {
@@ -755,8 +797,33 @@
     }
     
     .pelanggan-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 24px;
+        grid-template-columns: 1fr; /* Tetap 1 kolom */
+        gap: 16px; /* Sama dengan artikel */
+    }
+    
+    .pelanggan-image {
+        width: 260px; /* Sedikit lebih kecil */
+        min-width: 260px;
+        min-height: 240px; /* Tambah min-height */
+    }
+    
+    .pelanggan-content {
+        min-height: 240px; /* Tambah min-height */
+    }
+    
+    .pelanggan-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .pelanggan-image {
+        width: 220px;
+        min-width: 220px;
+        height: 160px;
+    }
+    
+    .pelanggan-content {
+        padding: 16px 20px;
     }
     
     .pelanggan-cta h2 {
@@ -834,16 +901,100 @@
     }
     
     .pelanggan-grid-section {
-        padding: 20px 16px 60px;
+        padding: 60px 0 80px; /* Sama dengan artikel */
     }
     
     .pelanggan-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 20px;
+        grid-template-columns: 1fr; /* Tetap 1 kolom */
+        gap: 14px; /* Sama dengan artikel */
+    }
+    
+    .pelanggan-card {
+        flex-direction: row; /* Tetap horizontal seperti desktop */
+        align-items: stretch; /* Stretch agar gambar memenuhi height card */
+        height: auto; /* Mengikuti konten */
     }
     
     .pelanggan-image {
-        height: 200px;
+        width: 100px !important; /* Ratio 1:3 dengan content */
+        min-width: 100px !important;
+        height: 100% !important; /* Memenuhi height card */
+        min-height: 100px !important; /* Fixed min-height */
+        flex: 1; /* Ratio 1:3 */
+        align-self: stretch; /* Stretch untuk memenuhi height card */
+    }
+    
+    .pelanggan-image img {
+        width: 100% !important;
+        height: 100% !important; /* Memenuhi height container */
+        object-fit: cover !important;
+        position: absolute !important; /* Tetap absolute */
+        top: 0 !important;
+        left: 0 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    .pelanggan-content {
+        padding: 8px 12px !important; /* Dikurangi lagi */
+        gap: 4px !important; /* Dikurangi lagi */
+        flex: 3; /* Ratio 1:3 dengan image */
+        min-height: auto !important; /* Override desktop */
+    }
+    
+    .pelanggan-meta-top {
+        font-size: 0.65rem !important; /* Dikurangi lagi */
+        margin-bottom: 2px !important; /* Dikurangi */
+    }
+    
+    .pelanggan-content h3 {
+        font-size: 0.8rem !important; /* Dikurangi lagi */
+        margin: 0 0 3px 0 !important; /* Dikurangi */
+        line-height: 1.2 !important; /* Dikurangi */
+    }
+    
+    .pelanggan-excerpt {
+        font-size: 0.7rem !important; /* Dikurangi lagi */
+        line-height: 1.3 !important; /* Dikurangi */
+        -webkit-line-clamp: 2 !important; /* Dikurangi dari 3 */
+        margin: 0 0 2px 0 !important; /* Dikurangi */
+    }
+    
+    .pelanggan-link {
+        font-size: 0.7rem !important; /* Dikurangi lagi */
+    }
+    
+    .pelanggan-content h3 {
+        font-size: 1rem; /* Sama dengan artikel */
+        line-height: 1.4; /* Sama dengan artikel */
+        margin: 0 0 8px 0; /* Sama dengan artikel */
+        display: block;
+        white-space: normal;
+        overflow: visible;
+    }
+    
+    .pelanggan-content h3 a {
+        display: inline;
+        white-space: normal;
+    }
+    
+    .pelanggan-excerpt {
+        font-size: 0.85rem; /* Sama dengan artikel */
+        line-height: 1.6; /* Sama dengan artikel */
+        margin: 0 0 8px 0; /* Sama dengan artikel */
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* Sama dengan artikel */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .pelanggan-link {
+        font-size: 0.85rem; /* Sama dengan artikel */
+        padding-top: 0;
+        margin-top: 0;
+        white-space: normal;
+        border-top: none;
     }
     
     .logos-grid {
@@ -871,9 +1022,49 @@
 }
 
 @media (max-width: 480px) {
+    .pelanggan-grid-section {
+        padding: 60px 0 80px; /* Sama dengan artikel */
+    }
+    
     .pelanggan-grid {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 12px; /* Sama dengan artikel */
+    }
+    
+    .pelanggan-card {
+        flex-direction: row; /* Tetap horizontal seperti desktop */
+        align-items: stretch; /* Stretch agar gambar memenuhi height card */
+        border-radius: 12px; /* Sama dengan artikel */
+        height: auto; /* Mengikuti konten */
+    }
+    
+    .pelanggan-image {
+        width: 80px !important; /* Ratio 1:3 dengan content (dari 180px) */
+        min-width: 80px !important;
+        height: 100% !important; /* Memenuhi height card */
+        min-height: 80px !important; /* Fixed min-height */
+        flex: 1; /* Ratio 1:3 */
+        align-self: stretch; /* Stretch untuk memenuhi height card */
+        display: flex !important;
+        align-items: stretch;
+        line-height: 0; /* Hilangkan space di bawah gambar */
+        margin: 0;
+        padding: 0;
+    }
+    
+    .pelanggan-image img {
+        width: 100% !important;
+        height: 100% !important; /* Memenuhi height container */
+        object-fit: cover !important;
+        position: absolute !important; /* Tetap absolute */
+        top: 0 !important;
+        left: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     
     .pelanggan-hero h1 {
@@ -881,11 +1072,34 @@
     }
     
     .pelanggan-content {
-        padding: 20px;
+        padding: 6px 10px !important; /* Dikurangi lagi */
+        gap: 3px !important; /* Dikurangi lagi */
+        flex: 3; /* Ratio 1:3 dengan image */
+        min-height: auto !important; /* Override desktop */
+    }
+    
+    .pelanggan-meta-top {
+        font-size: 0.6rem !important; /* Dikurangi lagi */
+        margin-bottom: 1px !important; /* Dikurangi lagi */
     }
     
     .pelanggan-content h3 {
-        font-size: 1.1rem;
+        font-size: 0.75rem !important; /* Dikurangi lagi */
+        margin: 0 0 2px 0 !important; /* Dikurangi lagi */
+        line-height: 1.15 !important; /* Dikurangi lagi */
+    }
+    
+    .pelanggan-excerpt {
+        font-size: 0.65rem !important; /* Dikurangi lagi */
+        line-height: 1.25 !important; /* Dikurangi lagi */
+        -webkit-line-clamp: 2 !important; /* Tetap 2 */
+        margin: 0 0 1px 0 !important; /* Dikurangi lagi */
+    }
+    
+    .pelanggan-link {
+        font-size: 0.65rem !important; /* Dikurangi lagi */
+        padding-top: 0;
+        margin-top: 0;
     }
     
     .logos-grid {

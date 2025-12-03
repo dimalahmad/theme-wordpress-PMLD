@@ -156,6 +156,88 @@ function inviro_responsive_image_sizes($sizes, $size) {
 add_filter('wp_calculate_image_sizes', 'inviro_responsive_image_sizes', 10, 2);
 
 /**
+ * Fix Artikel Detail Image Sizing
+ * Memastikan semua gambar di detail artikel memiliki ukuran yang sama
+ */
+function inviro_fix_artikel_image_sizing($content) {
+    // Hanya jalankan di halaman detail artikel dan proyek pelanggan
+    if ((!is_singular('artikel') && !is_singular('proyek_pelanggan')) || is_admin()) {
+        return $content;
+    }
+
+    // Deteksi ukuran layar (default desktop)
+    $is_mobile = wp_is_mobile();
+    $is_tablet = false;
+    
+    if ($is_mobile) {
+        // Cek apakah benar-benar mobile atau tablet
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+        if (preg_match('/tablet|ipad|playbook|silk/i', $user_agent)) {
+            $is_tablet = true;
+            $is_mobile = false;
+        }
+    }
+
+    // Tentukan tinggi berdasarkan ukuran layar - sama dengan spareparts detail
+    $height = '655px'; // Desktop
+    if ($is_mobile || $is_tablet) {
+        $height = '400px'; // Tablet & Mobile
+    }
+
+    // Modifikasi semua tag img di dalam artikel-content-full
+    $content = preg_replace_callback(
+        '/<img([^>]*?)>/i',
+        function($matches) use ($height) {
+            $img_tag = $matches[0];
+            $img_attrs = $matches[1];
+            
+            // Hapus style yang sudah ada (jika ada)
+            $img_attrs = preg_replace('/style\s*=\s*["\'][^"\']*["\']/i', '', $img_attrs);
+            
+            // Tambahkan inline styles untuk memastikan ukuran
+            $new_style = sprintf(
+                'style="width: 100%% !important; height: %s !important; max-width: 100%% !important; max-height: %s !important; min-height: %s !important; object-fit: cover !important; object-position: center !important; display: block !important; visibility: visible !important; opacity: 1 !important; border-radius: 12px; margin: 0 !important; padding: 0 !important; position: relative; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);"',
+                $height,
+                $height,
+                $height
+            );
+            
+            return '<img' . $img_attrs . ' ' . $new_style . '>';
+        },
+        $content
+    );
+
+    // Modifikasi wrapper figure dan wp-block-image
+    $content = preg_replace_callback(
+        '/<(figure|div[^>]*class=["\'][^"\']*wp-block-image[^"\']*["\'][^>]*)>/i',
+        function($matches) use ($height) {
+            $tag = $matches[0];
+            $tag_name = $matches[1];
+            
+            // Hapus style yang sudah ada
+            $tag = preg_replace('/style\s*=\s*["\'][^"\']*["\']/i', '', $tag);
+            
+            // Tambahkan inline styles untuk wrapper
+            $new_style = sprintf(
+                'style="margin: 30px 0; width: 100%%; height: %s !important; max-height: %s !important; min-height: %s !important; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); position: relative; display: block; line-height: 0; padding: 0;"',
+                $height,
+                $height,
+                $height
+            );
+            
+            // Insert style sebelum closing bracket
+            $tag = preg_replace('/>$/i', ' ' . $new_style . '>', $tag);
+            
+            return $tag;
+        },
+        $content
+    );
+
+    return $content;
+}
+add_filter('the_content', 'inviro_fix_artikel_image_sizing', 999);
+
+/**
  * Create dummy layanan data (Development Only)
  */
 function inviro_create_dummy_layanan() {
@@ -546,4 +628,65 @@ function inviro_force_spareparts_template($template) {
     return $template;
 }
 add_filter('template_include', 'inviro_force_spareparts_template', 99);
+
+/**
+ * Configure SMTP for email sending
+ */
+function inviro_configure_smtp($phpmailer) {
+    // Check if SMTP is enabled
+    $smtp_enable = get_theme_mod('inviro_smtp_enable', false);
+    
+    if (!$smtp_enable) {
+        return;
+    }
+    
+    // Get SMTP settings
+    $smtp_host = get_theme_mod('inviro_smtp_host', 'smtp.gmail.com');
+    $smtp_port = get_theme_mod('inviro_smtp_port', '587');
+    $smtp_encryption = get_theme_mod('inviro_smtp_encryption', 'tls');
+    $smtp_username = get_theme_mod('inviro_smtp_username', '');
+    $smtp_password = get_theme_mod('inviro_smtp_password', '');
+    $smtp_from_email = get_theme_mod('inviro_smtp_from_email', '');
+    $smtp_from_name = get_theme_mod('inviro_smtp_from_name', '');
+    
+    // Validate required settings
+    if (empty($smtp_host) || empty($smtp_username) || empty($smtp_password)) {
+        return;
+    }
+    
+    // Configure PHPMailer
+    $phpmailer->isSMTP();
+    $phpmailer->Host = $smtp_host;
+    $phpmailer->SMTPAuth = true;
+    $phpmailer->Port = intval($smtp_port);
+    $phpmailer->Username = $smtp_username;
+    $phpmailer->Password = $smtp_password;
+    
+    // Set encryption
+    if ($smtp_encryption === 'ssl') {
+        $phpmailer->SMTPSecure = 'ssl';
+    } elseif ($smtp_encryption === 'tls') {
+        $phpmailer->SMTPSecure = 'tls';
+    } else {
+        $phpmailer->SMTPSecure = false;
+    }
+    
+    // Set from email and name
+    if (!empty($smtp_from_email)) {
+        $phpmailer->From = $smtp_from_email;
+    }
+    
+    if (!empty($smtp_from_name)) {
+        $phpmailer->FromName = $smtp_from_name;
+    } else {
+        $phpmailer->FromName = get_bloginfo('name');
+    }
+    
+    // Enable debug (optional, set to 0 to disable)
+    $phpmailer->SMTPDebug = 0;
+    $phpmailer->Debugoutput = function($str, $level) {
+        error_log("SMTP Debug: $str");
+    };
+}
+add_action('phpmailer_init', 'inviro_configure_smtp');
 

@@ -185,7 +185,7 @@
 
 .paket-usaha-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 32px;
     margin-top: 40px;
 }
@@ -612,7 +612,7 @@
    ============================================ */
 @media (max-width: 1200px) {
     .paket-usaha-grid {
-        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 28px;
     }
 }
@@ -645,7 +645,7 @@
     }
     
     .paket-usaha-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 24px;
     }
     
@@ -674,7 +674,7 @@
     
     .paket-usaha-filter {
         top: 70px;
-        padding: 16px 0;
+        padding: 12px 0;
     }
     
     .filter-bar {
@@ -705,20 +705,37 @@
     }
     
     .paket-usaha-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
     }
     
     .paket-image {
-        height: 200px !important;
-        min-height: 200px !important;
-        max-height: 200px !important;
+        height: 120px !important;
+        min-height: 120px !important;
+        max-height: 120px !important;
     }
     
     .paket-image img {
-        height: 200px !important;
-        min-height: 200px !important;
-        max-height: 200px !important;
+        height: 120px !important;
+        min-height: 120px !important;
+        max-height: 120px !important;
+    }
+    
+    .paket-content {
+        padding: 8px 10px;
+    }
+    
+    .paket-content h3 {
+        font-size: 0.75rem;
+    }
+    
+    .paket-price {
+        font-size: 0.85rem;
+    }
+    
+    .btn-order {
+        padding: 6px 10px;
+        font-size: 0.7rem;
     }
     
     .paket-usaha-cta {
@@ -742,24 +759,122 @@
 
 @media (max-width: 480px) {
     .paket-usaha-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 10px;
+    }
+    
+    .paket-usaha-grid-section {
+        padding: 10px 0 15px;
+    }
+    
+    .paket-usaha-hero {
+        padding: 20px 0 10px;
     }
     
     .paket-usaha-hero h1 {
-        font-size: 1.75rem;
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+    }
+    
+    .paket-usaha-hero p {
+        font-size: 0.85rem;
+        display: none; /* Hide subtitle to save space */
+    }
+    
+    .paket-usaha-filter {
+        padding: 6px 0;
+    }
+    
+    .filter-bar {
+        gap: 6px;
+    }
+    
+    #paket-search {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    #sort-by {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .paket-card {
+        border-radius: 10px;
+    }
+    
+    .paket-image {
+        height: 140px !important;
+        min-height: 140px !important;
+        max-height: 140px !important;
+    }
+    
+    .paket-image img {
+        height: 140px !important;
+        min-height: 140px !important;
+        max-height: 140px !important;
     }
     
     .paket-content {
-        padding: 20px;
+        padding: 10px 10px;
+        gap: 5px;
     }
     
     .paket-content h3 {
-        font-size: 1.1rem;
+        font-size: 0.8rem;
+        line-height: 1.3;
+        -webkit-line-clamp: 2;
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    .paket-desc {
+        display: none !important; /* Hide description to save space */
+    }
+    
+    .paket-meta {
+        padding-top: 6px;
+        margin-top: 5px;
+        border-top: 1px solid rgba(47, 128, 237, 0.1);
     }
     
     .paket-price {
-        font-size: 1.25rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+    
+    .paket-price-promo {
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+    
+    .paket-price-original {
+        font-size: 0.7rem;
+    }
+    
+    .paket-price-wrapper {
+        gap: 3px;
+    }
+    
+    .paket-actions {
+        margin-top: 6px;
+    }
+    
+    .btn-order {
+        padding: 7px 12px;
+        font-size: 0.75rem;
+        border-radius: 6px;
+        font-weight: 600;
+        width: 100%;
+    }
+    
+    .stock-badge {
+        padding: 4px 8px;
+        font-size: 9px;
+        top: 6px;
+        right: 6px;
+        border-radius: 8px;
     }
 }
 

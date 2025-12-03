@@ -1,6 +1,7 @@
 <?php
 /**
  * Proyek Pelanggan Meta Boxes
+ * Clean & Efficient - All fields required
  * 
  * @package INVIRO
  */
@@ -14,80 +15,33 @@ if (!defined('ABSPATH')) {
  * Add meta boxes for Proyek Pelanggan
  */
 function inviro_add_proyek_meta_boxes() {
-    // Remove default editor (we'll add custom one)
-    remove_post_type_support('proyek_pelanggan', 'editor');
+    // Keep default editor (deskripsi menggunakan editor seperti artikel dan spare parts)
+    // Don't remove editor support
     
-    // Panduan Lengkap
-    add_meta_box(
-        'proyek_panduan',
-        '📋 Panduan Mengisi Proyek',
-        'inviro_proyek_panduan_callback',
-        'proyek_pelanggan',
-        'side',
-        'high'
-    );
-    
-    // Nama Klien
+    // Nama Klien - Required
     add_meta_box(
         'proyek_client_name',
-        '👤 Nama Klien',
+        '👤 Nama Klien <span style="color: #d32f2f;">*</span>',
         'inviro_proyek_client_name_callback',
         'proyek_pelanggan',
         'side',
-        'default'
+        'high'
     );
     
-    // Tanggal Proyek
+    // Tanggal Proyek - Required
     add_meta_box(
         'proyek_date',
-        '📅 Tanggal Proyek',
+        '📅 Tanggal Proyek <span style="color: #d32f2f;">*</span>',
         'inviro_proyek_date_callback',
         'proyek_pelanggan',
         'side',
-        'default'
-    );
-    
-    // Deskripsi Lengkap (Custom Editor)
-    add_meta_box(
-        'proyek_description',
-        '📝 Deskripsi Proyek Lengkap',
-        'inviro_proyek_description_callback',
-        'proyek_pelanggan',
-        'normal',
         'high'
     );
     
-    // Ringkasan Singkat
-    add_meta_box(
-        'proyek_excerpt',
-        '✍️ Ringkasan Singkat (untuk Card)',
-        'inviro_proyek_excerpt_callback',
-        'proyek_pelanggan',
-        'normal',
-        'high'
-    );
+    // Region notice (will be validated)
+    add_action('admin_notices', 'inviro_proyek_region_notice');
 }
 add_action('add_meta_boxes', 'inviro_add_proyek_meta_boxes');
-
-function inviro_proyek_panduan_callback($post) {
-    ?>
-    <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2196F3;">
-        <h4 style="margin-top: 0; color: #1976D2;">✅ Checklist:</h4>
-        <ol style="margin: 0; padding-left: 20px; line-height: 1.8;">
-            <li><strong>Judul:</strong> Nama proyek lengkap</li>
-            <li><strong>Featured Image:</strong> Upload foto (sidebar kanan) ⚠️ WAJIB</li>
-            <li><strong>Daerah:</strong> Pilih region (sidebar kanan) ⚠️ WAJIB</li>
-            <li><strong>Deskripsi:</strong> Detail proyek (di bawah)</li>
-            <li><strong>Ringkasan:</strong> 1-2 kalimat (di bawah)</li>
-            <li><strong>Nama Klien:</strong> PIC/pemilik (di bawah)</li>
-            <li><strong>Tanggal:</strong> Kapan selesai (di bawah)</li>
-        </ol>
-        <p style="margin-bottom: 0; margin-top: 10px; font-size: 13px; color: #666;">
-            💡 <strong>Tip:</strong> Foto berkualitas tinggi akan meningkatkan kredibilitas!
-        </p>
-    </div>
-    <?php
-}
 
 function inviro_proyek_client_name_callback($post) {
     wp_nonce_field('inviro_proyek_meta', 'inviro_proyek_meta_nonce');
@@ -96,10 +50,11 @@ function inviro_proyek_client_name_callback($post) {
     <div style="padding: 10px 0;">
         <input type="text" id="proyek_client_name" name="proyek_client_name" 
                value="<?php echo esc_attr($client_name); ?>" 
-               placeholder="Contoh: Oleh Agung INVIRO" 
+               placeholder="Contoh: Bapak Agung" 
+               required
                style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 6px;">
-        <p class="description" style="margin-top: 8px; font-size: 13px;">
-            Nama pemilik/klien proyek. Contoh: "Oleh Agung INVIRO", "Ibu Ruth", dll.
+        <p class="description" style="margin-top: 8px; font-size: 13px; color: #d32f2f;">
+            <strong>Wajib diisi.</strong> Nama pemilik/klien proyek.
         </p>
     </div>
     <?php
@@ -115,67 +70,50 @@ function inviro_proyek_date_callback($post) {
         <input type="date" id="proyek_date" name="proyek_date" 
                value="<?php echo esc_attr($proyek_date); ?>" 
                max="<?php echo date('Y-m-d'); ?>"
+               required
                style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 6px;">
-        <p class="description" style="margin-top: 8px; font-size: 13px;">
-            Tanggal pemasangan atau selesai proyek. Max: hari ini.
+        <p class="description" style="margin-top: 8px; font-size: 13px; color: #d32f2f;">
+            <strong>Wajib diisi.</strong> Tanggal pemasangan atau selesai proyek.
         </p>
     </div>
     <?php
 }
 
-function inviro_proyek_description_callback($post) {
-    $description = get_post_meta($post->ID, '_proyek_description', true);
-    ?>
-    <div style="padding: 10px 0;">
-        <p style="margin-bottom: 10px; color: #666; font-size: 13px;">
-            📝 Tulis deskripsi lengkap proyek: lokasi detail, spesifikasi produk yang digunakan, proses pemasangan, dll. (Min. 50 karakter)
-        </p>
-        <textarea id="proyek_description" name="proyek_description" rows="10" 
-                  style="width: 100%; padding: 12px; font-size: 14px; line-height: 1.6; border: 2px solid #ddd; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;"
-                  placeholder="Contoh:&#10;&#10;Pemasangan Depot Air Minum Isi Ulang di Giwangan, Umbulharjo, Yogyakarta.&#10;&#10;Lokasi: Jl. Giwangan No. 123, Umbulharjo, Yogyakarta&#10;Nama Klien: Bapak Agung&#10;Produk yang digunakan: DAMIU Paket A&#10;&#10;Spesifikasi:&#10;- Filter Air 5 tahap&#10;- Pompa elektrik otomatis&#10;- Tangki penampungan 1000L&#10;&#10;Proses pemasangan berjalan lancar dalam 2 hari."><?php echo esc_textarea($description); ?></textarea>
-        <p class="description" style="margin-top: 8px; font-size: 13px;">
-            💡 Semakin detail, semakin profesional dan kredibel!
-        </p>
-    </div>
-    <?php
-}
-
-function inviro_proyek_excerpt_callback($post) {
-    $excerpt = get_post_meta($post->ID, '_proyek_excerpt', true);
-    ?>
-    <div style="padding: 10px 0;">
-        <p style="margin-bottom: 10px; color: #666; font-size: 13px;">
-            ✍️ Tulis ringkasan singkat 1-2 kalimat untuk tampilan card di Halaman Pelanggan (Max. 150 karakter)
-        </p>
-        <textarea id="proyek_excerpt" name="proyek_excerpt" rows="3" 
-                  maxlength="150"
-                  style="width: 100%; padding: 12px; font-size: 14px; line-height: 1.6; border: 2px solid #ddd; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;"
-                  placeholder="Contoh: Pemasangan Depot Air Minum di Giwangan, Yogyakarta. Nama Konsumen: Bapak Agung."><?php echo esc_textarea($excerpt); ?></textarea>
-        <p class="description" style="margin-top: 8px; font-size: 13px;">
-            <span id="excerpt-counter">0</span>/150 karakter
-        </p>
-    </div>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const textarea = document.getElementById('proyek_excerpt');
-        const counter = document.getElementById('excerpt-counter');
-        
-        function updateCounter() {
-            counter.textContent = textarea.value.length;
-            if (textarea.value.length >= 150) {
-                counter.style.color = '#d32f2f';
-                counter.style.fontWeight = 'bold';
-            } else {
-                counter.style.color = '#666';
-                counter.style.fontWeight = 'normal';
-            }
+/**
+ * Show admin notice if region is not selected
+ */
+function inviro_proyek_region_notice() {
+    global $post, $pagenow;
+    
+    // Only show on proyek_pelanggan edit screen
+    if ($pagenow === 'post.php' && isset($post) && $post->post_type === 'proyek_pelanggan') {
+        $regions = get_the_terms($post->ID, 'region');
+        if (!$regions || is_wp_error($regions) || empty($regions)) {
+            ?>
+            <div class="notice notice-error">
+                <p><strong>⚠️ Perhatian:</strong> Proyek ini belum memiliki <strong>Daerah</strong>!</p>
+                <p>Silakan pilih Daerah di panel "Daerah" di sidebar kanan. Field ini <strong>WAJIB</strong> diisi.</p>
+            </div>
+            <?php
         }
-        
-        textarea.addEventListener('input', updateCounter);
-        updateCounter();
-    });
-    </script>
-    <?php
+    }
+    
+    // Show on new proyek screen
+    if ($pagenow === 'post-new.php' && isset($_GET['post_type']) && $_GET['post_type'] === 'proyek_pelanggan') {
+        ?>
+        <div class="notice notice-info">
+            <p><strong>💡 Informasi:</strong> Pastikan untuk mengisi semua field yang wajib:</p>
+            <ul style="margin: 5px 0; padding-left: 20px;">
+                <li><strong>Judul</strong> - Wajib</li>
+                <li><strong>Deskripsi</strong> (Editor di bawah judul) - Wajib</li>
+                <li><strong>Featured Image</strong> - Wajib</li>
+                <li><strong>Daerah</strong> (Panel di sidebar) - Wajib</li>
+                <li><strong>Nama Klien</strong> - Wajib</li>
+                <li><strong>Tanggal Proyek</strong> - Wajib</li>
+            </ul>
+        </div>
+        <?php
+    }
 }
 
 function inviro_save_proyek_meta($post_id) {
@@ -195,27 +133,194 @@ function inviro_save_proyek_meta($post_id) {
         return;
     }
     
+    // Validate and save client name - Required
     if (isset($_POST['proyek_client_name'])) {
-        update_post_meta($post_id, '_proyek_client_name', sanitize_text_field($_POST['proyek_client_name']));
-    }
-    
-    if (isset($_POST['proyek_date'])) {
-        update_post_meta($post_id, '_proyek_date', sanitize_text_field($_POST['proyek_date']));
-    }
-    
-    if (isset($_POST['proyek_description'])) {
-        update_post_meta($post_id, '_proyek_description', wp_kses_post($_POST['proyek_description']));
-    }
-    
-    if (isset($_POST['proyek_excerpt'])) {
-        $excerpt = sanitize_textarea_field($_POST['proyek_excerpt']);
-        // Limit to 150 characters
-        if (strlen($excerpt) > 150) {
-            $excerpt = substr($excerpt, 0, 150);
+        $client_name = sanitize_text_field($_POST['proyek_client_name']);
+        if (empty(trim($client_name))) {
+            // Set error and prevent save
+            add_filter('redirect_post_location', function($location) {
+                return add_query_arg('proyek_error', 'client_name_required', $location);
+            });
+            return;
         }
-        update_post_meta($post_id, '_proyek_excerpt', $excerpt);
+        update_post_meta($post_id, '_proyek_client_name', $client_name);
+    } else {
+        // Set error and prevent save
+        add_filter('redirect_post_location', function($location) {
+            return add_query_arg('proyek_error', 'client_name_required', $location);
+        });
+        return;
+    }
+    
+    // Validate and save date - Required
+    if (isset($_POST['proyek_date'])) {
+        $proyek_date = sanitize_text_field($_POST['proyek_date']);
+        if (empty(trim($proyek_date))) {
+            // Set error and prevent save
+            add_filter('redirect_post_location', function($location) {
+                return add_query_arg('proyek_error', 'date_required', $location);
+            });
+            return;
+        }
+        update_post_meta($post_id, '_proyek_date', $proyek_date);
+    } else {
+        // Set error and prevent save
+        add_filter('redirect_post_location', function($location) {
+            return add_query_arg('proyek_error', 'date_required', $location);
+        });
+        return;
+    }
+    
+    // Validate region - Required
+    $regions = get_the_terms($post_id, 'region');
+    if (!$regions || is_wp_error($regions) || empty($regions)) {
+        // Set error and prevent save
+        add_filter('redirect_post_location', function($location) {
+            return add_query_arg('proyek_error', 'region_required', $location);
+        });
+        return;
+    }
+    
+    // Validate content (editor) - Required
+    $content = get_post_field('post_content', $post_id);
+    if (empty(trim(strip_tags($content)))) {
+        // Set error and prevent save
+        add_filter('redirect_post_location', function($location) {
+            return add_query_arg('proyek_error', 'content_required', $location);
+        });
+        return;
+    }
+    
+    // Validate featured image - Required
+    if (!has_post_thumbnail($post_id)) {
+        // Set error and prevent save
+        add_filter('redirect_post_location', function($location) {
+            return add_query_arg('proyek_error', 'thumbnail_required', $location);
+        });
+        return;
     }
 }
 add_action('save_post_proyek_pelanggan', 'inviro_save_proyek_meta');
 
+/**
+ * Show error messages after redirect
+ */
+function inviro_proyek_show_errors() {
+    if (isset($_GET['proyek_error'])) {
+        $error = sanitize_text_field($_GET['proyek_error']);
+        $message = '';
+        
+        switch ($error) {
+            case 'client_name_required':
+                $message = '⚠️ <strong>Nama Klien</strong> wajib diisi!';
+                break;
+            case 'date_required':
+                $message = '⚠️ <strong>Tanggal Proyek</strong> wajib diisi!';
+                break;
+            case 'region_required':
+                $message = '⚠️ <strong>Daerah</strong> wajib dipilih! Silakan pilih Daerah di panel sidebar.';
+                break;
+            case 'content_required':
+                $message = '⚠️ <strong>Deskripsi</strong> wajib diisi! Silakan isi deskripsi di editor di bawah judul.';
+                break;
+            case 'thumbnail_required':
+                $message = '⚠️ <strong>Featured Image</strong> wajib diisi! Silakan upload gambar di panel Featured Image.';
+                break;
+        }
+        
+        if ($message) {
+            ?>
+            <div class="notice notice-error is-dismissible">
+                <p><?php echo $message; ?></p>
+            </div>
+            <?php
+        }
+    }
+}
+add_action('admin_notices', 'inviro_proyek_show_errors');
 
+/**
+ * Add JavaScript validation before save
+ */
+function inviro_proyek_admin_scripts($hook) {
+    global $post_type;
+    
+    if ($hook === 'post.php' || $hook === 'post-new.php') {
+        if ($post_type === 'proyek_pelanggan') {
+            ?>
+            <script type="text/javascript">
+            jQuery(document).ready(function($) {
+                var $form = $('#post');
+                var isValid = true;
+                
+                $form.on('submit', function(e) {
+                    isValid = true;
+                    var errors = [];
+                    
+                    // Validate client name
+                    var clientName = $('#proyek_client_name').val().trim();
+                    if (!clientName) {
+                        errors.push('Nama Klien wajib diisi!');
+                        $('#proyek_client_name').css('border-color', '#d32f2f');
+                        isValid = false;
+                    } else {
+                        $('#proyek_client_name').css('border-color', '#ddd');
+                    }
+                    
+                    // Validate date
+                    var proyekDate = $('#proyek_date').val().trim();
+                    if (!proyekDate) {
+                        errors.push('Tanggal Proyek wajib diisi!');
+                        $('#proyek_date').css('border-color', '#d32f2f');
+                        isValid = false;
+                    } else {
+                        $('#proyek_date').css('border-color', '#ddd');
+                    }
+                    
+                    // Validate region - check both checkbox and select
+                    var regionChecked = $('input[name="tax_input[region][]"]:checked').length;
+                    var regionSelect = $('#newregion_parent').val();
+                    var regionInput = $('#new-tag-region').val();
+                    
+                    // Check if region is selected via checkbox
+                    if (regionChecked === 0) {
+                        // Check if new region is being added
+                        if (!regionInput || regionInput.trim() === '') {
+                            errors.push('Daerah wajib dipilih! Silakan pilih Daerah di panel "Daerah" di sidebar.');
+                            isValid = false;
+                        }
+                    }
+                    
+                    // Validate content
+                    var content = '';
+                    if (typeof tinymce !== 'undefined' && tinymce.get('content')) {
+                        content = tinymce.get('content').getContent();
+                    } else {
+                        content = $('#content').val();
+                    }
+                    if (!content || content.trim() === '' || content.trim() === '<p></p>' || content.trim() === '<p><br></p>') {
+                        errors.push('Deskripsi wajib diisi! Silakan isi deskripsi di editor di bawah judul.');
+                        isValid = false;
+                    }
+                    
+                    // Validate featured image
+                    var hasThumbnail = $('#_thumbnail_id').val() && $('#_thumbnail_id').val() !== '-1';
+                    if (!hasThumbnail) {
+                        errors.push('Featured Image wajib diisi! Silakan upload gambar di panel Featured Image.');
+                        isValid = false;
+                    }
+                    
+                    if (!isValid) {
+                        e.preventDefault();
+                        var errorMsg = '⚠️ Mohon lengkapi semua field yang wajib:\n\n' + errors.join('\n');
+                        alert(errorMsg);
+                        return false;
+                    }
+                });
+            });
+            </script>
+            <?php
+        }
+    }
+}
+add_action('admin_footer', 'inviro_proyek_admin_scripts');

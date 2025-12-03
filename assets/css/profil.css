@@ -35,7 +35,7 @@
 .about-main-title h2 {
     font-size: 3rem;
     font-weight: 800;
-    color: var(--text-color);
+    color: #ffffff !important;
     text-transform: uppercase;
     margin: 0;
 }
@@ -86,12 +86,41 @@
     align-items: start;
 }
 
+/* Urutan di mobile: Judul - branches - paragraf */
+@media (max-width: 768px) {
+    .about-section .container {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .about-main-title {
+        order: 1 !important;
+        margin-bottom: 2rem;
+    }
+    
+    .about-content {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 2rem;
+        order: 2 !important;
+    }
+    
+    .about-branches {
+        order: 1 !important;
+    }
+    
+    .about-text {
+        order: 2 !important;
+    }
+}
+
 .about-branches {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
     max-width: 100%;
     width: 100%;
+    margin-top: 6rem;
 }
 
 /* Jika hanya 1 cabang, full width */
@@ -104,32 +133,40 @@
     border-radius: 16px;
     overflow: hidden;
     box-shadow: var(--shadow);
-    transition: var(--transition);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
     border: 2px solid white;
     max-width: 100%;
 }
 
 .branch-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-hover);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .branch-image {
     width: 100%;
     height: 120px;
     overflow: hidden;
+    position: relative;
+    background: #f0f0f0; /* Background fallback jika gambar tidak ada */
 }
 
 .branch-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: var(--transition);
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .branch-card:hover .branch-image img {
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
 
 .branch-name {
@@ -139,10 +176,30 @@
     margin: 0;
     color: white;
     line-height: 1.3;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
 }
 
 .about-text {
     padding: 1rem 0;
+    text-align: center;
+}
+
+.about-paragraph-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff !important;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .section-title {
@@ -153,7 +210,7 @@
 }
 
 .about-description {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     line-height: 1.8;
     color: #ffffff;
     text-align: justify;
@@ -803,7 +860,7 @@
     border: 1px solid rgba(47, 128, 237, 0.1);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    overflow: visible;
+    overflow: hidden;
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
@@ -840,29 +897,44 @@
     font-size: 1rem;
     min-width: 0;
     flex-shrink: 0;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .legalitas-label svg {
     flex-shrink: 0;
     color: var(--inviro-primary, #2F80ED);
     margin-top: 2px;
+    width: 20px;
+    height: 20px;
 }
 
 .legalitas-label span {
     word-wrap: break-word;
     overflow-wrap: break-word;
     line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    max-width: 100%;
 }
 
 .legalitas-value {
     font-size: 1rem;
     color: #475569;
     line-height: 1.6;
-    display: flex;
-    align-items: flex-start;
     word-wrap: break-word;
     overflow-wrap: break-word;
     min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    line-clamp: 3;
 }
 
 /* Values Section */
@@ -1243,10 +1315,25 @@
     }
     
     .about-content {
+        display: flex !important;
+        flex-direction: column !important;
         grid-template-columns: 1fr;
         gap: 2rem;
         width: 100%;
         max-width: 100%;
+    }
+    
+    /* Urutan di mobile: Judul - branches - paragraf */
+    .about-main-title {
+        order: 1 !important;
+    }
+    
+    .about-branches {
+        order: 2 !important;
+    }
+    
+    .about-text {
+        order: 3 !important;
     }
     
     /* About Branches - 2x2 Grid Layout for Mobile */
@@ -1254,8 +1341,8 @@
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
+        margin-top: 1rem;
         margin-bottom: 2rem;
-        order: -1; /* Put images before text on mobile */
         width: 100%;
     }
     
@@ -1267,7 +1354,7 @@
         border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         border: 2px solid rgba(255, 255, 255, 0.9);
         background-color: #E91C2E;
         width: 100%;
@@ -1275,8 +1362,8 @@
     }
     
     .branch-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        transform: translateY(-6px);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18), 0 4px 10px rgba(0, 0, 0, 0.12);
     }
     
     .branch-image {
@@ -1290,7 +1377,34 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.3s ease;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        display: block;
+    }
+    
+    .branch-card:hover .branch-image img {
+        transform: scale(1.08);
+    }
+    
+    .branch-name {
+        padding: 0.55rem 0.5rem;
+        font-size: 0.7rem;
+        line-height: 1.3;
+        text-align: center;
+        color: white;
+        margin: 0;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.15px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .branch-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         display: block;
     }
     
@@ -1314,19 +1428,27 @@
     }
     
     .about-text h2 {
-        font-size: 1.5rem;
-        line-height: 2.25rem;
+        font-size: 1rem;
+        line-height: 1.4rem;
         font-weight: 700;
         text-align: center;
-        color: var(--text-color);
-        margin-bottom: 1rem;
+        color: #ffffff !important;
+        margin-bottom: 0.65rem;
     }
     
     .about-text p {
-        font-size: 0.75rem;
-        line-height: 1.2rem;
+        font-size: 0.65rem;
+        line-height: 1.5rem;
         text-align: center;
         color: var(--text-light);
+    }
+    
+    .about-paragraph-title {
+        font-size: 1rem;
+        line-height: 1.4rem;
+        margin-bottom: 0.65rem;
+        color: #ffffff !important;
+        text-align: center;
     }
     
     .about-main-title {
@@ -1335,6 +1457,7 @@
     
     .about-main-title h2 {
         font-size: 1.5rem;
+        color: #ffffff !important;
     }
     
     .about-main-title .custom-logo-link img,
@@ -1403,16 +1526,17 @@
     
     .layanan-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
+        gap: 0.75rem;
     }
     
     .layanan-card {
-        padding: 1.5rem 1rem;
-        min-height: 80px;
+        padding: 1rem 0.75rem;
+        min-height: 70px;
     }
     
     .layanan-name {
-        font-size: 0.95rem;
+        font-size: 0.8rem;
+        line-height: 1.4;
     }
     
     .profil-content h2,
@@ -1439,11 +1563,34 @@
 
 @media (max-width: 480px) {
     .about-section {
-        padding: 2.5rem 0;
+        padding: 1.75rem 0;
+        background: linear-gradient(135deg, var(--inviro-primary-light, #75C6F1) 0%, var(--inviro-primary, #2F80ED) 100%);
+        overflow-x: hidden;
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    
+    .about-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 50%, rgba(117, 198, 241, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(47, 128, 237, 0.2) 0%, transparent 50%);
+        pointer-events: none;
+    }
+    
+    .about-section .container {
+        padding: 0 1rem;
+        max-width: 100%;
+        overflow: hidden;
     }
     
     .about-main-title h2 {
         font-size: 1.25rem;
+        color: #ffffff !important;
     }
     
     .about-main-title .custom-logo-link img,
@@ -1565,18 +1712,19 @@
     }
     
     .layanan-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
         padding: 0 0.5rem;
     }
     
     .layanan-card {
-        padding: 1.5rem 1rem;
-        min-height: 80px;
+        padding: 1rem 0.75rem;
+        min-height: 70px;
     }
     
     .layanan-name {
-        font-size: 0.95rem;
+        font-size: 0.75rem;
+        line-height: 1.4;
     }
     
     .video-section-full {
@@ -1649,14 +1797,24 @@
         grid-template-columns: 1fr;
         gap: 0.75rem;
         padding: 1rem;
+        overflow: hidden;
     }
     
     .legalitas-label {
         font-size: 0.9rem;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    .legalitas-label span {
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
     }
     
     .legalitas-value {
         font-size: 0.9rem;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
     }
     
     .profil-content h2,

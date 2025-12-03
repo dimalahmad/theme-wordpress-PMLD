@@ -1,0 +1,179 @@
+/**
+ * Product Image Fix - Override all conflicting styles
+ */
+
+/* Force product image to show - HIGHEST PRIORITY */
+.products-section .products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+    gap: 1.5rem !important;
+    align-items: stretch !important;
+}
+
+.products-section .product-image {
+    position: relative !important;
+    width: 100% !important;
+    height: 250px !important;
+    overflow: hidden !important;
+    background: #f5f5f5 !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.products-section .product-image::before,
+.products-section .product-image::after {
+    display: none !important;
+    content: none !important;
+}
+
+.products-section .product-image img {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 1 !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+}
+
+/* Ensure img tag inside product-image is visible */
+.products-section .product-image > img {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 1 !important;
+}
+
+.products-section .product-placeholder-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.products-section .product-placeholder-inner svg {
+    opacity: 0.3;
+}
+
+.products-section .product-like {
+    position: absolute !important;
+    top: 10px !important;
+    right: 10px !important;
+    z-index: 10 !important;
+    background: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.products-section .product-card {
+    display: flex !important;
+    flex-direction: column !important;
+    background: white !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+    height: 100% !important;
+}
+
+.products-section .product-info {
+    padding: 1.5rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    flex: 1 !important;
+    justify-content: space-between !important;
+}
+
+/* Top content - judul dan deskripsi */
+.products-section .product-top-content {
+    flex: 0 !important;
+}
+
+.products-section .product-title {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: #333 !important;
+    margin: 0 0 0.5rem 0 !important;
+}
+
+.products-section .product-description {
+    font-size: 0.9rem !important;
+    color: #666 !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+}
+
+/* Bottom content - harga dan tombol (RAPAT KE BAWAH) */
+.products-section .product-bottom-content {
+    margin-top: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+}
+
+.products-section .product-price {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+    margin: 0 !important;
+}
+
+/* Harga asli (dicoret) */
+.products-section .product-price-original {
+    font-size: 0.9rem !important;
+    color: #999 !important;
+    text-decoration: line-through !important;
+    font-weight: 400 !important;
+}
+
+/* Harga promo (highlight biru) */
+.products-section .product-price-promo {
+    font-size: 1.3rem !important;
+    font-weight: 700 !important;
+    color: black !important;
+}
+
+/* Harga biasa (tanpa promo) */
+.products-section .product-current-price {
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    color: #2F80ED !important;
+}
+
+.products-section .btn-product {
+    display: inline-block !important;
+    padding: 0.75rem 1.5rem !important;
+    background: #25D366 !important;
+    color: white !important;
+    text-align: center !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+.products-section .btn-product:hover {
+    background: #22c55e !important;
+    transform: translateY(-2px) !important;
+}
+

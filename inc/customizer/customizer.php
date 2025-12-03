@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Customizer Settings
  *
@@ -14,6 +14,9 @@ if (!defined('ABSPATH')) {
  * Main Customizer Register Function
  */
 function inviro_customize_register($wp_customize) {
+    // Include custom control class
+    require_once get_template_directory() . '/inc/customizer/class-multiple-select-posts-control.php';
+    
     // Site Identity - Color Settings
     $wp_customize->add_setting('inviro_primary_color', array(
         'default'           => '#2F80ED',
@@ -287,35 +290,34 @@ function inviro_customize_register($wp_customize) {
     
     $wp_customize->add_control('inviro_products_count', array(
         'label'       => __('Jumlah Produk yang Ditampilkan', 'inviro'),
-        'description' => __('Masukkan jumlah produk yang akan ditampilkan di halaman depan', 'inviro'),
+        'description' => __('Masukkan jumlah produk yang akan ditampilkan di halaman depan (max 12)', 'inviro'),
         'section'     => 'inviro_products',
         'type'        => 'number',
         'input_attrs' => array(
             'min'  => 1,
-            'max'  => 20,
+            'max'  => 12,
             'step' => 1,
         ),
     ));
     
-    // Get all product posts
-    $products_query = new WP_Query(array(
+    // Get all produk posts for dropdown
+    $produk_posts = get_posts(array(
         'post_type' => 'produk',
-        'posts_per_page' => -1,
-        'orderby' => 'date',
-        'order' => 'DESC'
+        'numberposts' => -1,
+        'orderby' => 'title',
+        'order' => 'ASC',
+        'post_status' => 'publish'
     ));
     
     $product_choices = array('' => __('-- Pilih Produk --', 'inviro'));
-    if ($products_query->have_posts()) {
-        while ($products_query->have_posts()) {
-            $products_query->the_post();
-            $product_choices[get_the_ID()] = get_the_title();
+    if (!empty($produk_posts)) {
+        foreach ($produk_posts as $produk) {
+            $product_choices[$produk->ID] = $produk->post_title;
         }
-        wp_reset_postdata();
     }
     
     // Featured products - manual selection
-    for ($i = 1; $i <= 8; $i++) {
+    for ($i = 1; $i <= 12; $i++) {
         $wp_customize->add_setting('inviro_featured_product_' . $i, array(
             'default'           => '',
             'sanitize_callback' => 'absint',
@@ -517,12 +519,155 @@ function inviro_customize_register($wp_customize) {
         'type'        => 'text',
     ));
     
+    // ============================================
+    // SMTP Email Configuration
+    // ============================================
+    $wp_customize->add_setting('inviro_smtp_enable', array(
+        'default'           => false,
+        'sanitize_callback' => 'wp_validate_boolean',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_enable', array(
+        'label'       => __('Aktifkan SMTP', 'inviro'),
+        'description' => __('Centang untuk mengaktifkan pengiriman email via SMTP. Pastikan semua setting SMTP diisi dengan benar.', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'checkbox',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_host', array(
+        'default'           => 'smtp.gmail.com',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_host', array(
+        'label'       => __('SMTP Host', 'inviro'),
+        'description' => __('Server SMTP (contoh: smtp.gmail.com, smtp.mailtrap.io, mail.yourdomain.com)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'text',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_port', array(
+        'default'           => '587',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_port', array(
+        'label'       => __('SMTP Port', 'inviro'),
+        'description' => __('Port SMTP (biasanya 587 untuk TLS, 465 untuk SSL, 25 untuk non-encrypted)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'text',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_encryption', array(
+        'default'           => 'tls',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_encryption', array(
+        'label'       => __('Enkripsi SMTP', 'inviro'),
+        'description' => __('Pilih jenis enkripsi: tls (port 587), ssl (port 465), atau none (port 25)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'select',
+        'choices'     => array(
+            'tls'  => __('TLS (Recommended)', 'inviro'),
+            'ssl'  => __('SSL', 'inviro'),
+            'none' => __('None (Not Recommended)', 'inviro'),
+        ),
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_username', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_username', array(
+        'label'       => __('SMTP Username', 'inviro'),
+        'description' => __('Username/Email untuk autentikasi SMTP', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'text',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_password', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_password', array(
+        'label'       => __('SMTP Password', 'inviro'),
+        'description' => __('Password untuk autentikasi SMTP (untuk Gmail, gunakan App Password)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'password',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_from_email', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_email',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_from_email', array(
+        'label'       => __('From Email', 'inviro'),
+        'description' => __('Email pengirim (kosongkan untuk menggunakan email admin)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'email',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_from_name', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_from_name', array(
+        'label'       => __('From Name', 'inviro'),
+        'description' => __('Nama pengirim (kosongkan untuk menggunakan nama situs)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'text',
+    ));
+    
     // Hero Section (Statistics)
     $wp_customize->add_section('inviro_stats', array(
         'title'    => __('Hero Section', 'inviro'),
         'description' => __('Kustomisasi statistik yang ditampilkan di bagian hero homepage. Anda dapat mengubah angka dan label untuk setiap statistik.', 'inviro'),
         'priority' => 25,
         'panel'    => '', // Bisa ditambahkan ke panel jika diperlukan
+    ));
+    
+    // Hero Display Mode
+    $wp_customize->add_setting('inviro_hero_display_mode', array(
+        'default'           => 'selected',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ));
+    
+    $wp_customize->add_control('inviro_hero_display_mode', array(
+        'label'       => __('Mode Tampilan Proyek', 'inviro'),
+        'description' => __('Pilih apakah menampilkan proyek terbaru atau proyek yang dipilih secara manual', 'inviro'),
+        'section'     => 'inviro_stats',
+        'type'        => 'select',
+        'choices'     => array(
+            'latest'   => __('Proyek Terbaru (4 proyek)', 'inviro'),
+            'selected' => __('Proyek Terpilih (maksimal 4 proyek)', 'inviro'),
+        ),
+        'priority'    => 4,
+    ));
+    
+    // Hero Section Projects Selection
+    $wp_customize->add_setting('inviro_hero_selected_projects', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ));
+    
+    $wp_customize->add_control(new Inviro_Multiple_Select_Posts_Control(
+        $wp_customize,
+        'inviro_hero_selected_projects',
+        array(
+            'label'       => __('Pilih Proyek untuk Hero Section', 'inviro'),
+            'description' => __('Pilih maksimal 4 proyek pelanggan yang akan ditampilkan di Hero Section homepage. Proyek pertama akan ditampilkan lebih besar.', 'inviro'),
+            'section'     => 'inviro_stats',
+            'post_type'   => 'proyek_pelanggan',
+            'max_posts'   => 4,
+            'priority'    => 5,
+        )
     ));
     
     // Statistik 1
@@ -1859,6 +2004,41 @@ function inviro_spareparts_customize_register($wp_customize) {
         'description' => __('Teks untuk tombol CTA', 'inviro'),
         'section' => 'inviro_spareparts',
         'type' => 'text',
+    ));
+
+    // Contact Settings for Spare Parts Detail Page
+    $wp_customize->add_setting('inviro_spareparts_whatsapp', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_spareparts_whatsapp', array(
+        'label'       => __('Nomor WhatsApp (Detail Page)', 'inviro'),
+        'description' => __('Nomor WhatsApp khusus untuk halaman detail spare parts. Kosongkan untuk menggunakan nomor WhatsApp umum.', 'inviro'),
+        'section'     => 'inviro_spareparts',
+        'type'        => 'text',
+    ));
+
+    $wp_customize->add_setting('inviro_spareparts_email', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_email',
+    ));
+    $wp_customize->add_control('inviro_spareparts_email', array(
+        'label'       => __('Email (Detail Page)', 'inviro'),
+        'description' => __('Email khusus untuk halaman detail spare parts. Kosongkan untuk menggunakan email umum.', 'inviro'),
+        'section'     => 'inviro_spareparts',
+        'type'        => 'email',
+    ));
+
+    // Buy Button Text for Spare Parts Detail Page
+    $wp_customize->add_setting('inviro_spareparts_buy_button', array(
+        'default'           => 'Beli',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    $wp_customize->add_control('inviro_spareparts_buy_button', array(
+        'label'       => __('Teks Button Beli (Detail Page)', 'inviro'),
+        'description' => __('Teks untuk tombol "Beli" di halaman detail spare parts.', 'inviro'),
+        'section'     => 'inviro_spareparts',
+        'type'        => 'text',
     ));
 }
 add_action('customize_register', 'inviro_spareparts_customize_register');
