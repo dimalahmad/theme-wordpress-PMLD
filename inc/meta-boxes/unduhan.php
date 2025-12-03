@@ -95,9 +95,9 @@ function inviro_unduhan_file_callback($post) {
         $('#remove_file_button').on('click', function(e) {
             e.preventDefault();
             if (confirm('Hapus file ini?')) {
-                $('#unduhan_file_url').val('');
+            $('#unduhan_file_url').val('');
                 $('#unduhan_file_id').val('');
-                $(this).remove();
+            $(this).remove();
             }
         });
     });

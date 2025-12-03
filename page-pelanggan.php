@@ -61,74 +61,68 @@ if ($dummy_id > 0) {
         <div class="pelanggan-main-content">
             <!-- Search & Sort Bar with Region Slidebar -->
             <section class="pelanggan-filter">
-                <div class="filter-bar">
-                    <div class="region-sidebar-inline">
-                        <div class="region-list">
-                            <button class="region-item active" data-region="" data-filter="all">
-                                <span class="region-name">Semua Wilayah</span>
-                                <span class="region-count" data-count="all">0</span>
-                            </button>
-                            <?php
-                            // Get region clusters from customizer
-                            $region_clusters_json = get_theme_mod('inviro_pelanggan_region_clusters', '');
-                            $region_clusters = array();
-                            
-                            if (!empty($region_clusters_json)) {
-                                $decoded = json_decode($region_clusters_json, true);
-                                if (is_array($decoded)) {
-                                    $region_clusters = $decoded;
-                                    // Sort by order
-                                    usort($region_clusters, function($a, $b) {
-                                        return ($a['order'] ?? 999) - ($b['order'] ?? 999);
-                                    });
+                <div class="container">
+                    <div class="filter-bar">
+                    <input type="text" id="pelanggan-search" placeholder="<?php echo esc_attr(get_theme_mod('inviro_pelanggan_search_placeholder', 'Cari proyek pelanggan...')); ?>" />
+                    <div class="filter-dropdowns">
+                        <?php
+                        // Build region options (dipakai untuk dropdown)
+                        $region_clusters_json = get_theme_mod('inviro_pelanggan_region_clusters', '');
+                        $region_clusters = array();
+                        
+                        if (!empty($region_clusters_json)) {
+                            $decoded = json_decode($region_clusters_json, true);
+                            if (is_array($decoded)) {
+                                $region_clusters = $decoded;
+                                // Sort by order
+                                usort($region_clusters, function($a, $b) {
+                                    return ($a['order'] ?? 999) - ($b['order'] ?? 999);
+                                });
+                            }
+                        }
+                        
+                        // Fallback ke taxonomy jika tidak ada data di customizer
+                        if (empty($region_clusters)) {
+                            $taxonomy_regions = get_terms(array(
+                                'taxonomy' => 'region',
+                                'hide_empty' => false,
+                            ));
+                            if (!is_wp_error($taxonomy_regions) && !empty($taxonomy_regions)) {
+                                foreach ($taxonomy_regions as $idx => $region) {
+                                    $region_clusters[] = array(
+                                        'id' => $region->slug,
+                                        'name' => $region->name,
+                                        'slug' => $region->slug,
+                                        'order' => $idx + 1
+                                    );
                                 }
                             }
-                            
-                            // Fallback to taxonomy if no customizer data
-                            if (empty($region_clusters)) {
-                                $taxonomy_regions = get_terms(array(
-                                    'taxonomy' => 'region',
-                                    'hide_empty' => false,
-                                ));
-                                if (!is_wp_error($taxonomy_regions) && !empty($taxonomy_regions)) {
-                                    foreach ($taxonomy_regions as $idx => $region) {
-                                        $region_clusters[] = array(
-                                            'id' => $region->slug,
-                                            'name' => $region->name,
-                                            'slug' => $region->slug,
-                                            'order' => $idx + 1
-                                        );
-                                    }
-                                }
-                            }
-                            
-                            foreach ($region_clusters as $cluster) {
+                        }
+                        ?>
+                        <select id="pelanggan-region">
+                            <option value="all"><?php esc_html_e('Semua Wilayah', 'inviro'); ?></option>
+                            <?php foreach ($region_clusters as $cluster) :
                                 $region_id = isset($cluster['id']) ? $cluster['id'] : '';
                                 $region_name = isset($cluster['name']) ? $cluster['name'] : '';
                                 $region_slug = isset($cluster['slug']) ? $cluster['slug'] : $region_id;
                                 ?>
-                                <button class="region-item" data-region="<?php echo esc_attr($region_slug); ?>" data-filter="<?php echo esc_attr($region_slug); ?>">
-                                    <span class="region-name"><?php echo esc_html($region_name); ?></span>
-                                    <span class="region-count" data-count="<?php echo esc_attr($region_slug); ?>">0</span>
-                                </button>
-                                <?php
-                            }
-                            ?>
-                        </div>
+                                <option value="<?php echo esc_attr($region_slug); ?>"><?php echo esc_html($region_name); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <select id="sort-by">
+                            <option value="latest">Terbaru</option>
+                            <option value="oldest">Terlama</option>
+                            <option value="name">Judul A-Z</option>
+                        </select>
                     </div>
-                    <input type="text" id="pelanggan-search" placeholder="<?php echo esc_attr(get_theme_mod('inviro_pelanggan_search_placeholder', 'Cari proyek pelanggan...')); ?>" />
-                    <select id="sort-by">
-                        <option value="latest">Terbaru</option>
-                        <option value="oldest">Terlama</option>
-                        <option value="name">Judul A-Z</option>
-                    </select>
+                    </div>
                 </div>
             </section>
 
             <!-- Customers Grid -->
             <section class="pelanggan-grid-section">
                 <div class="container">
-                    <div class="pelanggan-grid">
+                <div class="pelanggan-grid">
                 <?php
                 // Load dummy data directly
                 $dummy_pelanggan = array();
@@ -233,15 +227,15 @@ if ($dummy_id > 0) {
                         $image_url = inviro_get_image_url($post_id, 'large');
                     }
                     ?>
-                    <div class="pelanggan-image">
-                        <a href="<?php the_permalink(); ?>">
+                        <div class="pelanggan-image">
+                            <a href="<?php the_permalink(); ?>">
                             <?php if (!empty($image_url)) : ?>
                                 <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy" style="display: block !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; height: 100% !important; object-fit: cover !important;">
-                            <?php else : ?>
+                    <?php else : ?>
                                 <img src="https://via.placeholder.com/600x400/75C6F1/FFFFFF?text=Proyek" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy" style="display: block !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; height: 100% !important; object-fit: cover !important;">
                             <?php endif; ?>
-                        </a>
-                    </div>
+                            </a>
+                        </div>
                     <div class="pelanggan-content">
                         <div class="pelanggan-meta-top">
                             <span class="pelanggan-author">Oleh <?php echo esc_html($client_name ? $client_name : 'Admin INVIRO'); ?></span>
@@ -411,7 +405,7 @@ if ($dummy_id > 0) {
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('pelanggan-search');
     const sortSelect = document.getElementById('sort-by');
-    const regionButtons = document.querySelectorAll('.region-item');
+    const regionSelect = document.getElementById('pelanggan-region');
     const cards = document.querySelectorAll('.pelanggan-card');
     const grid = document.querySelector('.pelanggan-grid');
     let selectedRegion = '';
@@ -501,23 +495,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Region button click handlers
-    regionButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            // Remove active class from all buttons
-            regionButtons.forEach(btn => btn.classList.remove('active'));
-            
-            // Add active class to clicked button
-            this.classList.add('active');
-            
-            // Get filter value - handle "all" case
-            const filterValue = this.dataset.filter || '';
-            selectedRegion = (filterValue === 'all' || filterValue === '') ? '' : filterValue;
-            
-            // Filter cards
+    // Region dropdown change handler
+    if (regionSelect) {
+        regionSelect.addEventListener('change', function() {
+            const value = this.value || 'all';
+            selectedRegion = (value === 'all') ? '' : value;
             filterCards();
         });
-    });
+    }
     
     // Search functionality
     if (searchInput) {

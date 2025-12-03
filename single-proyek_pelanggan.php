@@ -7,14 +7,14 @@
 get_header();
 
 while (have_posts()) : the_post();
-    $client_name = get_post_meta(get_the_ID(), '_proyek_client_name', true);
-    $proyek_date = get_post_meta(get_the_ID(), '_proyek_date', true);
-    $regions = get_the_terms(get_the_ID(), 'region');
-    
-    // Format date
-    $formatted_date = '';
-    if ($proyek_date) {
-        $formatted_date = date('d F Y', strtotime($proyek_date));
+        $client_name = get_post_meta(get_the_ID(), '_proyek_client_name', true);
+        $proyek_date = get_post_meta(get_the_ID(), '_proyek_date', true);
+        $regions = get_the_terms(get_the_ID(), 'region');
+        
+        // Format date
+        $formatted_date = '';
+        if ($proyek_date) {
+            $formatted_date = date('d F Y', strtotime($proyek_date));
     } else {
         $formatted_date = get_the_date('d F Y');
     }
@@ -23,9 +23,9 @@ while (have_posts()) : the_post();
     $region_name = '';
     if ($regions && !is_wp_error($regions) && !empty($regions)) {
         $region_name = $regions[0]->name;
-    }
-?>
-
+        }
+    ?>
+    
 <div class="artikel-single">
     <!-- Hero Section -->
     <section class="artikel-hero-single">
@@ -90,8 +90,8 @@ while (have_posts()) : the_post();
                 <div class="artikel-main">
                     <div class="artikel-content-full">
                         <?php the_content(); ?>
-                    </div>
-                    
+                </div>
+
                     <!-- Share Buttons -->
                     <div class="artikel-share">
                         <h4>Bagikan Proyek:</h4>
@@ -121,7 +121,7 @@ while (have_posts()) : the_post();
                                     <span class="nav-label">← Proyek Sebelumnya</span>
                                     <span class="nav-title"><?php echo esc_html($prev_title); ?></span>
                                 </a>
-                            <?php endif; ?>
+                        <?php endif; ?>
                         </div>
                         
                         <div class="nav-next">
@@ -135,17 +135,17 @@ while (have_posts()) : the_post();
                                     <span class="nav-label">Proyek Berikutnya →</span>
                                     <span class="nav-title"><?php echo esc_html($next_title); ?></span>
                                 </a>
-                            <?php endif; ?>
+                        <?php endif; ?>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Sidebar -->
                 <div class="artikel-sidebar">
                     <!-- Related Projects -->
                     <div class="sidebar-widget">
                         <h3>Proyek Terkait</h3>
-                        <?php
+                    <?php
                         $related = new WP_Query(array(
                             'post_type' => 'proyek_pelanggan',
                             'posts_per_page' => 3,
@@ -154,7 +154,7 @@ while (have_posts()) : the_post();
                         ));
                         
                         if ($related->have_posts()) :
-                        ?>
+                    ?>
                             <div class="related-articles">
                                 <?php while ($related->have_posts()) : $related->the_post(); 
                                     $related_id = get_the_ID();
@@ -185,30 +185,30 @@ while (have_posts()) : the_post();
                                     <?php if (!empty($related_image_url)) : ?>
                                         <a href="<?php the_permalink(); ?>" class="related-thumb">
                                             <img src="<?php echo esc_url($related_image_url); ?>" alt="<?php echo esc_attr(get_the_title($related_id)); ?>" style="width: 90px !important; height: 90px !important; object-fit: cover !important; display: block !important; visibility: visible !important; opacity: 1 !important;">
-                                        </a>
-                                    <?php endif; ?>
+                            </a>
+                        <?php endif; ?>
                                     <div class="related-content">
                                         <a href="<?php the_permalink(); ?>">
                                             <?php the_title(); ?>
                                         </a>
                                         <span class="related-date"><?php echo get_the_date('d/m/Y'); ?></span>
-                                    </div>
-                                </div>
+                    </div>
+                </div>
                                 <?php endwhile; ?>
-                            </div>
+            </div>
                         <?php
                             wp_reset_postdata();
                         endif;
                         ?>
-                    </div>
-                    
+        </div>
+
                     <!-- CTA -->
                     <div class="sidebar-widget cta-widget">
                         <h3>Butuh Bantuan?</h3>
                         <p>Konsultasikan kebutuhan air minum bisnis Anda dengan kami!</p>
                         <a href="https://wa.me/6281234567890" class="btn-wa" target="_blank">
                             Hubungi Via WhatsApp
-                        </a>
+                    </a>
                     </div>
                 </div>
             </div>

@@ -348,10 +348,10 @@
         
         // Only initialize carousel on desktop (width > 768px)
         if (isDesktop()) {
-            if (cards.length > visibleCards) {
+        if (cards.length > visibleCards) {
                 $('.testimonials-controls, .testimonials-indicators').show();
-                createIndicators();
-                updateCarousel(false);
+            createIndicators();
+            updateCarousel(false);
             } else {
                 // If cards <= visible cards, hide controls
                 $('.testimonials-controls, .testimonials-indicators').hide();
@@ -377,7 +377,7 @@
                             currentIndex = maxIndexResize;
                         }
                         createIndicators();
-                        updateCarousel(false);
+                updateCarousel(false);
                     } else {
                         $('.testimonials-controls, .testimonials-indicators').hide();
                     }
@@ -400,7 +400,7 @@
         }
         
         const messageDiv = form.find('.form-message');
-        
+
         form.on('submit', function(e) {
             e.preventDefault();
             var submitBtn = form.find('button[type="submit"]');
@@ -408,7 +408,7 @@
             
             submitBtn.prop('disabled', true).text('Mengirim...');
             messageDiv.removeClass('success error').html('');
-            
+
             $.ajax({
                 url: inviroAjax.ajaxurl,
                 type: 'POST',

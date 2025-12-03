@@ -384,7 +384,7 @@ function inviro_render_hero_card($post, $size = 'large') {
     
     // Method 3: Jika masih kosong, coba dengan inviro_get_image_url sebagai fallback
     if (empty($image_url)) {
-        $image_url = inviro_get_image_url($post_id, 'large');
+    $image_url = inviro_get_image_url($post_id, 'large');
         if (empty($image_url)) {
             $image_url = inviro_get_image_url($post_id, 'full');
         }
@@ -413,19 +413,19 @@ function inviro_render_hero_card($post, $size = 'large') {
     <article class="<?php echo esc_attr($card_class); ?>" itemprop="itemListElement" itemscope itemtype="https://schema.org/Article">
         <a href="<?php echo esc_url($post['permalink']); ?>" class="hero-article-link">
             <div class="hero-article-image">
-                <?php if (!empty($image_url)) : ?>
+            <?php if (!empty($image_url)) : ?>
                     <img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($post['title']); ?>" class="hero-image" loading="<?php echo esc_attr($loading); ?>" itemprop="image" style="display: block !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; height: 100% !important; object-fit: cover !important;">
                     <div class="hero-article-overlay"></div>
-                <?php else : ?>
+            <?php else : ?>
                     <div class="hero-article-placeholder">
-                        <div class="hero-article-overlay"></div>
-                        <div class="placeholder-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="<?php echo $size === 'large' ? '60' : ($size === 'small-top' ? '40' : '30'); ?>" height="<?php echo $size === 'large' ? '60' : ($size === 'small-top' ? '40' : '30'); ?>" viewBox="0 0 24 24" fill="white" opacity="0.3">
-                                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                            </svg>
-                        </div>
+                    <div class="hero-article-overlay"></div>
+                    <div class="placeholder-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="<?php echo $size === 'large' ? '60' : ($size === 'small-top' ? '40' : '30'); ?>" height="<?php echo $size === 'large' ? '60' : ($size === 'small-top' ? '40' : '30'); ?>" viewBox="0 0 24 24" fill="white" opacity="0.3">
+                            <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                        </svg>
                     </div>
-                <?php endif; ?>
+                </div>
+            <?php endif; ?>
             </div>
             
             <?php if ($region_name) : ?>
@@ -603,7 +603,7 @@ function inviro_render_branch_card($branch_id) {
     
     // Method 3: Jika masih kosong, coba dengan inviro_get_image_url sebagai fallback
     if (empty($branch_image_url)) {
-        $branch_image_url = inviro_get_image_url($branch_id, 'inviro-branch');
+    $branch_image_url = inviro_get_image_url($branch_id, 'inviro-branch');
         if (empty($branch_image_url)) {
             $branch_image_url = inviro_get_image_url($branch_id, 'large');
         }
@@ -614,10 +614,10 @@ function inviro_render_branch_card($branch_id) {
     ?>
     <div class="branch-card">
         <div class="branch-image">
-            <?php if (!empty($branch_image_url)) : ?>
+        <?php if (!empty($branch_image_url)) : ?>
                 <img src="<?php echo esc_url($branch_image_url); ?>" alt="<?php echo esc_attr($branch_image_alt); ?>" loading="lazy" style="display: block !important; visibility: visible !important; opacity: 1 !important; width: 100% !important; height: 100% !important; object-fit: cover !important;">
             <?php endif; ?>
-        </div>
+            </div>
         <h3 class="branch-name" style="display: block !important; visibility: visible !important; opacity: 1 !important;"><?php echo esc_html($branch_title); ?></h3>
     </div>
     <?php

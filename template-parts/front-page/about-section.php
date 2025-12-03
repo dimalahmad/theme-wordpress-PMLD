@@ -41,15 +41,15 @@ if (count($displayed_branches) > $branch_count) {
                     if (empty($logo_alt)) {
                         $logo_alt = get_bloginfo('name');
                     }
-                    ?>
-                    <a href="<?php echo esc_url(home_url('/')); ?>" class="custom-logo-link" rel="home" aria-label="<?php echo esc_attr(get_bloginfo('name')); ?>">
-                        <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr($logo_alt); ?>" class="custom-logo" />
-                    </a>
-                    <?php
+                        ?>
+                        <a href="<?php echo esc_url(home_url('/')); ?>" class="custom-logo-link" rel="home" aria-label="<?php echo esc_attr(get_bloginfo('name')); ?>">
+                            <img src="<?php echo esc_url($logo_url); ?>" alt="<?php echo esc_attr($logo_alt); ?>" class="custom-logo" />
+                        </a>
+                        <?php
+                    } else {
+                        the_custom_logo();
+                    }
                 } else {
-                    the_custom_logo();
-                }
-            } else {
                 // Fallback: text logo
                 ?>
                 <h2><?php echo esc_html(get_theme_mod('inviro_about_title', 'INVIRO')); ?></h2>

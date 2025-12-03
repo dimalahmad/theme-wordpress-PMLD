@@ -279,13 +279,13 @@ function inviro_handle_contact_form() {
             $email_message .= '</div>';
             $email_message .= '<p style="margin-top: 30px; font-size: 12px; color: #999;">Pesan ini juga tersimpan di WordPress Admin → Pesan Kontak</p>';
             $email_message .= '</body></html>';
-            
+    
             $headers = array(
                 'Content-Type: text/html; charset=UTF-8',
                 'From: ' . get_bloginfo('name') . ' <' . $admin_email . '>',
                 'Reply-To: ' . $name . ' <' . $email . '>'
             );
-            
+    
             // Try to send email (don't fail if it doesn't work)
             wp_mail($admin_email, $email_subject, $email_message, $headers);
         }

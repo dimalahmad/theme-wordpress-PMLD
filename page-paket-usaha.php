@@ -297,7 +297,8 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                                 </div>
                                 
                                 <div class="paket-actions">
-                                    <a href="<?php echo esc_url($buy_url); ?>" class="btn-order" target="_blank" rel="noopener">
+                                    <!-- Arahkan ke halaman detail produk, bukan langsung ke WhatsApp -->
+                                    <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="btn-order">
                                         Beli atau Tanya Lebih Lanjut
                                     </a>
                                 </div>

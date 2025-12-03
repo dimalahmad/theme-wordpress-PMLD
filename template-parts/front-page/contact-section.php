@@ -129,7 +129,7 @@ $map_url = get_theme_mod('inviro_contact_map_url', 'https://www.google.com/maps/
                     <textarea id="contact-message" name="message" rows="5" required></textarea>
                 </div>
                 
-                <button type="submit" class="btn btn-primary"><?php esc_html_e('Kirim Pesan', 'inviro'); ?></button>
+                    <button type="submit" class="btn btn-primary"><?php esc_html_e('Kirim Pesan', 'inviro'); ?></button>
                 <div class="form-message"></div>
             </form>
         </div>
