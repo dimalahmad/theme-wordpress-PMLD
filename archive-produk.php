@@ -64,7 +64,7 @@ get_header();
                                 <?php endif; ?>
                             </div>
                             
-                            <a href="<?php echo esc_url($buy_url); ?>" class="btn btn-product" target="_blank" rel="noopener"><?php esc_html_e('Beli', 'inviro'); ?></a>
+                            <a href="<?php echo esc_url($buy_url); ?>" class="btn btn-product" target="_blank" rel="noopener"><?php esc_html_e('Beli Saja', 'inviro'); ?></a>
                         </div>
                         
                         <meta itemprop="description" content="<?php echo esc_attr(wp_strip_all_tags($description)); ?>">
@@ -110,7 +110,7 @@ get_header();
                                     <span class="product-current-price" itemprop="price"><?php echo esc_html($product['price']); ?></span>
                                 </div>
                                 
-                                <a href="<?php echo esc_url($buy_url); ?>" class="btn btn-product" target="_blank" rel="noopener"><?php esc_html_e('Beli', 'inviro'); ?></a>
+                                <a href="<?php echo esc_url($buy_url); ?>" class="btn btn-product" target="_blank" rel="noopener"><?php esc_html_e('Beli Saja', 'inviro'); ?></a>
                             </div>
                             <meta itemprop="description" content="<?php echo esc_attr($product['description']); ?>">
                         </article>

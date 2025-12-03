@@ -254,62 +254,60 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                             }
                         }
                     ?>
-                        <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="paket-card-link" style="text-decoration: none; color: inherit; display: block;">
-                            <div class="paket-card" data-price="<?php echo esc_attr($price); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>">
-                                <div class="paket-image" style="height: 240px; min-height: 240px; max-height: 240px; overflow: hidden;">
-                                    <?php if (!empty($sparepart_image_url)) : ?>
-                                        <img src="<?php echo esc_url($sparepart_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" style="width: 100%; height: 240px; object-fit: cover; object-position: center; display: block;">
+                        <div class="paket-card" data-price="<?php echo esc_attr($price); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>">
+                            <div class="paket-image" style="height: 240px; min-height: 240px; max-height: 240px; overflow: hidden;">
+                                <?php if (!empty($sparepart_image_url)) : ?>
+                                    <img src="<?php echo esc_url($sparepart_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" style="width: 100%; height: 240px; object-fit: cover; object-position: center; display: block;">
+                                <?php else : ?>
+                                    <div class="paket-image-placeholder" style="display: flex; align-items: center; justify-content: center; height: 240px; background: #f5f5f5;">
+                                        <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                        </svg>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <?php if ($is_promo) : ?>
+                                    <span class="stock-badge promo-badge">Promo</span>
+                                <?php elseif ($stock && $stock > 0) : ?>
+                                    <span class="stock-badge in-stock">Tersedia</span>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <div class="paket-content">
+                                <h3><?php the_title(); ?></h3>
+                                
+                                <?php if ($description) : ?>
+                                    <p class="paket-desc"><?php echo esc_html(wp_trim_words($description, 15)); ?></p>
+                                <?php elseif (get_the_excerpt()) : ?>
+                                    <p class="paket-desc"><?php echo esc_html(wp_trim_words(get_the_excerpt(), 15)); ?></p>
+                                <?php endif; ?>
+                                
+                                <div class="paket-meta">
+                                    <?php if ($price > 0) : ?>
+                                        <?php if ($is_promo && $original_price > 0) : ?>
+                                            <div class="paket-price-wrapper">
+                                                <span class="paket-price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
+                                                <span class="paket-price paket-price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
+                                            </div>
+                                        <?php else : ?>
+                                            <span class="paket-price">
+                                                Rp <?php echo number_format($price, 0, ',', '.'); ?>
+                                            </span>
+                                        <?php endif; ?>
                                     <?php else : ?>
-                                        <div class="paket-image-placeholder" style="display: flex; align-items: center; justify-content: center; height: 240px; background: #f5f5f5;">
-                                            <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                                <polyline points="21 15 16 10 5 21"></polyline>
-                                            </svg>
-                                        </div>
-                                    <?php endif; ?>
-                                    
-                                    <?php if ($is_promo) : ?>
-                                        <span class="stock-badge promo-badge">Promo</span>
-                                    <?php elseif ($stock && $stock > 0) : ?>
-                                        <span class="stock-badge in-stock">Tersedia</span>
+                                        <span class="paket-price">Hubungi Kami</span>
                                     <?php endif; ?>
                                 </div>
                                 
-                                <div class="paket-content">
-                                    <h3><?php the_title(); ?></h3>
-                                    
-                                    <?php if ($description) : ?>
-                                        <p class="paket-desc"><?php echo esc_html(wp_trim_words($description, 15)); ?></p>
-                                    <?php elseif (get_the_excerpt()) : ?>
-                                        <p class="paket-desc"><?php echo esc_html(wp_trim_words(get_the_excerpt(), 15)); ?></p>
-                                    <?php endif; ?>
-                                    
-                                    <div class="paket-meta">
-                                        <?php if ($price > 0) : ?>
-                                            <?php if ($is_promo && $original_price > 0) : ?>
-                                                <div class="paket-price-wrapper">
-                                                    <span class="paket-price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
-                                                    <span class="paket-price paket-price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
-                                                </div>
-                                            <?php else : ?>
-                                                <span class="paket-price">
-                                                    Rp <?php echo number_format($price, 0, ',', '.'); ?>
-                                                </span>
-                                            <?php endif; ?>
-                                        <?php else : ?>
-                                            <span class="paket-price">Hubungi Kami</span>
-                                        <?php endif; ?>
-                                    </div>
-                                    
-                                    <div class="paket-actions">
-                                        <span class="btn-order">
-                                            Beli atau Tanya Lebih Lanjut
-                                        </span>
-                                    </div>
+                                <div class="paket-actions">
+                                    <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="btn-order">
+                                        Beli atau Tanya Lebih Lanjut
+                                    </a>
                                 </div>
                             </div>
-                        </a>
+                        </div>
                     <?php
                     endwhile;
                     wp_reset_postdata();

@@ -901,7 +901,7 @@
 
 .products-section .product-price-original {
     text-decoration: line-through !important;
-    color: #999 !important;
+    color: #dc3545 !important;
     font-size: 0.9rem !important;
     font-weight: 400 !important;
 }
@@ -930,7 +930,7 @@
 
 .product-price-original {
     text-decoration: line-through;
-    color: #999;
+    color: #dc3545;
     font-size: 0.9rem;
     font-weight: 400;
 }
@@ -2431,7 +2431,7 @@
     .product-price-original {
         display: block !important;
         font-size: 0.65rem !important;
-        color: #999999 !important;
+        color: #dc3545 !important;
         text-decoration: line-through !important;
         font-weight: 400 !important;
         line-height: 1.2 !important;

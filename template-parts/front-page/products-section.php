@@ -165,7 +165,7 @@ $products_query = new WP_Query($args);
                                     <?php endif; ?>
                                 </div>
                                 
-                                <a href="<?php echo esc_url($buy_url); ?>" class="btn btn-product" target="_blank" rel="noopener"><?php esc_html_e('Beli', 'inviro'); ?></a>
+                                <a href="<?php echo esc_url(get_permalink($product_id)); ?>" class="btn btn-product"><?php esc_html_e('Beli', 'inviro'); ?></a>
                             </div>
                         </div>
                         

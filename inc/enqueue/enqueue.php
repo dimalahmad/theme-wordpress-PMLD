@@ -54,7 +54,7 @@ function inviro_enqueue_files() {
         wp_enqueue_style('inviro-artikel', get_template_directory_uri() . '/assets/css/artikel.css', array('inviro-base', 'inviro-components-cards'), $theme_version . '.' . filemtime(get_template_directory() . '/assets/css/artikel.css'));
     } elseif (is_page('unduhan') || is_page_template('page-unduhan.php') || is_post_type_archive('unduhan')) {
         wp_enqueue_style('inviro-unduhan', get_template_directory_uri() . '/assets/css/unduhan.css', array('inviro-base', 'inviro-components-cards'), $theme_version . '.' . filemtime(get_template_directory() . '/assets/css/unduhan.css'));
-    } elseif (is_singular('spareparts')) {
+    } elseif (is_singular('spareparts') || is_singular('produk')) {
         wp_enqueue_style('inviro-sparepart-detail', get_template_directory_uri() . '/assets/css/sparepart-detail.css', array('inviro-base', 'inviro-components-cards'), $theme_version . '.' . filemtime(get_template_directory() . '/assets/css/sparepart-detail.css'));
     } elseif (is_singular('paket_usaha') || (isset($_GET['dummy_id']) && isset($_GET['post_type']) && $_GET['post_type'] === 'paket_usaha')) {
         wp_enqueue_style('inviro-sparepart-detail', get_template_directory_uri() . '/assets/css/sparepart-detail.css', array('inviro-base', 'inviro-components-cards'), $theme_version);

@@ -234,7 +234,7 @@ get_header();
                             <div class="paket-actions">
                                 <a href="<?php echo esc_url(get_permalink()); ?>" 
                                    class="btn-order">
-                                    Pesan
+                                    Beli atau Tanya Lebih Lanjut
                                 </a>
                             </div>
                         </div>

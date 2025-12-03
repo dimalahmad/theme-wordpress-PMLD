@@ -143,7 +143,7 @@ function inviro_handle_paket_review_submission() {
         update_post_meta($review_id, '_review_rating', $rating);
         update_post_meta($review_id, '_review_status', 'pending');
         
-        wp_send_json_success(array('message' => 'Ulasan Anda telah dikirim dan menunggu persetujuan admin.'));
+        wp_send_json_success(array('message' => 'Ulasan Anda telah dikirim '));
     } else {
         wp_send_json_error(array('message' => 'Gagal mengirim ulasan. Silakan coba lagi.'));
     }

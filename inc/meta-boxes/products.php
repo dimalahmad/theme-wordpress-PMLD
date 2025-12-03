@@ -11,89 +11,163 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Add custom meta boxes for Products
+ * Add custom meta boxes for Products (like spareparts)
  */
 function inviro_add_product_meta_boxes() {
     add_meta_box(
-        'inviro_product_description',
-        __('Deskripsi Produk', 'inviro'),
-        'inviro_product_description_callback',
-        'produk',
-        'normal',
-        'high'
-    );
-    
-    add_meta_box(
-        'inviro_product_price',
-        __('Harga Produk', 'inviro'),
+        'product_price',
+        '💰 Harga',
         'inviro_product_price_callback',
         'produk',
-        'normal',
-        'high'
+        'side',
+        'default'
     );
     
     add_meta_box(
-        'inviro_product_buy_url',
-        __('URL Tombol Beli', 'inviro'),
-        'inviro_product_buy_url_callback',
+        'product_specifications',
+        '⚙️ Spesifikasi',
+        'inviro_product_specifications_callback',
         'produk',
         'normal',
-        'high'
+        'default'
     );
 }
 add_action('add_meta_boxes', 'inviro_add_product_meta_boxes');
 
-/**
- * Product Description Meta Box Callback
- */
-function inviro_product_description_callback($post) {
-    wp_nonce_field('inviro_product_meta_nonce', 'inviro_product_meta_nonce');
-    $description = get_post_meta($post->ID, '_product_description', true);
-    ?>
-    <p>
-        <label for="product_description"><?php _e('Deskripsi Produk:', 'inviro'); ?></label><br>
-        <textarea name="product_description" id="product_description" rows="5" style="width: 100%; padding: 8px;" placeholder="Mesin RO 20.000 GPD dengan kapasitas setara 2000 liter/jam..."><?php echo esc_textarea($description); ?></textarea>
-    </p>
-    <p class="description">
-        <?php _e('Tulis deskripsi lengkap tentang produk ini.', 'inviro'); ?>
-    </p>
-    <?php
-}
-
-/**
- * Product Price Meta Box Callback
- */
 function inviro_product_price_callback($post) {
+    wp_nonce_field('inviro_product_meta', 'inviro_product_meta_nonce');
     $price = get_post_meta($post->ID, '_product_price', true);
     $original_price = get_post_meta($post->ID, '_product_original_price', true);
+    $promo = get_post_meta($post->ID, '_product_promo', true);
     ?>
-    <p>
-        <label for="product_price"><?php _e('Harga Jual:', 'inviro'); ?></label><br>
-        <input type="text" name="product_price" id="product_price" value="<?php echo esc_attr($price); ?>" placeholder="Rp. 5.000.000" style="width: 100%; padding: 8px;" />
-    </p>
-    <p>
-        <label for="product_original_price"><?php _e('Harga Asli (Opsional - untuk coret harga):', 'inviro'); ?></label><br>
-        <input type="text" name="product_original_price" id="product_original_price" value="<?php echo esc_attr($original_price); ?>" placeholder="Rp. 6.000.000" style="width: 100%; padding: 8px;" />
-    </p>
-    <p class="description">
-        <?php _e('Harga asli akan ditampilkan dengan coretan jika diisi. Biarkan kosong jika tidak ada diskon.', 'inviro'); ?>
-    </p>
+    <div style="padding: 10px 0;">
+        <p style="margin-bottom: 10px;"><strong>Harga Promo (Harga Saat Ini):</strong></p>
+        <input type="number" id="product_price" name="product_price" 
+               value="<?php echo esc_attr($price); ?>" 
+               placeholder="15000000" 
+               min="0"
+               style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;">
+        <p class="description" style="margin-top: 8px; font-size: 13px; margin-bottom: 15px;">
+            Harga dalam Rupiah (tanpa titik/koma)
+        </p>
+        
+        <p style="margin-bottom: 10px;"><strong>Harga Asli (Opsional - untuk Promo):</strong></p>
+        <input type="number" id="product_original_price" name="product_original_price" 
+               value="<?php echo esc_attr($original_price); ?>" 
+               placeholder="20000000" 
+               min="0"
+               style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;">
+        <p class="description" style="margin-top: 8px; font-size: 13px; margin-bottom: 15px;">
+            Harga sebelum promo (akan dicoret). Kosongkan jika tidak ada promo.
+        </p>
+        
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="product_promo" name="product_promo" value="1" 
+                   <?php checked($promo, '1'); ?>
+                   style="width: 20px; height: 20px; cursor: pointer;">
+            <span style="font-size: 14px; font-weight: 500;">Tandai sebagai Promo</span>
+        </label>
+        <p class="description" style="margin-top: 8px; font-size: 13px;">
+            Centang jika produk ini sedang dalam promo
+        </p>
+    </div>
     <?php
 }
 
-/**
- * Product Buy URL Meta Box Callback
- */
-function inviro_product_buy_url_callback($post) {
-    $buy_url = get_post_meta($post->ID, '_product_buy_url', true);
+function inviro_product_specifications_callback($post) {
+    wp_nonce_field('inviro_product_meta', 'inviro_product_meta_nonce');
+    $specs = get_post_meta($post->ID, '_product_specifications', true);
+    $specs = $specs ? json_decode($specs, true) : array();
+    if (empty($specs)) {
+        $specs = array(array('component' => '', 'quantity' => '', 'unit' => ''));
+    }
     ?>
-    <p>
-        <label for="product_buy_url"><?php _e('URL untuk tombol beli:', 'inviro'); ?></label><br>
-        <input type="url" name="product_buy_url" id="product_buy_url" value="<?php echo esc_attr($buy_url); ?>" placeholder="https://wa.me/621234567890" style="width: 100%; padding: 8px;" />
-    </p>
-    <p class="description">
-        <?php _e('Contoh: https://wa.me/621234567890 atau https://tokopedia.com/inviro/produk', 'inviro'); ?>
-    </p>
+    <div style="padding: 10px 0;">
+        <p class="description" style="margin-bottom: 15px; font-size: 13px;">
+            Tambahkan spesifikasi produk dengan format: Nama Komponen/Spesifikasi Teknis/Fungsi, Jumlah, dan Satuan
+        </p>
+        <div id="specifications-list">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                <thead>
+                    <tr style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">No</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Nama Komponen, Spesifikasi Teknis & Fungsi</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Jml</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Sat</th>
+                        <th style="padding: 12px; text-align: center; border: 1px solid #ddd;">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($specs as $index => $spec) : ?>
+                        <tr class="spec-row">
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center; width: 50px;">
+                                <?php echo $index + 1; ?>
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">
+                                <input type="text" name="spec_component[]" 
+                                       value="<?php echo esc_attr($spec['component']); ?>"
+                                       placeholder="Nama Komponen, Spesifikasi Teknis & Fungsi"
+                                       style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd; width: 100px;">
+                                <input type="text" name="spec_quantity[]" 
+                                       value="<?php echo esc_attr($spec['quantity']); ?>"
+                                       placeholder="Jumlah"
+                                       style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd; width: 100px;">
+                                <input type="text" name="spec_unit[]" 
+                                       value="<?php echo esc_attr($spec['unit']); ?>"
+                                       placeholder="Satuan"
+                                       style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #ddd; text-align: center; width: 100px;">
+                                <button type="button" class="remove-spec button" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Hapus</button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <button type="button" id="add-spec" class="button button-primary" style="margin-top: 10px;">+ Tambah Spesifikasi</button>
+    </div>
+    <script>
+    jQuery(document).ready(function($) {
+        var specIndex = <?php echo count($specs); ?>;
+        
+        $('#add-spec').on('click', function() {
+            specIndex++;
+            var newRow = '<tr class="spec-row">' +
+                '<td style="padding: 10px; border: 1px solid #ddd; text-align: center; width: 50px;">' + specIndex + '</td>' +
+                '<td style="padding: 10px; border: 1px solid #ddd;">' +
+                '<input type="text" name="spec_component[]" placeholder="Nama Komponen, Spesifikasi Teknis & Fungsi" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">' +
+                '</td>' +
+                '<td style="padding: 10px; border: 1px solid #ddd; width: 100px;">' +
+                '<input type="text" name="spec_quantity[]" placeholder="Jumlah" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">' +
+                '</td>' +
+                '<td style="padding: 10px; border: 1px solid #ddd; width: 100px;">' +
+                '<input type="text" name="spec_unit[]" placeholder="Satuan" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">' +
+                '</td>' +
+                '<td style="padding: 10px; border: 1px solid #ddd; text-align: center; width: 100px;">' +
+                '<button type="button" class="remove-spec button" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Hapus</button>' +
+                '</td>' +
+                '</tr>';
+            $('#specifications-list tbody').append(newRow);
+        });
+        
+        $(document).on('click', '.remove-spec', function() {
+            if ($('.spec-row').length > 1) {
+                $(this).closest('.spec-row').remove();
+                // Update nomor urut
+                $('#specifications-list tbody .spec-row').each(function(index) {
+                    $(this).find('td:first').text(index + 1);
+                });
+            } else {
+                alert('Minimal harus ada 1 spesifikasi');
+            }
+        });
+    });
+    </script>
     <?php
 }
 
@@ -101,12 +175,11 @@ function inviro_product_buy_url_callback($post) {
  * Save Product Meta
  */
 function inviro_save_product_meta($post_id) {
-    // Check post type
     if (get_post_type($post_id) !== 'produk') {
         return;
     }
     
-    if (!isset($_POST['inviro_product_meta_nonce']) || !wp_verify_nonce($_POST['inviro_product_meta_nonce'], 'inviro_product_meta_nonce')) {
+    if (!isset($_POST['inviro_product_meta_nonce']) || !wp_verify_nonce($_POST['inviro_product_meta_nonce'], 'inviro_product_meta')) {
         return;
     }
     
@@ -118,20 +191,32 @@ function inviro_save_product_meta($post_id) {
         return;
     }
     
-    if (isset($_POST['product_description'])) {
-        update_post_meta($post_id, '_product_description', sanitize_textarea_field($_POST['product_description']));
-    }
-    
     if (isset($_POST['product_price'])) {
-        update_post_meta($post_id, '_product_price', sanitize_text_field($_POST['product_price']));
+        update_post_meta($post_id, '_product_price', absint($_POST['product_price']));
     }
     
     if (isset($_POST['product_original_price'])) {
-        update_post_meta($post_id, '_product_original_price', sanitize_text_field($_POST['product_original_price']));
+        update_post_meta($post_id, '_product_original_price', absint($_POST['product_original_price']));
     }
     
-    if (isset($_POST['product_buy_url'])) {
-        update_post_meta($post_id, '_product_buy_url', esc_url_raw($_POST['product_buy_url']));
+    if (isset($_POST['product_promo'])) {
+        update_post_meta($post_id, '_product_promo', '1');
+    } else {
+        update_post_meta($post_id, '_product_promo', '0');
+    }
+    
+    if (isset($_POST['spec_component']) && isset($_POST['spec_quantity']) && isset($_POST['spec_unit'])) {
+        $specs = array();
+        foreach ($_POST['spec_component'] as $index => $component) {
+            if (!empty($component)) {
+                $specs[] = array(
+                    'component' => sanitize_text_field($component),
+                    'quantity' => sanitize_text_field($_POST['spec_quantity'][$index]),
+                    'unit' => sanitize_text_field($_POST['spec_unit'][$index])
+                );
+            }
+        }
+        update_post_meta($post_id, '_product_specifications', json_encode($specs));
     }
 }
 add_action('save_post_produk', 'inviro_save_product_meta');

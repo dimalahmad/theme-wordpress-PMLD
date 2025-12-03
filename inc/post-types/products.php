@@ -30,18 +30,19 @@ function inviro_register_products() {
     
     $args = array(
         'labels'              => $labels,
-        'public'              => false,  // Tidak ada single page
+        'public'              => true,   // Ada single page
         'publicly_queryable'  => true,   // Archive bisa diakses
         'show_ui'             => true,   // Tampil di admin
         'show_in_menu'        => true,
         'query_var'           => true,
-        'has_archive'         => 'produk',  // URL archive: /produk/
         'rewrite'             => array('slug' => 'produk', 'with_front' => false),
+        'capability_type'     => 'post',
+        'has_archive'         => true,
         'hierarchical'        => false,
         'menu_position'       => 5,
         'menu_icon'           => 'dashicons-cart',
-        'supports'            => array('title', 'thumbnail'),  // Hanya title dan thumbnail, tanpa editor
-        'show_in_rest'        => false  // Nonaktifkan Gutenberg editor
+        'supports'            => array('title', 'editor', 'thumbnail'),
+        'show_in_rest'        => true,
     );
     
     register_post_type('produk', $args);
