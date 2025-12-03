@@ -31,6 +31,7 @@ require_once get_template_directory() . '/inc/post-types/sparepart-reviews.php';
 require_once get_template_directory() . '/inc/post-types/paket-usaha-reviews.php';
 require_once get_template_directory() . '/inc/post-types/artikel.php';
 require_once get_template_directory() . '/inc/post-types/unduhan.php';
+require_once get_template_directory() . '/inc/post-types/contact-submissions.php';
 
 // Load meta boxes
 require_once get_template_directory() . '/inc/meta-boxes/products.php';
@@ -43,6 +44,7 @@ require_once get_template_directory() . '/inc/meta-boxes/spareparts.php';
 require_once get_template_directory() . '/inc/meta-boxes/sparepart-reviews.php';
 require_once get_template_directory() . '/inc/meta-boxes/paket-usaha-reviews.php';
 require_once get_template_directory() . '/inc/meta-boxes/unduhan.php';
+require_once get_template_directory() . '/inc/meta-boxes/contact-submissions.php';
 
 // Load AJAX handlers
 require_once get_template_directory() . '/inc/ajax/ajax-handlers.php';

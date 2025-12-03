@@ -187,107 +187,106 @@ add_action('wp_ajax_nopriv_track_download', 'inviro_track_download');
 /**
  * Contact Form Handler
  */
+/**
+ * Handle contact form submission
+ * Simple approach: Save to database like reviews, no email required
+ */
 function inviro_handle_contact_form() {
-    // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'inviro_nonce')) {
-        wp_send_json_error(array('message' => 'Invalid security token. Silakan refresh halaman dan coba lagi.'));
+    if (!isset($_POST['contact_nonce']) || !wp_verify_nonce($_POST['contact_nonce'], 'submit_contact')) {
+        wp_send_json_error(array('message' => 'Invalid nonce'));
         return;
     }
     
-    // Sanitize and validate input
-    $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
-    $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
+    $name = sanitize_text_field($_POST['name']);
+    $email = sanitize_email($_POST['email']);
     $phone = isset($_POST['phone']) ? sanitize_text_field($_POST['phone']) : '';
     $subject = isset($_POST['subject']) ? sanitize_text_field($_POST['subject']) : '';
-    $message = isset($_POST['message']) ? sanitize_textarea_field($_POST['message']) : '';
+    $message = sanitize_textarea_field($_POST['message']);
     
-    // Validate required fields
-    if (empty($name)) {
-        wp_send_json_error(array('message' => 'Nama harus diisi.'));
+    if (empty($name) || empty($email) || empty($message)) {
+        wp_send_json_error(array('message' => 'Semua field wajib harus diisi dengan benar'));
         return;
     }
     
-    if (empty($email) || !is_email($email)) {
-        wp_send_json_error(array('message' => 'Email harus diisi dengan format yang benar.'));
+    if (!is_email($email)) {
+        wp_send_json_error(array('message' => 'Format email tidak valid'));
         return;
     }
     
-    if (empty($message)) {
-        wp_send_json_error(array('message' => 'Pesan harus diisi.'));
-        return;
-    }
+    // Save to database as post (like reviews)
+    $post_title = !empty($subject) 
+        ? sprintf('Pesan dari %s: %s', $name, $subject)
+        : sprintf('Pesan dari %s', $name);
     
-    // Get admin email
-    $admin_email = get_option('admin_email');
-    if (empty($admin_email)) {
-        wp_send_json_error(array('message' => 'Email admin tidak ditemukan. Silakan hubungi administrator.'));
-        return;
-    }
-    
-    // Prepare email subject
-    $email_subject = !empty($subject) 
-        ? sprintf('[%s] Pesan Baru dari %s: %s', get_bloginfo('name'), $name, $subject)
-        : sprintf('[%s] Pesan Baru dari %s', get_bloginfo('name'), $name);
-    
-    // Prepare email message (HTML format)
-    $email_message = '<html><body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">';
-    $email_message .= '<h2 style="color: #2F80ED;">Pesan Baru dari Form Kontak</h2>';
-    $email_message .= '<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">';
-    $email_message .= '<tr><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold; width: 150px;">Nama:</td><td style="padding: 8px; border-bottom: 1px solid #eee;">' . esc_html($name) . '</td></tr>';
-    $email_message .= '<tr><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold;">Email:</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a></td></tr>';
-    
+    // Prepare content with all information
+    $post_content = $message;
     if (!empty($phone)) {
-        $email_message .= '<tr><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold;">Telepon:</td><td style="padding: 8px; border-bottom: 1px solid #eee;">' . esc_html($phone) . '</td></tr>';
+        $post_content = "Telepon: $phone\n\n" . $post_content;
     }
     
-    if (!empty($subject)) {
-        $email_message .= '<tr><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold;">Subjek:</td><td style="padding: 8px; border-bottom: 1px solid #eee;">' . esc_html($subject) . '</td></tr>';
-    }
+    $submission_id = wp_insert_post(array(
+        'post_type'    => 'contact_submission',
+        'post_title'   => $post_title,
+        'post_content' => $post_content,
+        'post_status'  => 'publish', // Auto-publish, admin can see in dashboard
+    ));
     
-    $email_message .= '</table>';
-    $email_message .= '<div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #2F80ED;">';
-    $email_message .= '<h3 style="margin-top: 0; color: #2F80ED;">Pesan:</h3>';
-    $email_message .= '<p style="white-space: pre-wrap;">' . nl2br(esc_html($message)) . '</p>';
-    $email_message .= '</div>';
-    $email_message .= '<p style="margin-top: 30px; font-size: 12px; color: #999;">Pesan ini dikirim dari form kontak di ' . esc_html(get_bloginfo('name')) . ' (' . esc_html(home_url()) . ')</p>';
-    $email_message .= '</body></html>';
-    
-    // Prepare email headers
-    $headers = array(
-        'Content-Type: text/html; charset=UTF-8',
-        'From: ' . get_bloginfo('name') . ' <' . $admin_email . '>',
-        'Reply-To: ' . $name . ' <' . $email . '>'
-    );
-    
-    // Send email
-    $sent = wp_mail($admin_email, $email_subject, $email_message, $headers);
-    
-    if ($sent) {
-        // Optional: Send auto-reply to user
-        $user_subject = sprintf('[%s] Terima kasih atas pesan Anda', get_bloginfo('name'));
-        $user_message = '<html><body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">';
-        $user_message .= '<h2 style="color: #2F80ED;">Terima kasih ' . esc_html($name) . '!</h2>';
-        $user_message .= '<p>Kami telah menerima pesan Anda dan akan segera menghubungi Anda kembali.</p>';
-        $user_message .= '<p>Berikut adalah ringkasan pesan Anda:</p>';
-        $user_message .= '<div style="margin: 20px 0; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #2F80ED;">';
-        $user_message .= '<p style="white-space: pre-wrap; margin: 0;">' . nl2br(esc_html($message)) . '</p>';
-        $user_message .= '</div>';
-        $user_message .= '<p>Salam,<br>' . esc_html(get_bloginfo('name')) . '</p>';
-        $user_message .= '</body></html>';
+    if ($submission_id) {
+        // Save meta data
+        update_post_meta($submission_id, '_contact_name', $name);
+        update_post_meta($submission_id, '_contact_email', $email);
+        if (!empty($phone)) {
+            update_post_meta($submission_id, '_contact_phone', $phone);
+        }
+        if (!empty($subject)) {
+            update_post_meta($submission_id, '_contact_subject', $subject);
+        }
         
-        $user_headers = array(
-            'Content-Type: text/html; charset=UTF-8',
-            'From: ' . get_bloginfo('name') . ' <' . $admin_email . '>'
-        );
-        
-        wp_mail($email, $user_subject, $user_message, $user_headers);
+        // Try to send email (optional, won't fail if email fails)
+        $admin_email = get_option('admin_email');
+        if ($admin_email) {
+            $email_subject = !empty($subject) 
+                ? sprintf('[%s] Pesan Baru dari %s: %s', get_bloginfo('name'), $name, $subject)
+                : sprintf('[%s] Pesan Baru dari %s', get_bloginfo('name'), $name);
+            
+            $email_message = '<html><body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">';
+            $email_message .= '<h2 style="color: #2F80ED;">Pesan Baru dari Form Kontak</h2>';
+            $email_message .= '<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">';
+            $email_message .= '<tr><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold; width: 150px;">Nama:</td><td style="padding: 8px; border-bottom: 1px solid #eee;">' . esc_html($name) . '</td></tr>';
+            $email_message .= '<tr><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold;">Email:</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a></td></tr>';
+            
+            if (!empty($phone)) {
+                $email_message .= '<tr><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold;">Telepon:</td><td style="padding: 8px; border-bottom: 1px solid #eee;">' . esc_html($phone) . '</td></tr>';
+            }
+            
+            if (!empty($subject)) {
+                $email_message .= '<tr><td style="padding: 8px; border-bottom: 1px solid #eee; font-weight: bold;">Subjek:</td><td style="padding: 8px; border-bottom: 1px solid #eee;">' . esc_html($subject) . '</td></tr>';
+            }
+            
+            $email_message .= '</table>';
+            $email_message .= '<div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-left: 4px solid #2F80ED;">';
+            $email_message .= '<h3 style="margin-top: 0; color: #2F80ED;">Pesan:</h3>';
+            $email_message .= '<p style="white-space: pre-wrap;">' . nl2br(esc_html($message)) . '</p>';
+            $email_message .= '</div>';
+            $email_message .= '<p style="margin-top: 30px; font-size: 12px; color: #999;">Pesan ini juga tersimpan di WordPress Admin → Pesan Kontak</p>';
+            $email_message .= '</body></html>';
+            
+            $headers = array(
+                'Content-Type: text/html; charset=UTF-8',
+                'From: ' . get_bloginfo('name') . ' <' . $admin_email . '>',
+                'Reply-To: ' . $name . ' <' . $email . '>'
+            );
+            
+            // Try to send email (don't fail if it doesn't work)
+            wp_mail($admin_email, $email_subject, $email_message, $headers);
+        }
         
         wp_send_json_success(array('message' => 'Pesan berhasil dikirim! Kami akan segera menghubungi Anda.'));
     } else {
-        wp_send_json_error(array('message' => 'Gagal mengirim pesan. Silakan coba lagi atau hubungi kami langsung.'));
+        wp_send_json_error(array('message' => 'Gagal mengirim pesan. Silakan coba lagi.'));
     }
 }
-add_action('wp_ajax_inviro_contact_form', 'inviro_handle_contact_form');
-add_action('wp_ajax_nopriv_inviro_contact_form', 'inviro_handle_contact_form');
+add_action('wp_ajax_submit_contact_form', 'inviro_handle_contact_form');
+add_action('wp_ajax_nopriv_submit_contact_form', 'inviro_handle_contact_form');
 
 

@@ -629,3 +629,64 @@ function inviro_force_spareparts_template($template) {
 }
 add_filter('template_include', 'inviro_force_spareparts_template', 99);
 
+/**
+ * Configure SMTP for email sending
+ */
+function inviro_configure_smtp($phpmailer) {
+    // Check if SMTP is enabled
+    $smtp_enable = get_theme_mod('inviro_smtp_enable', false);
+    
+    if (!$smtp_enable) {
+        return;
+    }
+    
+    // Get SMTP settings
+    $smtp_host = get_theme_mod('inviro_smtp_host', 'smtp.gmail.com');
+    $smtp_port = get_theme_mod('inviro_smtp_port', '587');
+    $smtp_encryption = get_theme_mod('inviro_smtp_encryption', 'tls');
+    $smtp_username = get_theme_mod('inviro_smtp_username', '');
+    $smtp_password = get_theme_mod('inviro_smtp_password', '');
+    $smtp_from_email = get_theme_mod('inviro_smtp_from_email', '');
+    $smtp_from_name = get_theme_mod('inviro_smtp_from_name', '');
+    
+    // Validate required settings
+    if (empty($smtp_host) || empty($smtp_username) || empty($smtp_password)) {
+        return;
+    }
+    
+    // Configure PHPMailer
+    $phpmailer->isSMTP();
+    $phpmailer->Host = $smtp_host;
+    $phpmailer->SMTPAuth = true;
+    $phpmailer->Port = intval($smtp_port);
+    $phpmailer->Username = $smtp_username;
+    $phpmailer->Password = $smtp_password;
+    
+    // Set encryption
+    if ($smtp_encryption === 'ssl') {
+        $phpmailer->SMTPSecure = 'ssl';
+    } elseif ($smtp_encryption === 'tls') {
+        $phpmailer->SMTPSecure = 'tls';
+    } else {
+        $phpmailer->SMTPSecure = false;
+    }
+    
+    // Set from email and name
+    if (!empty($smtp_from_email)) {
+        $phpmailer->From = $smtp_from_email;
+    }
+    
+    if (!empty($smtp_from_name)) {
+        $phpmailer->FromName = $smtp_from_name;
+    } else {
+        $phpmailer->FromName = get_bloginfo('name');
+    }
+    
+    // Enable debug (optional, set to 0 to disable)
+    $phpmailer->SMTPDebug = 0;
+    $phpmailer->Debugoutput = function($str, $level) {
+        error_log("SMTP Debug: $str");
+    };
+}
+add_action('phpmailer_init', 'inviro_configure_smtp');
+

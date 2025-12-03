@@ -99,7 +99,9 @@ $map_url = get_theme_mod('inviro_contact_map_url', 'https://www.google.com/maps/
         
         <div class="contact-form-wrapper">
             <h3 class="form-title"><?php esc_html_e('Silakan tinggalkan saran atau tanggapan Anda!', 'inviro'); ?></h3>
-            <form id="inviro-contact-form" class="contact-form" method="post">
+            <form id="inviro-contact-form" class="contact-form">
+                <?php wp_nonce_field('submit_contact', 'contact_nonce'); ?>
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="contact-name"><?php esc_html_e('Nama', 'inviro'); ?> <span class="required">*</span></label>
@@ -127,10 +129,7 @@ $map_url = get_theme_mod('inviro_contact_map_url', 'https://www.google.com/maps/
                     <textarea id="contact-message" name="message" rows="5" required></textarea>
                 </div>
                 
-                <div class="form-submit">
-                    <button type="submit" class="btn btn-primary"><?php esc_html_e('Kirim Pesan', 'inviro'); ?></button>
-                </div>
-                
+                <button type="submit" class="btn btn-primary"><?php esc_html_e('Kirim Pesan', 'inviro'); ?></button>
                 <div class="form-message"></div>
             </form>
         </div>

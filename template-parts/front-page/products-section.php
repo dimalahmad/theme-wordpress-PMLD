@@ -66,6 +66,10 @@ $products_query = new WP_Query($args);
                     $description = get_post_meta($product_id, '_product_description', true);
                     $buy_url = get_post_meta($product_id, '_product_buy_url', true);
                     
+                    // Debug: Pastikan harga selalu ada (setidaknya "Hubungi Kami")
+                    // Uncomment untuk debugging:
+                    // error_log("Product ID: $product_id, Price: $price, Original: $price_original");
+                    
                     if (empty($buy_url)) {
                         $buy_url = get_theme_mod('inviro_whatsapp') ? 'https://wa.me/' . get_theme_mod('inviro_whatsapp') : '#';
                     }

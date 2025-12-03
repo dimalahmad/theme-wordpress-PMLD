@@ -81,27 +81,19 @@ get_header();
                         
                         // Get unduhan data
                         $file_url = get_post_meta($post_id, '_unduhan_file_url', true);
-                        $file_size = get_post_meta($post_id, '_unduhan_file_size', true);
-                        $file_type = get_post_meta($post_id, '_unduhan_file_type', true);
                         $download_count = get_post_meta($post_id, '_unduhan_download_count', true);
-                        
-                        if (empty($file_type)) {
-                            // Auto-detect file type from URL
-                            if ($file_url) {
-                                $file_ext = strtolower(pathinfo(parse_url($file_url, PHP_URL_PATH), PATHINFO_EXTENSION));
-                                $file_type = strtoupper($file_ext);
-                            } else {
-                                $file_type = 'PDF';
-                            }
-                        }
-                        
-                        if (empty($file_size)) {
-                            $file_size = '-';
-                        }
                         
                         if (empty($download_count)) {
                             $download_count = 0;
                         }
+                        
+                        // Generate download URL with nonce for tracking
+                        $download_nonce = wp_create_nonce('download_unduhan_' . $post_id);
+                        $download_url = add_query_arg(array(
+                            'download_unduhan' => '1',
+                            'post_id' => $post_id,
+                            'nonce' => $download_nonce
+                        ), home_url('/'));
                         
                         // Get image - use featured image
                         $unduhan_image_url = '';
@@ -125,7 +117,7 @@ get_header();
                             }
                         }
                     ?>
-                        <div class="unduhan-card" data-name="<?php echo esc_attr(get_the_title()); ?>" data-date="<?php echo esc_attr(get_the_date('Y-m-d')); ?>">
+                        <div class="unduhan-card" data-name="<?php echo esc_attr(get_the_title()); ?>" data-date="<?php echo esc_attr(get_the_date('Y-m-d')); ?>" data-file-url="<?php echo esc_attr($file_url); ?>">
                             <div class="unduhan-image" style="height: 240px; min-height: 240px; max-height: 240px; overflow: hidden;">
                                 <?php if (!empty($unduhan_image_url)) : ?>
                                     <img src="<?php echo esc_url($unduhan_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" style="width: 100%; height: 240px; object-fit: cover; object-position: center; display: block;">
@@ -138,8 +130,6 @@ get_header();
                                         </svg>
                                     </div>
                                 <?php endif; ?>
-                                
-                                <span class="stock-badge in-stock"><?php echo esc_html($file_type); ?></span>
                             </div>
                             
                             <div class="unduhan-content">
@@ -151,16 +141,13 @@ get_header();
                                 
                                 <div class="unduhan-meta">
                                     <div class="unduhan-file-info">
-                                        <?php if ($file_size && $file_size !== '-') : ?>
-                                            <span class="unduhan-file-size">📦 <?php echo esc_html($file_size); ?></span>
-                                        <?php endif; ?>
-                                        <span class="unduhan-download-count">⬇️ <?php echo esc_html($download_count); ?> download</span>
+                                        <span class="unduhan-download-count"><?php echo esc_html($download_count); ?> download</span>
                                     </div>
                                 </div>
                                 
                                 <div class="unduhan-actions">
                                     <?php if ($file_url) : ?>
-                                        <a href="<?php echo esc_url($file_url); ?>" class="btn-order" target="_blank" rel="noopener" download>
+                                        <a href="<?php echo esc_url($download_url); ?>" class="btn-order unduhan-download-btn" data-post-id="<?php echo esc_attr($post_id); ?>" data-file-url="<?php echo esc_attr($file_url); ?>">
                                             Unduh File
                                         </a>
                                     <?php else : ?>

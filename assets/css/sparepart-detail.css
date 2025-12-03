@@ -25,27 +25,27 @@
 
 .hero-content-wrapper {
     display: flex;
-    gap: 40px;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 30px;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-.hero-title-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-/* Desktop: Hide title, price, button as separate elements */
+/* Title at top (full width) */
 .hero-content-wrapper > .product-title {
-    display: none;
+    width: 100%;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin-bottom: 0;
 }
 
-.hero-content-wrapper > .price-card,
-.hero-content-wrapper > .contact-person-card {
-    display: none;
+/* Image and Info wrapper (side by side) */
+.hero-image-info-wrapper {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    width: 100%;
 }
 
 .contact-person-card {
@@ -187,6 +187,18 @@
     color: var(--inviro-primary, #2F80ED) !important;
 }
 
+.hero-image-info-wrapper .hero-image-wrapper {
+    position: relative;
+    flex: 1;
+    max-width: 655px;
+    width: 655px;
+    background: #ffffff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .hero-image-wrapper {
     position: relative;
     flex: 1;
@@ -199,9 +211,23 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.hero-image-info-wrapper .hero-image-wrapper:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(47, 128, 237, 0.1);
+    transform: translateY(-4px);
+}
+
 .hero-image-wrapper:hover {
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(47, 128, 237, 0.1);
     transform: translateY(-4px);
+}
+
+/* Info section (price and button) on right */
+.hero-info-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    min-width: 0;
 }
 
 .price-card {
@@ -1005,7 +1031,7 @@
         padding: 0 15px;
     }
     
-    /* Mobile: Show title, price, button as separate elements */
+    /* Mobile: Title at top */
     .hero-content-wrapper > .product-title {
         display: block !important;
         order: 1;
@@ -1013,6 +1039,7 @@
         text-align: left;
         padding: 0;
         margin: 0;
+        width: 100%;
     }
     
     .hero-content-wrapper > .product-title::after {
@@ -1020,27 +1047,30 @@
         transform: none;
     }
     
-    .hero-image-wrapper {
+    /* Mobile: Image and Info wrapper becomes vertical */
+    .hero-image-info-wrapper {
+        flex-direction: column;
+        gap: 20px;
         order: 2;
+    }
+    
+    .hero-image-info-wrapper .hero-image-wrapper {
+        order: 1;
         max-width: 100%;
         width: 100%;
     }
     
-    .hero-content-wrapper > .price-card {
-        display: block !important;
-        order: 3;
+    .hero-image-info-wrapper .hero-info-section {
+        order: 2;
         width: 100%;
     }
     
-    .hero-content-wrapper > .contact-person-card {
-        display: block !important;
-        order: 4;
+    .hero-image-info-wrapper .hero-info-section .price-card {
         width: 100%;
     }
     
-    /* Hide desktop title section content on mobile */
-    .hero-title-section {
-        display: none;
+    .hero-image-info-wrapper .hero-info-section .contact-person-card {
+        width: 100%;
     }
     
     .hero-image-container {

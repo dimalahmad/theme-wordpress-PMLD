@@ -16,6 +16,7 @@
         initLazyLoad();
         initStickyHeader();
         initArtikelImageSizing();
+        initUnduhanDownload();
     });
 
     /**
@@ -394,64 +395,41 @@
      */
     function initContactForm() {
         const form = $('#inviro-contact-form');
-        const messageDiv = $('.form-message');
-
+        if (form.length === 0) {
+            return;
+        }
+        
+        const messageDiv = form.find('.form-message');
+        
         form.on('submit', function(e) {
             e.preventDefault();
-
-            const formData = {
-                action: 'inviro_contact_form',
-                nonce: inviroAjax.nonce,
-                name: $('#contact-name').val(),
-                email: $('#contact-email').val(),
-                phone: $('#contact-phone').val(),
-                subject: $('#contact-subject').val(),
-                message: $('#contact-message').val()
-            };
-
-            // Validate
-            if (!formData.name || !formData.email || !formData.message) {
-                showMessage('error', 'Mohon lengkapi semua field yang wajib diisi.');
-                return;
-            }
-
-            // Show loading state
-            const submitBtn = form.find('button[type="submit"]');
-            const originalText = submitBtn.text();
+            var submitBtn = form.find('button[type="submit"]');
+            var originalText = submitBtn.text();
+            
             submitBtn.prop('disabled', true).text('Mengirim...');
-
-            // Send AJAX request
+            messageDiv.removeClass('success error').html('');
+            
             $.ajax({
                 url: inviroAjax.ajaxurl,
                 type: 'POST',
-                data: formData,
+                data: form.serialize() + '&action=submit_contact_form',
                 success: function(response) {
+                    console.log('Contact form response:', response);
                     if (response.success) {
-                        showMessage('success', response.data.message || 'Pesan berhasil dikirim!');
+                        messageDiv.addClass('success').html(response.data.message);
                         form[0].reset();
                     } else {
-                        showMessage('error', response.data.message || 'Gagal mengirim pesan. Silakan coba lagi.');
+                        messageDiv.addClass('error').html(response.data.message || 'Gagal mengirim pesan. Silakan coba lagi.');
+                        submitBtn.prop('disabled', false).text(originalText);
                     }
                 },
-                error: function() {
-                    showMessage('error', 'Terjadi kesalahan. Silakan coba lagi.');
-                },
-                complete: function() {
+                error: function(xhr, status, error) {
+                    console.error('Contact form error:', xhr, status, error);
+                    messageDiv.addClass('error').html('Terjadi kesalahan. Silakan coba lagi.');
                     submitBtn.prop('disabled', false).text(originalText);
                 }
             });
         });
-
-        function showMessage(type, message) {
-            messageDiv.removeClass('success error')
-                      .addClass(type)
-                      .text(message)
-                      .fadeIn();
-
-            setTimeout(function() {
-                messageDiv.fadeOut();
-            }, 5000);
-        }
     }
 
     /**
@@ -780,6 +758,47 @@
         setTimeout(function() {
             clearInterval(checkInterval);
         }, 10000);
+    }
+
+    /**
+     * Unduhan Download Handler - Track download count
+     * Note: Actual download is handled by PHP handler
+     */
+    function initUnduhanDownload() {
+        $('.unduhan-download-btn').on('click', function(e) {
+            const $btn = $(this);
+            const postId = $btn.attr('data-post-id');
+            
+            if (!postId) {
+                return;
+            }
+            
+            // Track download via AJAX (non-blocking)
+            $.ajax({
+                url: inviroAjax.ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'track_download',
+                    post_id: postId,
+                    nonce: inviroAjax.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Update download count in UI
+                        const $countEl = $btn.closest('.unduhan-card').find('.unduhan-download-count');
+                        if ($countEl.length) {
+                            const newCount = response.data.new_count;
+                            $countEl.text(newCount + ' download');
+                        }
+                    }
+                },
+                error: function() {
+                    console.error('Failed to track download');
+                }
+            });
+            
+            // Let the link proceed normally - PHP handler will force download
+        });
     }
 
 })(jQuery);

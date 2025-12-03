@@ -519,6 +519,110 @@ function inviro_customize_register($wp_customize) {
         'type'        => 'text',
     ));
     
+    // ============================================
+    // SMTP Email Configuration
+    // ============================================
+    $wp_customize->add_setting('inviro_smtp_enable', array(
+        'default'           => false,
+        'sanitize_callback' => 'wp_validate_boolean',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_enable', array(
+        'label'       => __('Aktifkan SMTP', 'inviro'),
+        'description' => __('Centang untuk mengaktifkan pengiriman email via SMTP. Pastikan semua setting SMTP diisi dengan benar.', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'checkbox',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_host', array(
+        'default'           => 'smtp.gmail.com',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_host', array(
+        'label'       => __('SMTP Host', 'inviro'),
+        'description' => __('Server SMTP (contoh: smtp.gmail.com, smtp.mailtrap.io, mail.yourdomain.com)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'text',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_port', array(
+        'default'           => '587',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_port', array(
+        'label'       => __('SMTP Port', 'inviro'),
+        'description' => __('Port SMTP (biasanya 587 untuk TLS, 465 untuk SSL, 25 untuk non-encrypted)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'text',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_encryption', array(
+        'default'           => 'tls',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_encryption', array(
+        'label'       => __('Enkripsi SMTP', 'inviro'),
+        'description' => __('Pilih jenis enkripsi: tls (port 587), ssl (port 465), atau none (port 25)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'select',
+        'choices'     => array(
+            'tls'  => __('TLS (Recommended)', 'inviro'),
+            'ssl'  => __('SSL', 'inviro'),
+            'none' => __('None (Not Recommended)', 'inviro'),
+        ),
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_username', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_username', array(
+        'label'       => __('SMTP Username', 'inviro'),
+        'description' => __('Username/Email untuk autentikasi SMTP', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'text',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_password', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_password', array(
+        'label'       => __('SMTP Password', 'inviro'),
+        'description' => __('Password untuk autentikasi SMTP (untuk Gmail, gunakan App Password)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'password',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_from_email', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_email',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_from_email', array(
+        'label'       => __('From Email', 'inviro'),
+        'description' => __('Email pengirim (kosongkan untuk menggunakan email admin)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'email',
+    ));
+    
+    $wp_customize->add_setting('inviro_smtp_from_name', array(
+        'default'           => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    
+    $wp_customize->add_control('inviro_smtp_from_name', array(
+        'label'       => __('From Name', 'inviro'),
+        'description' => __('Nama pengirim (kosongkan untuk menggunakan nama situs)', 'inviro'),
+        'section'     => 'inviro_contact',
+        'type'        => 'text',
+    ));
+    
     // Hero Section (Statistics)
     $wp_customize->add_section('inviro_stats', array(
         'title'    => __('Hero Section', 'inviro'),
