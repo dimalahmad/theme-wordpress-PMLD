@@ -593,7 +593,7 @@
      * Memastikan semua gambar di detail artikel memiliki ukuran yang sama
      */
     function initArtikelImageSizing() {
-        // Hanya jalankan di halaman detail artikel
+        // Hanya jalankan di halaman detail artikel dan proyek pelanggan
         if (!$('.artikel-single').length) {
             return;
         }

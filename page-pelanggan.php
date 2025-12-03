@@ -162,7 +162,12 @@ if ($dummy_id > 0) {
                     while ($projects->have_posts()) : $projects->the_post();
                         $client_name = get_post_meta(get_the_ID(), '_proyek_client_name', true);
                         $proyek_date = get_post_meta(get_the_ID(), '_proyek_date', true);
-                        $excerpt = get_post_meta(get_the_ID(), '_proyek_excerpt', true);
+                        // Use excerpt from content (like artikel and spare parts)
+                        $excerpt = get_the_excerpt();
+                        if (empty($excerpt)) {
+                            $content = get_the_content();
+                            $excerpt = wp_trim_words(strip_tags($content), 20, '...');
+                        }
                         
                         // Get region taxonomy
                         $regions = get_the_terms(get_the_ID(), 'region');

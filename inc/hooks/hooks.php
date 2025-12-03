@@ -160,8 +160,8 @@ add_filter('wp_calculate_image_sizes', 'inviro_responsive_image_sizes', 10, 2);
  * Memastikan semua gambar di detail artikel memiliki ukuran yang sama
  */
 function inviro_fix_artikel_image_sizing($content) {
-    // Hanya jalankan di halaman detail artikel
-    if (!is_singular('artikel') || is_admin()) {
+    // Hanya jalankan di halaman detail artikel dan proyek pelanggan
+    if ((!is_singular('artikel') && !is_singular('proyek_pelanggan')) || is_admin()) {
         return $content;
     }
 

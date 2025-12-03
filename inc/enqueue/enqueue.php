@@ -59,7 +59,7 @@ function inviro_enqueue_files() {
     } elseif (is_singular('paket_usaha') || (isset($_GET['dummy_id']) && isset($_GET['post_type']) && $_GET['post_type'] === 'paket_usaha')) {
         wp_enqueue_style('inviro-sparepart-detail', get_template_directory_uri() . '/assets/css/sparepart-detail.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
     } elseif (is_singular('proyek_pelanggan')) {
-        wp_enqueue_style('inviro-pelanggan-article', get_template_directory_uri() . '/assets/css/pelanggan-article.css', array('inviro-base', 'inviro-components-cards'), $theme_version);
+        wp_enqueue_style('inviro-artikel-detail', get_template_directory_uri() . '/assets/css/artikel-detail.css', array('inviro-base', 'inviro-components-cards'), $theme_version . '.' . filemtime(get_template_directory() . '/assets/css/artikel-detail.css'));
     } elseif (is_singular('artikel')) {
         wp_enqueue_style('inviro-artikel-detail', get_template_directory_uri() . '/assets/css/artikel-detail.css', array('inviro-base', 'inviro-components-cards'), $theme_version . '.' . filemtime(get_template_directory() . '/assets/css/artikel-detail.css'));
     } elseif (is_single()) {

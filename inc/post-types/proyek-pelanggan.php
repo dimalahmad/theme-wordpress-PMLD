@@ -41,7 +41,7 @@ function inviro_register_proyek_pelanggan() {
         'hierarchical'        => false,
         'menu_position'       => 8,
         'menu_icon'           => 'dashicons-businessperson',
-        'supports'            => array('title', 'editor', 'thumbnail', 'excerpt'),
+        'supports'            => array('title', 'editor', 'thumbnail'),
         'show_in_rest'        => true,
         'taxonomies'          => array('region')
     );
