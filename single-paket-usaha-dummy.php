@@ -71,18 +71,43 @@
                             <div class="detail-sku">SKU: <?php echo esc_html($sku); ?></div>
                         <?php endif; ?>
                         
-                        <?php if ($price) : ?>
+                        <?php 
+                        // Bersihkan harga dari format "Rp", titik, koma, dan spasi
+                        $clean_price = function($value) {
+                            if (empty($value)) return 0;
+                            if (is_numeric($value)) {
+                                return absint($value);
+                            }
+                            $cleaned = preg_replace('/[^0-9]/', '', (string)$value);
+                            return !empty($cleaned) ? absint($cleaned) : 0;
+                        };
+                        
+                        $price_promo = $clean_price($price);
+                        $original_price_clean = isset($dummy_detail_data['original_price']) ? $clean_price($dummy_detail_data['original_price']) : 0;
+                        
+                        // Jika original_price tidak ada di dummy data, gunakan price sebagai original
+                        if ($original_price_clean == 0 && $price_promo > 0) {
+                            $original_price_clean = $price_promo;
+                        }
+                        
+                        // Tentukan apakah ada promo
+                        $is_promo = ($price_promo > 0 && $original_price_clean > 0 && $price_promo < $original_price_clean) || $promo == '1';
+                        ?>
+                        
+                        <?php if ($original_price_clean > 0) : ?>
                             <div class="detail-price">
-                                <?php 
-                                $original_price = isset($dummy_detail_data['original_price']) ? $dummy_detail_data['original_price'] : null;
-                                if ($promo == '1' && $original_price && $original_price > $price) : ?>
+                                <?php if ($is_promo && $price_promo > 0) : ?>
                                     <div class="price-wrapper">
-                                        <span class="price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
-                                        <span class="price-amount price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
+                                        <span class="price-original">Rp <?php echo number_format($original_price_clean, 0, ',', '.'); ?></span>
+                                        <span class="price-amount price-promo">Rp <?php echo number_format($price_promo, 0, ',', '.'); ?></span>
                                     </div>
                                 <?php else : ?>
-                                    <span class="price-amount">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
+                                    <span class="price-amount">Rp <?php echo number_format($original_price_clean, 0, ',', '.'); ?></span>
                                 <?php endif; ?>
+                            </div>
+                        <?php else : ?>
+                            <div class="detail-price">
+                                <span class="price-amount">Hubungi Kami</span>
                             </div>
                         <?php endif; ?>
                         

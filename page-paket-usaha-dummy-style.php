@@ -95,8 +95,8 @@ get_header();
                         $post_id = get_the_ID();
                         
                         // Get all data from WordPress - SAMA PERSIS DENGAN STRUKTUR DUMMY
-                        $price = get_post_meta($post_id, '_paket_price', true);
-                        $original_price = get_post_meta($post_id, '_paket_original_price', true);
+                        $price_raw = get_post_meta($post_id, '_paket_price', true);
+                        $original_price_raw = get_post_meta($post_id, '_paket_original_price', true);
                         $sku = get_post_meta($post_id, '_paket_sku', true);
                         $promo = get_post_meta($post_id, '_paket_promo', true);
                         $description = get_post_meta($post_id, '_paket_description', true);
@@ -104,6 +104,31 @@ get_header();
                         $category_slugs = '';
                         if ($categories && !is_wp_error($categories)) {
                             $category_slugs = implode(' ', array_map(function($cat) { return $cat->slug; }, $categories));
+                        }
+                        
+                        // Bersihkan harga dari format "Rp", titik, koma, dan spasi
+                        $clean_price = function($value) {
+                            if (empty($value)) return 0;
+                            if (is_numeric($value)) {
+                                return absint($value);
+                            }
+                            $cleaned = preg_replace('/[^0-9]/', '', $value);
+                            return !empty($cleaned) ? absint($cleaned) : 0;
+                        };
+                        
+                        $price = $clean_price($price_raw);
+                        $original_price = $clean_price($original_price_raw);
+                        
+                        // Jika harga promo tidak ada atau 0, gunakan harga asli
+                        // Harga harus selalu tampil (minimal harga asli)
+                        $price_display = ($price > 0) ? $price : $original_price;
+                        
+                        // Tentukan status promo
+                        $is_promo = false;
+                        if ($promo == '1' || $promo === 1 || $promo === '1') {
+                            $is_promo = true;
+                        } elseif ($price > 0 && $original_price > 0 && $price < $original_price) {
+                            $is_promo = true;
                         }
                         
                         // Get image - Priority: Featured Image > Gallery
@@ -145,7 +170,7 @@ get_header();
                             }
                         }
                     ?>
-                        <div class="paket-card" data-price="<?php echo esc_attr($price ? $price : 0); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>" data-category="<?php echo esc_attr($category_slugs); ?>">
+                        <div class="paket-card" data-price="<?php echo esc_attr($price_display); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>" data-category="<?php echo esc_attr($category_slugs); ?>">
                             <div class="paket-image" style="height: 240px; min-height: 240px; max-height: 240px; overflow: hidden;">
                                 <?php if (!empty($paket_image_url)) : ?>
                                     <img src="<?php echo esc_url($paket_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" style="width: 100%; height: 240px; object-fit: cover; object-position: center; display: block;">
@@ -159,7 +184,7 @@ get_header();
                                     </div>
                                 <?php endif; ?>
                                 
-                                <?php if ($promo == '1') : ?>
+                                <?php if ($is_promo) : ?>
                                     <span class="stock-badge promo-badge">Promo</span>
                                 <?php else : ?>
                                     <span class="stock-badge in-stock">Tersedia</span>
@@ -180,17 +205,19 @@ get_header();
                                 <?php endif; ?>
                                 
                                 <div class="paket-meta">
-                                    <?php if ($price) : ?>
-                                        <?php if ($original_price && $original_price > 0 && $original_price > $price) : ?>
+                                    <?php if ($original_price > 0) : ?>
+                                        <?php if ($is_promo && $price > 0) : ?>
                                             <div class="paket-price-wrapper">
                                                 <span class="paket-price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
                                                 <span class="paket-price paket-price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
                                             </div>
                                         <?php else : ?>
                                             <span class="paket-price">
-                                                Rp <?php echo number_format($price, 0, ',', '.'); ?>
+                                                Rp <?php echo number_format($original_price, 0, ',', '.'); ?>
                                             </span>
                                         <?php endif; ?>
+                                    <?php else : ?>
+                                        <span class="paket-price">Hubungi Kami</span>
                                     <?php endif; ?>
                                 </div>
                                 

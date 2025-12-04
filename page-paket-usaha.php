@@ -189,33 +189,30 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                         $description = get_post_meta($post_id, '_product_description', true);
                         $buy_url = get_post_meta($post_id, '_product_buy_url', true);
                         
-                        // Parse price - remove "Rp", spaces, dots, and commas
-                        $price = 0;
-                        if (!empty($price_raw)) {
-                            $price_clean = preg_replace('/[^0-9]/', '', $price_raw);
-                            $price = absint($price_clean);
-                        }
+                        // Bersihkan harga dari format "Rp", titik, koma, dan spasi
+                        $clean_price = function($value) {
+                            if (empty($value) && $value !== '0' && $value !== 0) return 0;
+                            if (is_numeric($value)) {
+                                return absint($value);
+                            }
+                            $cleaned = preg_replace('/[^0-9]/', '', (string)$value);
+                            return !empty($cleaned) ? intval($cleaned) : 0;
+                        };
                         
-                        $original_price = 0;
-                        if (!empty($original_price_raw)) {
-                            $original_price_clean = preg_replace('/[^0-9]/', '', $original_price_raw);
-                            $original_price = absint($original_price_clean);
-                        }
+                        $price_promo = $clean_price($price_raw);
+                        $original_price = $clean_price($original_price_raw);
+                        
+                        // Jika harga promo tidak ada atau 0, gunakan harga asli
+                        // Harga harus selalu tampil (minimal harga asli)
+                        $price_display = ($price_promo > 0) ? $price_promo : $original_price;
+                        
+                        // Tentukan apakah ada promo (hanya jika harga promo < harga asli)
+                        $is_promo = ($price_promo > 0 && $original_price > 0 && $price_promo < $original_price);
                         
                         // Set buy URL - fallback to WhatsApp
                         if (empty($buy_url)) {
                             $wa_number = get_theme_mod('inviro_whatsapp', '6281234567890');
                             $buy_url = 'https://wa.me/' . $wa_number;
-                        }
-                        
-                        // Jika harga promo tidak ada atau 0, gunakan harga asli
-                        // Harga harus selalu tampil (minimal harga asli)
-                        $price_display = ($price > 0) ? $price : $original_price;
-                        
-                        // Determine promo status - check if original_price > price
-                        $is_promo = false;
-                        if ($price > 0 && $original_price > 0 && $price < $original_price) {
-                            $is_promo = true;
                         }
                         
                         // Get image - use featured image with helper function
@@ -253,7 +250,7 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                             }
                         }
                     ?>
-                        <div class="paket-card" data-price="<?php echo esc_attr($price); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>">
+                        <div class="paket-card" data-price="<?php echo esc_attr($price_display); ?>" data-name="<?php echo esc_attr(get_the_title()); ?>">
                             <div class="paket-image" style="height: 240px; min-height: 240px; max-height: 240px; overflow: hidden;">
                                 <?php if (!empty($product_image_url)) : ?>
                                     <img src="<?php echo esc_url($product_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" style="width: 100%; height: 240px; object-fit: cover; object-position: center; display: block;">
@@ -285,10 +282,10 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                                 
                                 <div class="paket-meta">
                                     <?php if ($original_price > 0) : ?>
-                                        <?php if ($is_promo && $price > 0) : ?>
+                                        <?php if ($is_promo && $price_promo > 0) : ?>
                                             <div class="paket-price-wrapper">
                                                 <span class="paket-price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
-                                                <span class="paket-price paket-price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
+                                                <span class="paket-price paket-price-promo">Rp <?php echo number_format($price_promo, 0, ',', '.'); ?></span>
                                             </div>
                                         <?php else : ?>
                                             <span class="paket-price">
