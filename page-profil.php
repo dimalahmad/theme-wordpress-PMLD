@@ -831,6 +831,8 @@ Divisi water treatment/water purifier CV. INDO SOLUTION yang bernama INVIRO™ [
             <div class="contact-form-wrapper">
                 <h3 class="form-title"><?php esc_html_e('Silakan tinggalkan saran atau tanggapan Anda!', 'inviro'); ?></h3>
                 <form id="inviro-contact-form" class="contact-form" method="post">
+                    <?php wp_nonce_field('submit_contact', 'contact_nonce'); ?>
+                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="contact-name"><?php esc_html_e('Nama', 'inviro'); ?> <span class="required">*</span></label>

@@ -57,8 +57,8 @@ if ($is_dummy && $dummy_data) {
 } else {
     // Use real post data
     while (have_posts()) : the_post();
-    $price = get_post_meta(get_the_ID(), '_paket_price', true);
-    $original_price = get_post_meta(get_the_ID(), '_paket_original_price', true);
+    $price_raw = get_post_meta(get_the_ID(), '_paket_price', true);
+    $original_price_raw = get_post_meta(get_the_ID(), '_paket_original_price', true);
     $sku = get_post_meta(get_the_ID(), '_paket_sku', true);
     $promo = get_post_meta(get_the_ID(), '_paket_promo', true);
     $gallery_ids = get_post_meta(get_the_ID(), '_paket_gallery', true);
@@ -71,11 +71,28 @@ if ($is_dummy && $dummy_data) {
     $description = $description_meta ? $description_meta : ''; // For real posts, use the_content() directly
     $main_image = has_post_thumbnail() ? get_the_post_thumbnail_url(get_the_ID(), 'large') : '';
     
+    // Bersihkan harga dari format "Rp", titik, koma, dan spasi
+    $clean_price = function($value) {
+        if (empty($value)) return 0;
+        if (is_numeric($value)) {
+            return absint($value);
+        }
+        $cleaned = preg_replace('/[^0-9]/', '', $value);
+        return !empty($cleaned) ? absint($cleaned) : 0;
+    };
+    
+    $price_promo = $clean_price($price_raw);
+    $original_price = $clean_price($original_price_raw);
+    
+    // Jika harga promo tidak ada atau 0, gunakan harga asli
+    // Harga harus selalu tampil (minimal harga asli)
+    $price = ($price_promo > 0) ? $price_promo : $original_price;
+    
     // Determine promo status
     $is_promo = false;
     if ($promo == '1' || $promo === 1 || $promo === '1') {
         $is_promo = true;
-    } elseif ($original_price && $original_price > 0 && $price && $original_price > $price) {
+    } elseif ($price_promo > 0 && $original_price > 0 && $price_promo < $original_price) {
         $is_promo = true;
     } elseif ($categories && !is_wp_error($categories)) {
         foreach ($categories as $cat) {
@@ -85,6 +102,8 @@ if ($is_dummy && $dummy_data) {
             }
         }
     }
+    
+    $display_promo = $is_promo;
     
     // Convert gallery IDs to URLs - SAMA PERSIS DENGAN SPAREPART
     $gallery = array();
@@ -242,17 +261,21 @@ if ($is_dummy || (isset($title) && $title)) :
                             <div class="detail-sku">SKU: <?php echo esc_html($sku); ?></div>
                         <?php endif; ?>
                         
-                        <?php if ($price) : ?>
+                        <?php if ($original_price > 0) : ?>
                             <div class="detail-price">
                                 <?php 
-                                if ($display_promo && $original_price && $original_price > 0 && $original_price > $price) : ?>
+                                if ($display_promo && $price_promo > 0) : ?>
                                     <div class="price-wrapper">
                                         <span class="price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
-                                        <span class="price-amount price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
+                                        <span class="price-amount price-promo">Rp <?php echo number_format($price_promo, 0, ',', '.'); ?></span>
                                     </div>
                                 <?php else : ?>
-                                    <span class="price-amount">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
+                                    <span class="price-amount">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
                                 <?php endif; ?>
+                            </div>
+                        <?php else : ?>
+                            <div class="detail-price">
+                                <span class="price-amount">Hubungi Kami</span>
                             </div>
                         <?php endif; ?>
                         

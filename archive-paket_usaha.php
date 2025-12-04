@@ -100,8 +100,8 @@ get_header();
                 if ($pakets->have_posts()) :
                     while ($pakets->have_posts()) : $pakets->the_post();
                         $post_id = get_the_ID();
-                        $price = get_post_meta($post_id, '_paket_price', true);
-                        $original_price = get_post_meta($post_id, '_paket_original_price', true);
+                        $price_raw = get_post_meta($post_id, '_paket_price', true);
+                        $original_price_raw = get_post_meta($post_id, '_paket_original_price', true);
                         $sku = get_post_meta($post_id, '_paket_sku', true);
                         $promo = get_post_meta($post_id, '_paket_promo', true);
                         $categories = get_the_terms($post_id, 'paket_usaha_category');
@@ -110,11 +110,28 @@ get_header();
                             $category_slugs = implode(' ', array_map(function($cat) { return $cat->slug; }, $categories));
                         }
                         
+                        // Bersihkan harga dari format "Rp", titik, koma, dan spasi
+                        $clean_price = function($value) {
+                            if (empty($value)) return 0;
+                            if (is_numeric($value)) {
+                                return absint($value);
+                            }
+                            $cleaned = preg_replace('/[^0-9]/', '', $value);
+                            return !empty($cleaned) ? absint($cleaned) : 0;
+                        };
+                        
+                        $price = $clean_price($price_raw);
+                        $original_price = $clean_price($original_price_raw);
+                        
+                        // Jika harga promo tidak ada atau 0, gunakan harga asli
+                        // Harga harus selalu tampil (minimal harga asli)
+                        $price_display = ($price > 0) ? $price : $original_price;
+                        
                         // Tentukan status promo - cek dari meta field atau original_price
                         $is_promo = false;
                         if ($promo == '1' || $promo === 1 || $promo === '1') {
                             $is_promo = true;
-                        } elseif ($original_price && $original_price > 0 && $price && $original_price > $price) {
+                        } elseif ($price > 0 && $original_price > 0 && $price < $original_price) {
                             // Jika ada original_price yang lebih besar dari price, berarti promo
                             $is_promo = true;
                         } elseif ($categories && !is_wp_error($categories)) {
@@ -215,19 +232,19 @@ get_header();
                             <?php endif; ?>
                             
                             <div class="paket-meta">
-                                <?php if ($price) : ?>
-                                    <?php 
-                                    // Jika ada original_price dan lebih besar dari price, tampilkan keduanya
-                                    if ($original_price && $original_price > 0 && $original_price > $price) : ?>
+                                <?php if ($original_price > 0) : ?>
+                                    <?php if ($is_promo && $price > 0) : ?>
                                         <div class="paket-price-wrapper">
                                             <span class="paket-price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
                                             <span class="paket-price paket-price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
                                         </div>
                                     <?php else : ?>
                                         <span class="paket-price">
-                                            Rp <?php echo number_format($price, 0, ',', '.'); ?>
+                                            Rp <?php echo number_format($original_price, 0, ',', '.'); ?>
                                         </span>
                                     <?php endif; ?>
+                                <?php else : ?>
+                                    <span class="paket-price">Hubungi Kami</span>
                                 <?php endif; ?>
                             </div>
                             

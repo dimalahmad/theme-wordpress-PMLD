@@ -13,7 +13,7 @@
    PAGE LAYOUT
    ============================================ */
 .paket-usaha-page {
-    padding-top: 80px;
+    /* padding-top: 80px; */
     background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
     min-height: 100vh;
 }
@@ -180,7 +180,7 @@
    GRID SECTION
    ============================================ */
 .paket-usaha-grid-section {
-    padding: 60px 0 80px;
+    padding: 10px 0 80px;
     background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
 }
 
@@ -270,6 +270,10 @@
     display: block;
     margin: 0;
     padding: 0;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: high-quality;
+    -ms-interpolation-mode: bicubic;
 }
 
 .paket-card:hover .paket-image img {
@@ -454,7 +458,8 @@
 
 /* Actions */
 .paket-actions {
-    margin-top: 16px;
+    margin-top: auto;
+    padding-top: 16px;
 }
 
 .btn-order {
@@ -578,6 +583,7 @@
 
 .btn-whatsapp:hover {
     background: #22c55e;
+    color: white;
     transform: translateY(-4px);
     box-shadow: 0 8px 30px rgba(37, 211, 102, 0.5);
 }
@@ -656,10 +662,6 @@
 }
 
 @media (max-width: 768px) {
-    .paket-usaha-page {
-        padding-top: 70px;
-    }
-    
     .paket-usaha-hero {
         padding: 60px 0 50px;
     }
@@ -675,12 +677,18 @@
     
     .paket-usaha-filter {
         top: 70px;
-        padding: 12px 0;
+        padding: 16px 0;
+    }
+    
+    .paket-usaha-filter .container {
+        padding: 0 16px;
     }
     
     .filter-bar {
         flex-direction: column;
         gap: 12px;
+        max-width: 100% !important;
+        width: 100% !important;
     }
     
     .filter-dropdowns {
@@ -694,6 +702,13 @@
         width: 100%;
         max-width: 100%;
         min-width: 0;
+        padding: 12px 16px;
+        font-size: 14px;
+        border-radius: 12px;
+    }
+    
+    #paket-search::placeholder {
+        font-size: 14px;
     }
     
     #filter-category,
@@ -703,6 +718,10 @@
         min-width: 0 !important;
         max-width: calc(50% - 6px) !important;
         box-sizing: border-box;
+        padding: 12px 16px;
+        font-size: 14px;
+        border-radius: 12px;
+        padding-right: 40px;
     }
     
     .paket-usaha-grid {
@@ -734,27 +753,48 @@
         font-size: 0.85rem;
     }
     
+    .paket-actions {
+        margin-top: auto;
+        padding-top: 8px;
+    }
+    
     .btn-order {
         padding: 6px 10px;
+        font-size: 0 !important;
+        position: relative;
+    }
+    
+    .btn-order::after {
+        content: 'Beli';
         font-size: 0.7rem;
+        font-weight: 600;
+        color: white;
     }
     
     .paket-usaha-cta {
-        padding: 60px 0;
+        padding: 2rem 1rem;
+    }
+    
+    .paket-usaha-cta .container {
+        padding: 0 0.75rem;
     }
     
     .paket-usaha-cta h2 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
     }
     
     .paket-usaha-cta p {
-        font-size: 1rem;
-        padding: 0 20px;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+        line-height: 1.6;
     }
     
     .btn-whatsapp {
-        padding: 16px 36px;
-        font-size: 1rem;
+        padding: 0.875rem 1.75rem;
+        font-size: 0.95rem;
+        border-radius: 40px;
     }
 }
 
@@ -780,25 +820,44 @@
     
     .paket-usaha-hero p {
         font-size: 0.85rem;
-        display: none; /* Hide subtitle to save space */
+        padding: 0 12px;
     }
     
     .paket-usaha-filter {
-        padding: 6px 0;
+        padding: 12px 0;
+    }
+    
+    .paket-usaha-filter .container {
+        padding: 0 12px;
     }
     
     .filter-bar {
-        gap: 6px;
+        gap: 10px;
+    }
+    
+    .filter-dropdowns {
+        gap: 10px;
     }
     
     #paket-search {
-        padding: 8px 12px;
-        font-size: 0.85rem;
+        padding: 10px 14px;
+        font-size: 13px;
+        border-radius: 10px;
     }
     
+    #paket-search::placeholder {
+        font-size: 13px;
+    }
+    
+    #filter-category,
     #sort-by {
-        padding: 8px 12px;
-        font-size: 0.85rem;
+        flex: 1 1 calc(50% - 5px);
+        width: calc(50% - 5px);
+        max-width: calc(50% - 5px) !important;
+        padding: 10px 14px;
+        font-size: 13px;
+        border-radius: 10px;
+        padding-right: 36px;
     }
     
     .paket-card {
@@ -859,15 +918,24 @@
     }
     
     .paket-actions {
-        margin-top: 6px;
+        margin-top: auto;
+        padding-top: 8px;
     }
     
     .btn-order {
         padding: 7px 12px;
-        font-size: 0.75rem;
+        font-size: 0 !important;
         border-radius: 6px;
         font-weight: 600;
         width: 100%;
+        position: relative;
+    }
+    
+    .btn-order::after {
+        content: 'Beli';
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
     }
     
     .stock-badge {

@@ -1744,26 +1744,6 @@ function inviro_pelanggan_customize_register($wp_customize) {
         'type' => 'text',
     ));
 
-    // Company Logos (JSON format for flexibility)
-    $default_logos = json_encode(array(
-        array('name' => 'PT. Perusahaan A', 'image' => 'https://via.placeholder.com/200x100/2F80ED/FFFFFF?text=Logo+1', 'order' => 1),
-        array('name' => 'PT. Perusahaan B', 'image' => 'https://via.placeholder.com/200x100/4FB3E8/FFFFFF?text=Logo+2', 'order' => 2),
-        array('name' => 'PT. Perusahaan C', 'image' => 'https://via.placeholder.com/200x100/75C6F1/FFFFFF?text=Logo+3', 'order' => 3),
-        array('name' => 'PT. Perusahaan D', 'image' => 'https://via.placeholder.com/200x100/2F80ED/FFFFFF?text=Logo+4', 'order' => 4),
-        array('name' => 'PT. Perusahaan E', 'image' => 'https://via.placeholder.com/200x100/4FB3E8/FFFFFF?text=Logo+5', 'order' => 5),
-        array('name' => 'PT. Perusahaan F', 'image' => 'https://via.placeholder.com/200x100/75C6F1/FFFFFF?text=Logo+6', 'order' => 6),
-    ), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    
-    $wp_customize->add_setting('inviro_pelanggan_company_logos', array(
-        'default' => $default_logos,
-        'sanitize_callback' => 'sanitize_textarea_field',
-    ));
-    $wp_customize->add_control('inviro_pelanggan_company_logos', array(
-        'label' => __('Logo Perusahaan (JSON)', 'inviro'),
-        'description' => __('Format JSON untuk logo perusahaan. Contoh: [{"name":"Nama Perusahaan","image":"URL_GAMBAR","order":1}]', 'inviro'),
-            'section' => 'inviro_pelanggan',
-        'type' => 'textarea',
-    ));
 
     // CTA Settings
     $wp_customize->add_setting('inviro_pelanggan_cta_title', array(

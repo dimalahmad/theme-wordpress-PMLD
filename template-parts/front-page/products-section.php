@@ -61,14 +61,31 @@ $products_query = new WP_Query($args);
                 <?php while ($products_query->have_posts()) : $products_query->the_post(); ?>
                     <?php
                     $product_id = get_the_ID();
-                    $price = get_post_meta($product_id, '_product_price', true);
-                    $price_original = get_post_meta($product_id, '_product_original_price', true);
+                    $price_promo_raw = get_post_meta($product_id, '_product_price', true);
+                    $price_original_raw = get_post_meta($product_id, '_product_original_price', true);
                     $description = get_post_meta($product_id, '_product_description', true);
                     $buy_url = get_post_meta($product_id, '_product_buy_url', true);
                     
-                    // Debug: Pastikan harga selalu ada (setidaknya "Hubungi Kami")
-                    // Uncomment untuk debugging:
-                    // error_log("Product ID: $product_id, Price: $price, Original: $price_original");
+                    // Bersihkan harga dari format "Rp", titik, koma, dan spasi
+                    $clean_price = function($value) {
+                        if (empty($value) && $value !== '0' && $value !== 0) return 0;
+                        if (is_numeric($value)) {
+                            return absint($value);
+                        }
+                        $cleaned = preg_replace('/[^0-9]/', '', (string)$value);
+                        return !empty($cleaned) ? intval($cleaned) : 0;
+                    };
+                    
+                    $price_promo = $clean_price($price_promo_raw);
+                    $price_original = $clean_price($price_original_raw);
+                    
+                    // LOGIC SANGAT SEDERHANA:
+                    // 1. Harga asli adalah prioritas utama - JIKA ADA, PASTI TAMPIL
+                    // 2. Harga promo hanya untuk ditampilkan jika lebih kecil dari harga asli
+                    // 3. Jika tidak ada harga asli, gunakan harga promo (untuk produk lama)
+                    
+                    // Tentukan apakah ada promo (hanya jika harga promo < harga asli)
+                    $is_promo = ($price_promo > 0 && $price_original > 0 && $price_promo < $price_original);
                     
                     if (empty($buy_url)) {
                         $buy_url = get_theme_mod('inviro_whatsapp') ? 'https://wa.me/' . get_theme_mod('inviro_whatsapp') : '#';
@@ -147,19 +164,29 @@ $products_query = new WP_Query($args);
                         <div class="product-info">
                             <div class="product-top-content">
                                 <h3 class="product-title" itemprop="name"><?php echo esc_html(get_the_title($product_id)); ?></h3>
-                                
-                                <?php if ($description) : ?>
-                                    <p class="product-description"><?php echo esc_html(wp_trim_words($description, 12)); ?></p>
-                                <?php endif; ?>
                             </div>
                             
                             <div class="product-bottom-content">
                                 <div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                                    <?php if ($price && $price_original) : ?>
-                                        <span class="product-price-original"><?php echo esc_html($price_original); ?></span>
-                                        <span class="product-price-promo" itemprop="price"><?php echo esc_html($price); ?></span>
-                                    <?php elseif ($price) : ?>
-                                        <span class="product-current-price" itemprop="price"><?php echo esc_html($price); ?></span>
+                                    <?php 
+                                    // LOGIC SANGAT SEDERHANA: Harga asli SELALU tampil jika ada
+                                    // Pastikan harga asli benar-benar ada dan > 0
+                                    if (!empty($price_original) && $price_original > 0) : 
+                                        // Ada harga asli, tampilkan
+                                        if ($is_promo && !empty($price_promo) && $price_promo > 0) : ?>
+                                            <div class="product-price-wrapper">
+                                                <span class="product-price-original">Rp <?php echo number_format($price_original, 0, ',', '.'); ?></span>
+                                                <span class="product-price-promo" itemprop="price">Rp <?php echo number_format($price_promo, 0, ',', '.'); ?></span>
+                                            </div>
+                                        <?php else : ?>
+                                            <span class="product-current-price" itemprop="price">
+                                                Rp <?php echo number_format($price_original, 0, ',', '.'); ?>
+                                            </span>
+                                        <?php endif; 
+                                    elseif (!empty($price_promo) && $price_promo > 0) : ?>
+                                        <span class="product-current-price" itemprop="price">
+                                            Rp <?php echo number_format($price_promo, 0, ',', '.'); ?>
+                                        </span>
                                     <?php else : ?>
                                         <span class="product-current-price">Hubungi Kami</span>
                                     <?php endif; ?>

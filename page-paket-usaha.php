@@ -208,9 +208,13 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                             $buy_url = 'https://wa.me/' . $wa_number;
                         }
                         
+                        // Jika harga promo tidak ada atau 0, gunakan harga asli
+                        // Harga harus selalu tampil (minimal harga asli)
+                        $price_display = ($price > 0) ? $price : $original_price;
+                        
                         // Determine promo status - check if original_price > price
                         $is_promo = false;
-                        if ($original_price > 0 && $price > 0 && $original_price > $price) {
+                        if ($price > 0 && $original_price > 0 && $price < $original_price) {
                             $is_promo = true;
                         }
                         
@@ -280,15 +284,15 @@ if ($viewing_dummy_detail && $dummy_detail_data) {
                                 <?php endif; ?>
                                 
                                 <div class="paket-meta">
-                                    <?php if ($price > 0) : ?>
-                                        <?php if ($is_promo && $original_price > 0) : ?>
+                                    <?php if ($original_price > 0) : ?>
+                                        <?php if ($is_promo && $price > 0) : ?>
                                             <div class="paket-price-wrapper">
                                                 <span class="paket-price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></span>
                                                 <span class="paket-price paket-price-promo">Rp <?php echo number_format($price, 0, ',', '.'); ?></span>
                                             </div>
                                         <?php else : ?>
                                             <span class="paket-price">
-                                                Rp <?php echo number_format($price, 0, ',', '.'); ?>
+                                                Rp <?php echo number_format($original_price, 0, ',', '.'); ?>
                                             </span>
                                         <?php endif; ?>
                                     <?php else : ?>

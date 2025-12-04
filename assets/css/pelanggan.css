@@ -13,7 +13,7 @@
    PAGE LAYOUT
    ============================================ */
 .pelanggan-page {
-    padding-top: 80px;
+    /* padding-top: 80px; */
     background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
     min-height: 100vh;
 }
@@ -426,7 +426,7 @@
    GRID SECTION
    ============================================ */
 .pelanggan-grid-section {
-    padding: 60px 0 80px; /* Sama dengan artikel */
+    padding: 10px 0 80px; /* Sama dengan artikel */
     background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%); /* Sama dengan artikel */
 }
 
@@ -677,10 +677,17 @@
 }
 
 .logo-card img {
-    max-width: 100%;
-    max-height: 80px;
-    object-fit: contain;
-    margin-bottom: 10px;
+    max-width: 100% !important;
+    max-height: 80px !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 auto 10px auto !important;
+    padding: 0 !important;
+    border: none !important;
 }
 
 .logo-name {
@@ -883,10 +890,6 @@
         min-width: 28px;
     }
     
-    .pelanggan-grid-section {
-        padding: 60px 0 80px; /* Sama dengan artikel */
-    }
-    
     .pelanggan-hero h1 {
         font-size: 2.5rem;
     }
@@ -935,9 +938,7 @@
 }
 
 @media (max-width: 768px) {
-    .pelanggan-page {
-        padding-top: 70px;
-    }
+    
     
     .pelanggan-hero {
         padding: 60px 0 50px;
@@ -954,60 +955,56 @@
     
     .pelanggan-filter {
         top: 70px;
-        padding: 12px 0;
+        padding: 16px 0;
+    }
+    
+    .pelanggan-filter .container {
+        padding: 0 16px;
     }
     
     .filter-bar {
-        flex-wrap: wrap;
-        gap: 8px;
-        max-width: 95%;
-        width: 95%;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 100% !important;
+        width: 100% !important;
     }
     
-    .region-sidebar-inline {
-        order: 1;
+    .filter-dropdowns {
+        width: 100%;
+        display: flex;
+        gap: 12px;
+        align-items: stretch;
+    }
+    
+    .pelanggan-filter #pelanggan-search {
         width: 100%;
         max-width: 100%;
-        flex: 1 1 100%;
-    }
-    
-    .region-list {
-        gap: 10px;
-    }
-    
-    .region-item {
-        padding: 10px 16px;
-        font-size: 0.9rem;
-    }
-    
-    .region-count {
-        padding: 3px 8px;
-        font-size: 0.8rem;
-        min-width: 28px;
-    }
-    
-    #pelanggan-search {
-        order: 2;
-        flex: 1;
         min-width: 0;
+        padding: 12px 16px;
+        font-size: 14px;
+        border-radius: 12px;
     }
     
-    #sort-by {
-        order: 3;
-        min-width: 48px;
-        max-width: 48px;
-        width: 48px;
-        height: 48px;
-        flex-shrink: 0;
+    .pelanggan-filter #pelanggan-search::placeholder {
+        font-size: 14px;
     }
     
-    .pelanggan-grid-section {
-        padding: 60px 0 80px; /* Sama dengan artikel */
+    .pelanggan-filter #pelanggan-region,
+    .pelanggan-filter #sort-by {
+        flex: 1 1 calc(50% - 6px);
+        width: calc(50% - 6px);
+        min-width: 0 !important;
+        max-width: calc(50% - 6px) !important;
+        box-sizing: border-box;
+        padding: 12px 16px;
+        font-size: 14px;
+        border-radius: 12px;
+        padding-right: 40px;
     }
     
     .pelanggan-grid {
         grid-template-columns: 1fr; /* Tetap 1 kolom */
-        gap: 14px; /* Sama dengan artikel */
+        gap: 14px; /* Dikurangi dari 20px */
     }
     
     .pelanggan-card {
@@ -1038,104 +1035,166 @@
     }
     
     .pelanggan-content {
+        flex: 3; /* Ratio 1:3 dengan image */
         padding: 8px 12px !important; /* Dikurangi lagi */
         gap: 4px !important; /* Dikurangi lagi */
-        flex: 3; /* Ratio 1:3 dengan image */
         min-height: auto !important; /* Override desktop */
     }
     
     .pelanggan-meta-top {
-        font-size: 0.65rem !important; /* Dikurangi lagi */
-        margin-bottom: 2px !important; /* Dikurangi */
+        font-size: 0.65rem; /* Dikurangi lagi */
+        margin-bottom: 2px; /* Dikurangi */
     }
     
     .pelanggan-content h3 {
-        font-size: 0.8rem !important; /* Dikurangi lagi */
-        margin: 0 0 3px 0 !important; /* Dikurangi */
-        line-height: 1.2 !important; /* Dikurangi */
+        font-size: 0.8rem; /* Dikurangi lagi */
+        margin: 0 0 3px 0; /* Dikurangi */
+        line-height: 1.2; /* Dikurangi */
     }
     
     .pelanggan-excerpt {
-        font-size: 0.7rem !important; /* Dikurangi lagi */
-        line-height: 1.3 !important; /* Dikurangi */
-        -webkit-line-clamp: 2 !important; /* Dikurangi dari 3 */
-        margin: 0 0 2px 0 !important; /* Dikurangi */
+        font-size: 0.7rem; /* Dikurangi lagi */
+        line-height: 1.3; /* Dikurangi */
+        -webkit-line-clamp: 2; /* Dikurangi dari 3 */
+        margin: 0 0 2px 0; /* Dikurangi */
     }
     
     .pelanggan-link {
-        font-size: 0.7rem !important; /* Dikurangi lagi */
+        font-size: 0.7rem; /* Dikurangi lagi */
     }
     
-    .pelanggan-content h3 {
-        font-size: 1rem; /* Sama dengan artikel */
-        line-height: 1.4; /* Sama dengan artikel */
-        margin: 0 0 8px 0; /* Sama dengan artikel */
-        display: block;
-        white-space: normal;
-        overflow: visible;
+    .pelanggan-image img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
     }
     
-    .pelanggan-content h3 a {
-        display: inline;
-        white-space: normal;
+    .pelanggan-cta {
+        padding: 2rem 1rem;
     }
     
-    .pelanggan-excerpt {
-        font-size: 0.85rem; /* Sama dengan artikel */
-        line-height: 1.6; /* Sama dengan artikel */
-        margin: 0 0 8px 0; /* Sama dengan artikel */
-        display: -webkit-box;
-        -webkit-line-clamp: 3; /* Sama dengan artikel */
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+    .pelanggan-cta .container {
+        padding: 0 0.75rem;
     }
     
-    .pelanggan-link {
-        font-size: 0.85rem; /* Sama dengan artikel */
-        padding-top: 0;
-        margin-top: 0;
-        white-space: normal;
-        border-top: none;
+    .pelanggan-cta h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .pelanggan-cta p {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+        line-height: 1.6;
+    }
+    
+    .btn-primary {
+        padding: 0.875rem 1.75rem;
+        font-size: 0.95rem;
+        border-radius: 40px;
+    }
+    
+    /* Company Logos Section Mobile */
+    .company-logos-section {
+        padding: 40px 0;
+    }
+    
+    .company-logos-section h2 {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+    
+    .logos-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 30px;
     }
     
     .logos-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
+        gap: 16px;
     }
     
-    .pelanggan-cta {
-        padding: 60px 0;
+    .logo-card {
+        padding: 20px 12px;
+        min-height: 120px;
+        border-radius: 12px;
     }
     
-    .pelanggan-cta h2 {
-        font-size: 1.75rem;
+    .logo-card img {
+        max-height: 60px !important;
+        margin-bottom: 8px !important;
     }
     
-    .pelanggan-cta p {
-        font-size: 1rem;
-        padding: 0 20px;
-    }
-    
-    .btn-primary {
-        padding: 16px 36px;
-        font-size: 1rem;
+    .logo-name {
+        font-size: 0.75rem;
     }
 }
 
 @media (max-width: 480px) {
-    .pelanggan-grid-section {
-        padding: 60px 0 80px; /* Sama dengan artikel */
+    .pelanggan-filter {
+        padding: 12px 0;
+    }
+    
+    .pelanggan-filter .container {
+        padding: 0 12px;
+    }
+    
+    .filter-bar {
+        gap: 10px;
+    }
+    
+    .filter-dropdowns {
+        gap: 10px;
+    }
+    
+    .pelanggan-filter #pelanggan-search {
+        padding: 10px 14px;
+        font-size: 13px;
+        border-radius: 10px;
+    }
+    
+    .pelanggan-filter #pelanggan-search::placeholder {
+        font-size: 13px;
+    }
+    
+    .pelanggan-filter #pelanggan-region,
+    .pelanggan-filter #sort-by {
+        flex: 1 1 calc(50% - 5px);
+        width: calc(50% - 5px);
+        max-width: calc(50% - 5px) !important;
+        padding: 10px 14px;
+        font-size: 13px;
+        border-radius: 10px;
+        padding-right: 36px;
     }
     
     .pelanggan-grid {
         grid-template-columns: 1fr;
-        gap: 12px; /* Sama dengan artikel */
+        gap: 12px; /* Dikurangi dari 16px */
+    }
+    
+    .pelanggan-hero {
+        padding: 20px 0 10px;
+    }
+    
+    .pelanggan-hero h1 {
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+    }
+    
+    .pelanggan-hero p {
+        font-size: 0.85rem;
+        padding: 0 12px;
     }
     
     .pelanggan-card {
         flex-direction: row; /* Tetap horizontal seperti desktop */
         align-items: stretch; /* Stretch agar gambar memenuhi height card */
-        border-radius: 12px; /* Sama dengan artikel */
+        border-radius: 12px;
         height: auto; /* Mengikuti konten */
     }
     
@@ -1146,11 +1205,6 @@
         min-height: 80px !important; /* Fixed min-height */
         flex: 1; /* Ratio 1:3 */
         align-self: stretch; /* Stretch untuk memenuhi height card */
-        display: flex !important;
-        align-items: stretch;
-        line-height: 0; /* Hilangkan space di bawah gambar */
-        margin: 0;
-        padding: 0;
     }
     
     .pelanggan-image img {
@@ -1160,16 +1214,9 @@
         position: absolute !important; /* Tetap absolute */
         top: 0 !important;
         left: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: none !important;
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
-    }
-    
-    .pelanggan-hero h1 {
-        font-size: 1.75rem;
     }
     
     .pelanggan-content {
@@ -1180,31 +1227,62 @@
     }
     
     .pelanggan-meta-top {
-        font-size: 0.6rem !important; /* Dikurangi lagi */
-        margin-bottom: 1px !important; /* Dikurangi lagi */
+        font-size: 0.6rem; /* Dikurangi lagi */
+        margin-bottom: 1px; /* Dikurangi lagi */
     }
     
     .pelanggan-content h3 {
-        font-size: 0.75rem !important; /* Dikurangi lagi */
-        margin: 0 0 2px 0 !important; /* Dikurangi lagi */
-        line-height: 1.15 !important; /* Dikurangi lagi */
+        font-size: 0.75rem; /* Dikurangi lagi */
+        margin: 0 0 2px 0; /* Dikurangi lagi */
+        line-height: 1.15; /* Dikurangi lagi */
     }
     
     .pelanggan-excerpt {
-        font-size: 0.65rem !important; /* Dikurangi lagi */
-        line-height: 1.25 !important; /* Dikurangi lagi */
-        -webkit-line-clamp: 2 !important; /* Tetap 2 */
-        margin: 0 0 1px 0 !important; /* Dikurangi lagi */
+        font-size: 0.65rem; /* Dikurangi lagi */
+        line-height: 1.25; /* Dikurangi lagi */
+        -webkit-line-clamp: 2; /* Tetap 2 */
+        margin: 0 0 1px 0; /* Dikurangi lagi */
     }
     
     .pelanggan-link {
-        font-size: 0.65rem !important; /* Dikurangi lagi */
+        font-size: 0.65rem; /* Dikurangi lagi */
         padding-top: 0;
         margin-top: 0;
     }
     
+    /* Company Logos Section Mobile 480px */
+    .company-logos-section {
+        padding: 30px 0;
+    }
+    
+    .company-logos-section h2 {
+        font-size: 1.25rem;
+        margin-bottom: 6px;
+    }
+    
+    .logos-subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 24px;
+    }
+    
     .logos-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .logo-card {
+        padding: 16px 10px;
+        min-height: 100px;
+        border-radius: 10px;
+    }
+    
+    .logo-card img {
+        max-height: 50px !important;
+        margin-bottom: 6px !important;
+    }
+    
+    .logo-name {
+        font-size: 0.7rem;
     }
 }
 

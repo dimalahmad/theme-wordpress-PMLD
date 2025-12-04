@@ -317,7 +317,7 @@ if ($dummy_id > 0) {
         </div>
     </div>
 
-    <!-- Company Logos Section -->
+    <!-- Corporate Project Section -->
     <section class="company-logos-section">
         <div class="container">
             <h2><?php echo esc_html(get_theme_mod('inviro_pelanggan_logos_title', 'Corporate Portfolio Project by INVIRO')); ?></h2>
@@ -325,65 +325,96 @@ if ($dummy_id > 0) {
             
             <div class="logos-grid">
                 <?php
-                // Get company logos from customizer
-                $company_logos_json = get_theme_mod('inviro_pelanggan_company_logos', '');
-                $company_logos = array();
+                // Get corporate projects from post type
+                $corporate_projects = new WP_Query(array(
+                    'post_type' => 'corporate_project',
+                    'posts_per_page' => -1,
+                    'post_status' => 'publish',
+                    'orderby' => 'menu_order',
+                    'order' => 'ASC'
+                ));
                 
-                if (!empty($company_logos_json)) {
-                    $decoded = json_decode($company_logos_json, true);
-                    if (is_array($decoded) && !empty($decoded)) {
-                        $company_logos = $decoded;
-                        // Sort by order
-                        usort($company_logos, function($a, $b) {
-                            return ($a['order'] ?? 999) - ($b['order'] ?? 999);
-                        });
-                    }
-                }
-                
-                // Fallback to old format (backward compatibility)
-                if (empty($company_logos)) {
-                    for ($i = 1; $i <= 12; $i++) {
-                        $logo_image = get_theme_mod("inviro_pelanggan_logo_{$i}_image");
-                        $logo_name = get_theme_mod("inviro_pelanggan_logo_{$i}_name");
-                        if ($logo_image) {
-                            $company_logos[] = array(
-                                'name' => $logo_name ? $logo_name : 'Company Logo',
-                                'image' => $logo_image,
-                                'order' => $i
-                            );
+                if ($corporate_projects->have_posts()) :
+                    while ($corporate_projects->have_posts()) : $corporate_projects->the_post();
+                        $post_id = get_the_ID();
+                        $company_name = get_post_meta($post_id, '_corporate_project_company_name', true);
+                        
+                        // Get featured image with robust fallback
+                        $logo_image = '';
+                        $thumbnail_id = get_post_thumbnail_id($post_id);
+                        
+                        if ($thumbnail_id) {
+                            // Method 1: Try multiple sizes
+                            $logo_image = get_the_post_thumbnail_url($post_id, 'medium_large');
+                            if (empty($logo_image)) {
+                                $logo_image = get_the_post_thumbnail_url($post_id, 'full');
+                            }
+                            if (empty($logo_image)) {
+                                $logo_image = get_the_post_thumbnail_url($post_id, 'large');
+                            }
+                            if (empty($logo_image)) {
+                                $logo_image = get_the_post_thumbnail_url($post_id, 'medium');
+                            }
+                            if (empty($logo_image)) {
+                                $logo_image = get_the_post_thumbnail_url($post_id, 'thumbnail');
+                            }
+                            
+                            // Method 2: wp_get_attachment_image_src
+                            if (empty($logo_image)) {
+                                $image_data = wp_get_attachment_image_src($thumbnail_id, 'medium_large');
+                                if ($image_data && !empty($image_data[0])) {
+                                    $logo_image = $image_data[0];
+                                } else {
+                                    $image_data = wp_get_attachment_image_src($thumbnail_id, 'full');
+                                    if ($image_data && !empty($image_data[0])) {
+                                        $logo_image = $image_data[0];
+                                    } else {
+                                        $image_data = wp_get_attachment_image_src($thumbnail_id, 'large');
+                                        if ($image_data && !empty($image_data[0])) {
+                                            $logo_image = $image_data[0];
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Method 3: Direct attachment URL
+                            if (empty($logo_image)) {
+                                $attachment_url = wp_get_attachment_url($thumbnail_id);
+                                if ($attachment_url) {
+                                    $logo_image = $attachment_url;
+                                }
+                            }
+                            
+                            // Normalize URL if needed
+                            if ($logo_image && strpos($logo_image, 'wp-content/uploads') !== false) {
+                                if (function_exists('inviro_normalize_image_url')) {
+                                    $logo_image = inviro_normalize_image_url($logo_image);
+                                }
+                            }
                         }
-                    }
-                }
-                
-                // Fallback to default dummy data if still empty
-                if (empty($company_logos)) {
-                    $default_logos = array(
-                        array('name' => 'PT. Perusahaan A', 'image' => 'https://via.placeholder.com/200x100/2F80ED/FFFFFF?text=Logo+1', 'order' => 1),
-                        array('name' => 'PT. Perusahaan B', 'image' => 'https://via.placeholder.com/200x100/4FB3E8/FFFFFF?text=Logo+2', 'order' => 2),
-                        array('name' => 'PT. Perusahaan C', 'image' => 'https://via.placeholder.com/200x100/75C6F1/FFFFFF?text=Logo+3', 'order' => 3),
-                        array('name' => 'PT. Perusahaan D', 'image' => 'https://via.placeholder.com/200x100/2F80ED/FFFFFF?text=Logo+4', 'order' => 4),
-                        array('name' => 'PT. Perusahaan E', 'image' => 'https://via.placeholder.com/200x100/4FB3E8/FFFFFF?text=Logo+5', 'order' => 5),
-                        array('name' => 'PT. Perusahaan F', 'image' => 'https://via.placeholder.com/200x100/75C6F1/FFFFFF?text=Logo+6', 'order' => 6),
-                    );
-                    $company_logos = $default_logos;
-                }
-                
-                // Display logos
-                foreach ($company_logos as $logo) {
-                    $logo_name = isset($logo['name']) ? $logo['name'] : '';
-                    $logo_image = isset($logo['image']) ? $logo['image'] : '';
-                    
-                    if (!empty($logo_image)) :
+                        
+                        // Trim and validate logo_image
+                        $logo_image = trim($logo_image);
+                        $logo_image = !empty($logo_image) ? $logo_image : '';
+                        
+                        // Ensure URL is absolute
+                        if (!empty($logo_image) && strpos($logo_image, 'http') !== 0) {
+                            $logo_image = site_url($logo_image);
+                        }
+                        
+                        if (!empty($logo_image)) :
                 ?>
                 <div class="logo-card">
-                    <img src="<?php echo esc_url($logo_image); ?>" alt="<?php echo esc_attr($logo_name ? $logo_name : 'Company Logo'); ?>" loading="lazy">
-                    <?php if ($logo_name) : ?>
-                        <p class="logo-name"><?php echo esc_html($logo_name); ?></p>
+                    <img src="<?php echo esc_url($logo_image); ?>" alt="<?php echo esc_attr($company_name ? $company_name : get_the_title()); ?>" loading="lazy">
+                    <?php if ($company_name) : ?>
+                        <p class="logo-name"><?php echo esc_html($company_name); ?></p>
                     <?php endif; ?>
                 </div>
                 <?php 
-                    endif;
-                }
+                        endif;
+                    endwhile;
+                    wp_reset_postdata();
+                endif;
                 ?>
             </div>
         </div>

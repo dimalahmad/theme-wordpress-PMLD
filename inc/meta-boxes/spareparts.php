@@ -45,29 +45,44 @@ add_action('add_meta_boxes', 'inviro_add_sparepart_meta_boxes');
 
 function inviro_sparepart_price_callback($post) {
     wp_nonce_field('inviro_sparepart_meta', 'inviro_sparepart_meta_nonce');
-    $price = get_post_meta($post->ID, '_sparepart_price', true);
-    $original_price = get_post_meta($post->ID, '_sparepart_original_price', true);
+    $price_raw = get_post_meta($post->ID, '_sparepart_price', true);
+    $original_price_raw = get_post_meta($post->ID, '_sparepart_original_price', true);
     $promo = get_post_meta($post->ID, '_sparepart_promo', true);
+    
+    // Bersihkan harga dari format "Rp", titik, koma, dan spasi untuk ditampilkan di field
+    $clean_price_for_field = function($value) {
+        if (empty($value)) return '';
+        if (is_numeric($value)) {
+            return $value;
+        }
+        // Hapus "Rp", titik, koma, spasi, dan karakter non-numeric
+        $cleaned = preg_replace('/[^0-9]/', '', $value);
+        return !empty($cleaned) ? $cleaned : '';
+    };
+    
+    $price = $clean_price_for_field($price_raw);
+    $original_price = $clean_price_for_field($original_price_raw);
     ?>
     <div style="padding: 10px 0;">
-        <p style="margin-bottom: 10px;"><strong>Harga Promo (Harga Saat Ini):</strong></p>
+        <p style="margin-bottom: 10px;"><strong>Harga Asli <span style="color: #dc3545;">*</span>:</strong></p>
+        <input type="number" id="sparepart_original_price" name="sparepart_original_price" 
+               value="<?php echo esc_attr($original_price); ?>" 
+               placeholder="20000000" 
+               min="0"
+               required
+               style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;">
+        <p class="description" style="margin-top: 8px; font-size: 13px; margin-bottom: 15px;">
+            Harga asli dalam Rupiah (tanpa titik/koma) - <strong>Wajib diisi</strong>
+        </p>
+        
+        <p style="margin-bottom: 10px;"><strong>Harga Promo (Opsional):</strong></p>
         <input type="number" id="sparepart_price" name="sparepart_price" 
                value="<?php echo esc_attr($price); ?>" 
                placeholder="15000000" 
                min="0"
                style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;">
         <p class="description" style="margin-top: 8px; font-size: 13px; margin-bottom: 15px;">
-            Harga dalam Rupiah (tanpa titik/koma)
-        </p>
-        
-        <p style="margin-bottom: 10px;"><strong>Harga Asli (Opsional - untuk Promo):</strong></p>
-        <input type="number" id="sparepart_original_price" name="sparepart_original_price" 
-               value="<?php echo esc_attr($original_price); ?>" 
-               placeholder="20000000" 
-               min="0"
-               style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #ddd; border-radius: 6px; margin-bottom: 15px;">
-        <p class="description" style="margin-top: 8px; font-size: 13px; margin-bottom: 15px;">
-            Harga sebelum promo (akan dicoret). Kosongkan jika tidak ada promo.
+            Harga promo (akan ditampilkan sebagai harga saat ini). Kosongkan jika tidak ada promo.
         </p>
         
         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
@@ -80,6 +95,19 @@ function inviro_sparepart_price_callback($post) {
             Centang jika spare part ini sedang dalam promo
         </p>
     </div>
+    <script>
+    jQuery(document).ready(function($) {
+        $('#post').on('submit', function(e) {
+            var originalPrice = $('#sparepart_original_price').val();
+            if (!originalPrice || originalPrice.trim() === '' || parseInt(originalPrice) <= 0) {
+                e.preventDefault();
+                alert('Harga Asli wajib diisi!');
+                $('#sparepart_original_price').focus();
+                return false;
+            }
+        });
+    });
+    </script>
     <?php
 }
 
@@ -220,12 +248,24 @@ function inviro_save_sparepart_meta($post_id) {
         return;
     }
     
-    if (isset($_POST['sparepart_price'])) {
-        update_post_meta($post_id, '_sparepart_price', absint($_POST['sparepart_price']));
+    // Harga asli wajib diisi
+    if (isset($_POST['sparepart_original_price']) && !empty($_POST['sparepart_original_price'])) {
+        update_post_meta($post_id, '_sparepart_original_price', absint($_POST['sparepart_original_price']));
+    } else {
+        // Jika harga asli kosong, set error
+        add_action('admin_notices', function() {
+            echo '<div class="notice notice-error"><p>Harga Asli wajib diisi!</p></div>';
+        });
     }
     
-    if (isset($_POST['sparepart_original_price'])) {
-        update_post_meta($post_id, '_sparepart_original_price', absint($_POST['sparepart_original_price']));
+    // Harga promo opsional
+    if (isset($_POST['sparepart_price']) && !empty($_POST['sparepart_price'])) {
+        update_post_meta($post_id, '_sparepart_price', absint($_POST['sparepart_price']));
+    } else {
+        // Jika tidak ada harga promo, gunakan harga asli
+        if (isset($_POST['sparepart_original_price']) && !empty($_POST['sparepart_original_price'])) {
+            update_post_meta($post_id, '_sparepart_price', absint($_POST['sparepart_original_price']));
+        }
     }
     
     if (isset($_POST['sparepart_promo'])) {

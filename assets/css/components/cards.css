@@ -180,10 +180,15 @@
 .product-current-price {
     font-size: var(--font-size-lg);
     font-weight: var(--font-weight-bold);
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #000000 !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    /* Override gradient text effect yang bisa membuat teks tidak terlihat */
+    -webkit-background-clip: unset !important;
+    -webkit-text-fill-color: #000000 !important;
+    background-clip: unset !important;
+    background: none !important;
 }
 
 /* ============================================

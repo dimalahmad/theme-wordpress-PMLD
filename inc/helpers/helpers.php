@@ -321,8 +321,21 @@ function inviro_render_hero_card($post, $size = 'large') {
     
     $post_id = $post['id'];
     $region_name = '';
-    if ($post['regions'] && !is_wp_error($post['regions']) && !empty($post['regions'])) {
-        $region_name = $post['regions'][0]->name;
+    // Pastikan region selalu diambil dengan benar
+    if (isset($post['regions']) && $post['regions'] && !is_wp_error($post['regions'])) {
+        if (is_array($post['regions']) && !empty($post['regions'])) {
+            $region_name = $post['regions'][0]->name;
+        } elseif (is_object($post['regions']) && isset($post['regions']->name)) {
+            $region_name = $post['regions']->name;
+        }
+    }
+    
+    // Fallback: ambil region langsung dari post jika belum ada
+    if (empty($region_name)) {
+        $regions = get_the_terms($post_id, 'region');
+        if ($regions && !is_wp_error($regions) && !empty($regions)) {
+            $region_name = $regions[0]->name;
+        }
     }
     
     $formatted_date = '';
@@ -428,13 +441,13 @@ function inviro_render_hero_card($post, $size = 'large') {
             <?php endif; ?>
             </div>
             
-            <?php if ($region_name) : ?>
-                <span class="<?php echo esc_attr($category_class); ?>" itemprop="articleSection"><?php echo esc_html($region_name); ?></span>
+            <?php if (!empty($region_name)) : ?>
+                <span class="<?php echo esc_attr($category_class); ?>" itemprop="articleSection" style="display: inline-block !important; visibility: visible !important; opacity: 1 !important; position: absolute !important; z-index: 100 !important;"><?php echo esc_html($region_name); ?></span>
             <?php endif; ?>
             
             <div class="hero-article-content">
                 <<?php echo $title_tag; ?> class="hero-article-title" itemprop="headline"><?php echo esc_html($post['title']); ?></<?php echo $title_tag; ?>>
-                <?php if ($size === 'large' && ($post['client_name'] || $formatted_date)) : ?>
+                <?php if ($post['client_name'] || $formatted_date) : ?>
                     <div class="hero-article-meta">
                         <?php if ($post['client_name']) : ?>
                             <span class="hero-article-author" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -500,13 +513,13 @@ function inviro_render_dummy_hero_card($proyek, $size = 'large', $image_url = ''
                 <div class="hero-article-overlay"></div>
             </div>
             
-            <?php if ($region_name) : ?>
-                <span class="<?php echo esc_attr($category_class); ?>" itemprop="articleSection"><?php echo esc_html($region_name); ?></span>
+            <?php if (!empty($region_name)) : ?>
+                <span class="<?php echo esc_attr($category_class); ?>" itemprop="articleSection" style="display: inline-block !important; visibility: visible !important; opacity: 1 !important; position: absolute !important; z-index: 100 !important;"><?php echo esc_html($region_name); ?></span>
             <?php endif; ?>
             
             <div class="hero-article-content">
                 <<?php echo $title_tag; ?> class="hero-article-title" itemprop="headline"><?php echo esc_html($proyek['title']); ?></<?php echo $title_tag; ?>>
-                <?php if ($size === 'large' && (!empty($proyek['client_name']) || $formatted_date)) : ?>
+                <?php if (!empty($proyek['client_name']) || $formatted_date) : ?>
                     <div class="hero-article-meta">
                         <?php if (!empty($proyek['client_name'])) : ?>
                             <span class="hero-article-author" itemprop="author" itemscope itemtype="https://schema.org/Person">

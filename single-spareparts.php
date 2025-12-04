@@ -10,11 +10,31 @@ while (have_posts()) : the_post();
     $post_id = get_the_ID();
     
     // Get sparepart data
-    $price = get_post_meta($post_id, '_sparepart_price', true);
-    $original_price = get_post_meta($post_id, '_sparepart_original_price', true);
+    $price_raw = get_post_meta($post_id, '_sparepart_price', true);
+    $original_price_raw = get_post_meta($post_id, '_sparepart_original_price', true);
     $promo = get_post_meta($post_id, '_sparepart_promo', true);
     $specifications = get_post_meta($post_id, '_sparepart_specifications', true);
     $specifications = $specifications ? json_decode($specifications, true) : array();
+    
+    // Bersihkan harga dari format "Rp", titik, koma, dan spasi
+    $clean_price = function($value) {
+        if (empty($value)) return 0;
+        if (is_numeric($value)) {
+            return absint($value);
+        }
+        $cleaned = preg_replace('/[^0-9]/', '', $value);
+        return !empty($cleaned) ? absint($cleaned) : 0;
+    };
+    
+    $price_promo = $clean_price($price_raw);
+    $original_price = $clean_price($original_price_raw);
+    
+    // Jika harga promo tidak ada atau 0, gunakan harga asli
+    // Harga harus selalu tampil (minimal harga asli)
+    $price = ($price_promo > 0) ? $price_promo : $original_price;
+    
+    // Tentukan apakah ada promo
+    $is_promo = $price_promo > 0 && $original_price > 0 && $price_promo != $original_price && $price_promo < $original_price;
     
     // Get main image
     $main_image = has_post_thumbnail() ? get_the_post_thumbnail_url($post_id, 'large') : '';
@@ -125,18 +145,27 @@ while (have_posts()) : the_post();
                     
                     <!-- Price and Button on right -->
                     <div class="hero-info-section">
-                        <?php if ($price) : ?>
+                        <?php if ($original_price > 0) : ?>
                             <div class="price-card">
                                 <div class="price-label">Harga</div>
                                 <div class="price-amount-wrapper">
-                                    <?php if ($original_price && $original_price > $price) : ?>
+                                    <?php if ($is_promo && $price_promo > 0) : ?>
                                         <div class="price-original">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></div>
+                                        <div class="price-current">Rp <?php echo number_format($price_promo, 0, ',', '.'); ?></div>
+                                    <?php else : ?>
+                                        <div class="price-current">Rp <?php echo number_format($original_price, 0, ',', '.'); ?></div>
                                     <?php endif; ?>
-                                    <div class="price-current">Rp <?php echo number_format($price, 0, ',', '.'); ?></div>
                                 </div>
-                                <?php if ($promo == '1') : ?>
+                                <?php if ($promo == '1' && $is_promo) : ?>
                                     <div class="price-badge">Promo</div>
                                 <?php endif; ?>
+                            </div>
+                        <?php else : ?>
+                            <div class="price-card">
+                                <div class="price-label">Harga</div>
+                                <div class="price-amount-wrapper">
+                                    <div class="price-current">Hubungi Kami</div>
+                                </div>
                             </div>
                         <?php endif; ?>
                         <div class="contact-person-card">
