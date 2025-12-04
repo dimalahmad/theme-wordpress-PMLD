@@ -20,7 +20,7 @@ function inviro_admin_notices() {
     if ($screen->post_type === 'produk' && ($screen->base === 'post' || $screen->base === 'post-new')) {
         ?>
         <div class="notice notice-info">
-            <p><strong>💡 Tip:</strong> Jangan lupa upload <strong>Featured Image</strong> untuk gambar produk (lihat sidebar kanan) dan isi <strong>Harga Produk</strong> di bawah.</p>
+            <p><strong>💡 Tip:</strong> Jangan lupa upload <strong>Featured Image</strong> untuk gambar produk (lihat sidebar kanan) dan isi <strong>Harga Asli</strong> (wajib) dan <strong>Harga Promo</strong> (opsional) di bawah.</p>
         </div>
         <?php
     }
@@ -52,11 +52,20 @@ function inviro_admin_notices() {
         <?php
     }
     
+    // Notice untuk halaman edit paket usaha
+    if ($screen->post_type === 'paket_usaha' && ($screen->base === 'post' || $screen->base === 'post-new')) {
+        ?>
+        <div class="notice notice-info">
+            <p><strong>💡 Tip:</strong> Upload <strong>Featured Image</strong> untuk gambar paket usaha, isi <strong>Harga Asli</strong> (wajib) dan <strong>Harga Promo</strong> (opsional) di sidebar kanan.</p>
+        </div>
+        <?php
+    }
+    
     // Notice untuk halaman edit spareparts
     if ($screen->post_type === 'spareparts' && ($screen->base === 'post' || $screen->base === 'post-new')) {
         ?>
         <div class="notice notice-info">
-            <p><strong>💡 Tip:</strong> Upload <strong>Featured Image</strong> untuk foto spare part, isi <strong>Harga</strong>, <strong>Stok</strong>, dan <strong>SKU</strong> di bawah.</p>
+            <p><strong>💡 Tip:</strong> Upload <strong>Featured Image</strong> untuk foto spare part, isi <strong>Harga Asli</strong> (wajib), <strong>Harga Promo</strong> (opsional), <strong>Stok</strong>, dan <strong>SKU</strong> di bawah.</p>
         </div>
         <?php
     }

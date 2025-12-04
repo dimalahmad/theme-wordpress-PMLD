@@ -120,14 +120,12 @@ function inviro_save_paket_usaha_meta($post_id) {
         });
     }
     
-    // Harga promo opsional
-    if (isset($_POST['paket_price']) && !empty($_POST['paket_price'])) {
+    // Harga promo opsional - jika tidak diisi, simpan 0 (bukan harga asli)
+    if (isset($_POST['paket_price']) && !empty($_POST['paket_price']) && $_POST['paket_price'] > 0) {
         update_post_meta($post_id, '_paket_price', absint($_POST['paket_price']));
     } else {
-        // Jika tidak ada harga promo, gunakan harga asli
-        if (isset($_POST['paket_original_price']) && !empty($_POST['paket_original_price'])) {
-            update_post_meta($post_id, '_paket_price', absint($_POST['paket_original_price']));
-        }
+        // Jika harga promo tidak diisi, simpan 0 agar bisa dibedakan dengan harga asli
+        update_post_meta($post_id, '_paket_price', 0);
     }
     
     if (isset($_POST['paket_promo'])) {

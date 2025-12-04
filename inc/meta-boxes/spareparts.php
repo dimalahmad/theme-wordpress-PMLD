@@ -258,14 +258,12 @@ function inviro_save_sparepart_meta($post_id) {
         });
     }
     
-    // Harga promo opsional
-    if (isset($_POST['sparepart_price']) && !empty($_POST['sparepart_price'])) {
+    // Harga promo opsional - jika tidak diisi, simpan 0 (bukan harga asli)
+    if (isset($_POST['sparepart_price']) && !empty($_POST['sparepart_price']) && $_POST['sparepart_price'] > 0) {
         update_post_meta($post_id, '_sparepart_price', absint($_POST['sparepart_price']));
     } else {
-        // Jika tidak ada harga promo, gunakan harga asli
-        if (isset($_POST['sparepart_original_price']) && !empty($_POST['sparepart_original_price'])) {
-            update_post_meta($post_id, '_sparepart_price', absint($_POST['sparepart_original_price']));
-        }
+        // Jika harga promo tidak diisi, simpan 0 agar bisa dibedakan dengan harga asli
+        update_post_meta($post_id, '_sparepart_price', 0);
     }
     
     if (isset($_POST['sparepart_promo'])) {

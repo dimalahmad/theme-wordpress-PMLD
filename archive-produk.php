@@ -24,10 +24,26 @@ get_header();
             if (have_posts()) :
                 while (have_posts()) :
                     the_post();
-                    $price = get_post_meta(get_the_ID(), '_product_price', true);
-                    $original_price = get_post_meta(get_the_ID(), '_product_original_price', true);
+                    $price_raw = get_post_meta(get_the_ID(), '_product_price', true);
+                    $original_price_raw = get_post_meta(get_the_ID(), '_product_original_price', true);
                     $buy_url = get_post_meta(get_the_ID(), '_product_buy_url', true);
                     $description = get_post_meta(get_the_ID(), '_product_description', true);
+                    
+                    // Bersihkan harga dari format "Rp", titik, koma, dan spasi
+                    $clean_price = function($value) {
+                        if (empty($value) && $value !== '0' && $value !== 0) return 0;
+                        if (is_numeric($value)) {
+                            return absint($value);
+                        }
+                        $cleaned = preg_replace('/[^0-9]/', '', (string)$value);
+                        return !empty($cleaned) ? intval($cleaned) : 0;
+                    };
+                    
+                    $price_promo = $clean_price($price_raw);
+                    $price_original = $clean_price($original_price_raw);
+                    
+                    // Tentukan apakah ada promo (hanya jika harga promo < harga asli)
+                    $is_promo = ($price_promo > 0 && $price_original > 0 && $price_promo < $price_original);
                     
                     // Fallback URL jika tidak diisi
                     if (empty($buy_url)) {
@@ -56,11 +72,23 @@ get_header();
                             <?php endif; ?>
                             
                             <div class="product-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
-                                <?php if ($original_price) : ?>
-                                    <span class="product-original-price"><?php echo esc_html($original_price); ?></span>
-                                <?php endif; ?>
-                                <?php if ($price) : ?>
-                                    <span class="product-current-price" itemprop="price"><?php echo esc_html($price); ?></span>
+                                <?php if ($price_original > 0) : ?>
+                                    <?php if ($is_promo && $price_promo > 0) : ?>
+                                        <div class="product-price-wrapper">
+                                            <span class="product-price-original">Rp <?php echo number_format($price_original, 0, ',', '.'); ?></span>
+                                            <span class="product-price-promo" itemprop="price">Rp <?php echo number_format($price_promo, 0, ',', '.'); ?></span>
+                                        </div>
+                                    <?php else : ?>
+                                        <span class="product-current-price" itemprop="price">
+                                            Rp <?php echo number_format($price_original, 0, ',', '.'); ?>
+                                        </span>
+                                    <?php endif; ?>
+                                <?php elseif ($price_promo > 0) : ?>
+                                    <span class="product-current-price" itemprop="price">
+                                        Rp <?php echo number_format($price_promo, 0, ',', '.'); ?>
+                                    </span>
+                                <?php else : ?>
+                                    <span class="product-current-price">Hubungi Kami</span>
                                 <?php endif; ?>
                             </div>
                             
