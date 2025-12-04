@@ -902,19 +902,37 @@
     .paket-price {
         font-size: 0.85rem;
         font-weight: 700;
+        /* Override gradient untuk mobile */
+        -webkit-text-fill-color: #2F80ED !important;
+        background: none !important;
+        -webkit-background-clip: unset !important;
+        background-clip: unset !important;
+        color: #2F80ED !important;
     }
     
     .paket-price-promo {
         font-size: 0.85rem;
         font-weight: 700;
+        /* Override gradient untuk mobile */
+        -webkit-text-fill-color: #2F80ED !important;
+        background: none !important;
+        -webkit-background-clip: unset !important;
+        background-clip: unset !important;
+        color: #2F80ED !important;
     }
     
     .paket-price-original {
         font-size: 0.7rem;
+        color: #999 !important;
+        text-decoration: line-through !important;
+        opacity: 0.7 !important;
     }
     
     .paket-price-wrapper {
         gap: 3px;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
     }
     
     .paket-actions {
